@@ -1,0 +1,25 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python -m src.train &> data/logs/train.out
+    deps:
+    - path: data/CUB/images/
+      md5: 671f2a16e96c297b59e3eff2929f87f1.dir
+      size: 680128540
+      nfiles: 6033
+    - path: data/CUB/train.json
+      md5: e074c6710e9a62db3a0b5d0a5099aadd
+      size: 11520
+    - path: data/CUB/val.json
+      md5: da8431e02b11b9cd6640c629ab9e1a0f
+      size: 2476
+    - path: src/train.py
+      md5: 03b37a13c536c596f12935e61f1a7095
+      size: 904
+    outs:
+    - path: data/logs/train.out
+      md5: d76e998e22d15b94b5a67f8afaf6a462
+      size: 1989
+    - path: data/models/trained_model.tar
+      md5: df1d8a96096d49744a0c55ac13871079
+      size: 44787033
