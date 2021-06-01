@@ -1,0 +1,11 @@
+stages:
+  train:
+    cmd: python -m src.train &> data/logs/train.out
+    deps:
+      - data/CUB/images/
+      - data/CUB/train.json
+      - data/CUB/val.json
+      - src/train.py
+    outs:
+      - data/models/trained_model.tar
+      - data/logs/train.out
