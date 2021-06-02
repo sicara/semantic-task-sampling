@@ -1,11 +1,12 @@
 import random
+from abc import abstractmethod
 from typing import List, Tuple
 
 import torch
 from torch.utils.data import Sampler, Dataset
 
 
-class TaskSampler(Sampler):
+class AbstractTaskSampler(Sampler):
     """
     Samples batches in the shape of few-shot classification tasks. At each iteration, it will sample
     n_way classes, and then sample support and query images from these classes.
@@ -32,7 +33,7 @@ class TaskSampler(Sampler):
         self.items_per_label = {}
         assert hasattr(
             dataset, "labels"
-        ), "TaskSampler needs a dataset with a field 'label' containing the labels of all images."
+        ), "Task samplers need a dataset with a field 'label' containing the labels of all images."
         for item, label in enumerate(dataset.labels):
             if label in self.items_per_label.keys():
                 self.items_per_label[label].append(item)
@@ -42,20 +43,24 @@ class TaskSampler(Sampler):
     def __len__(self):
         return self.n_tasks
 
+    @abstractmethod
     def __iter__(self):
-        for _ in range(self.n_tasks):
-            yield torch.cat(
-                [
-                    # pylint: disable=not-callable
-                    torch.tensor(
-                        random.sample(
-                            self.items_per_label[label], self.n_shot + self.n_query
-                        )
-                    )
-                    # pylint: enable=not-callable
-                    for label in random.sample(self.items_per_label.keys(), self.n_way)
-                ]
-            )
+        pass
+
+    def _sample_items_from_label(self, label: int) -> torch.Tensor:
+        """
+        Sample images with a defined label.
+        Args:
+            label: label from which to sample items. Must be a key of items_per_label.
+
+        Returns:
+            n_shot + n_query randomly sampled items
+        """
+        # pylint: disable=not-callable
+        return torch.tensor(
+            random.sample(self.items_per_label[label], self.n_shot + self.n_query)
+        )
+        # pylint: enable=not-callable
 
     def episodic_collate_fn(
         self, input_data: List[Tuple[torch.Tensor, int]]
