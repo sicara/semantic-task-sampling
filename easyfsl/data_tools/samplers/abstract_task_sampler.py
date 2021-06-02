@@ -62,6 +62,9 @@ class AbstractTaskSampler(Sampler):
         )
         # pylint: enable=not-callable
 
+    def update(self, confusion_matrix: torch.Tensor):
+        pass
+
     def episodic_collate_fn(
         self, input_data: List[Tuple[torch.Tensor, int]]
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, List[int]]:

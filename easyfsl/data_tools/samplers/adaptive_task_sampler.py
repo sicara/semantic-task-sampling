@@ -1,5 +1,3 @@
-import numpy as np
-
 """
 Chenghao Liu, Zhihao Wang, Doyen Sahoo, Yuan Fang, Kun Zhang, Steven C.H. Hoi
 "Adaptive Task Sampling for Meta-Learning" (2020)
