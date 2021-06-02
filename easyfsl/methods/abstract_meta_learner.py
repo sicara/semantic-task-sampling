@@ -191,6 +191,7 @@ class AbstractMetaLearner(nn.Module):
         optimizer: optim.Optimizer,
         val_loader: DataLoader = None,
         validation_frequency: int = 1000,
+        tqdm_description: str = "Meta-Training",
     ):
         """
         Train the model on few-shot classification tasks.
@@ -200,6 +201,7 @@ class AbstractMetaLearner(nn.Module):
             val_loader: loads data from the validation set in the shape of few-shot classification
                 tasks
             validation_frequency: number of training episodes between two validations
+            tqdm_description: description of the progress bar following training tasks
         """
         log_update_frequency = 10
 
@@ -208,7 +210,7 @@ class AbstractMetaLearner(nn.Module):
 
         self.train()
         with tqdm(
-            enumerate(train_loader), total=len(train_loader), desc="Meta-Training"
+            enumerate(train_loader), total=len(train_loader), desc=tqdm_description
         ) as tqdm_train:
             for episode_index, (
                 support_images,
@@ -264,6 +266,7 @@ class AbstractMetaLearner(nn.Module):
                 optimizer=optimizer,
                 val_loader=val_loader,
                 validation_frequency=len(train_loader),
+                tqdm_description=f"Epoch {epoch}",
             )
 
             train_loader.batch_sampler.update(self.training_confusion_matrix)
