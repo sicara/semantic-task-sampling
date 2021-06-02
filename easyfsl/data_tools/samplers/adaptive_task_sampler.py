@@ -1,3 +1,5 @@
+import numpy as np
+
 """
 Chenghao Liu, Zhihao Wang, Doyen Sahoo, Yuan Fang, Kun Zhang, Steven C.H. Hoi
 "Adaptive Task Sampling for Meta-Learning" (2020)
@@ -55,14 +57,10 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
         self.hardness = hardness
         self.forgetting = forgetting
 
-        self.total_number_of_classes = len(self.items_per_label.keys())
+        self.total_number_of_classes = np.max(list(self.items_per_label.keys())) + 1
 
         self.potential_matrix = fill_diagonal(
             torch.ones((self.total_number_of_classes, self.total_number_of_classes)), 0
-        )
-
-        self.last_confusion_matrix = torch.zeros(
-            (self.total_number_of_classes, self.total_number_of_classes)
         )
 
     def __iter__(self):
@@ -70,7 +68,7 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
             sampled_labels = self._sample_task_labels_from_potential()
 
             yield torch.cat(
-                [self._sample_items_from_label(label) for label in sampled_labels]
+                [self._sample_items_from_label(int(label)) for label in sampled_labels]
             )
 
     def _sample_task_labels_from_potential(self) -> torch.Tensor:
@@ -108,16 +106,15 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
         """
 
         normalized_confusion_matrix = nn.functional.normalize(
-            confusion_matrix - self.last_confusion_matrix, p=1, dim=1
+            confusion_matrix, p=1, dim=1
         )
 
         self.potential_matrix = self.potential_matrix.pow(self.forgetting) * torch.exp(
             self.hardness * compute_biconfusion_matrix(normalized_confusion_matrix)
         )
 
-        self.last_confusion_matrix = confusion_matrix.clone()
-
-    def _sample_label_from_potential(self, potential: torch.Tensor) -> int:
+    @staticmethod
+    def _sample_label_from_potential(potential: torch.Tensor) -> int:
         """
         Randomly sample a new label with the probability distribution obtained from normalized
         label potentials
@@ -127,8 +124,5 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
         Returns:
             int: next sampled label
         """
-        potential_normalized = nn.functional.normalize(potential, p=1, dim=0)
 
-        return np.random.choice(
-            np.arange(self.total_number_of_classes), p=potential_normalized
-        )
+        return int(torch.multinomial(nn.functional.normalize(potential, p=1, dim=0), 1))

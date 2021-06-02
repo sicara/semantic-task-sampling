@@ -3,4 +3,5 @@ dvc==2.2.0
 boto3==1.17.49
 s3fs==2021.5.0
 numpy==1.20.3
+scikit-learn==0.24.2
 -r easyfsl_requirements.txt
