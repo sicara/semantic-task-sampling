@@ -222,6 +222,34 @@ class AbstractMetaLearner(nn.Module):
                     if episode_index + 1 % validation_frequency == 0:
                         self.validate(val_loader)
 
+    def fit_multiple_epochs(
+        self,
+        train_loader: DataLoader,
+        optimizer: optim.Optimizer,
+        n_epochs: int,
+        val_loader: DataLoader = None,
+    ):
+        """
+        Fit on the dataloader for a given number of epochs. This function can be used to update the
+        dataloaders or optimizers between epochs. It is recommended to use a smaller length for the
+        train than when using fit() directly.
+        Using this function, validation will be performed at this end of each epoch.
+        Args:
+            train_loader: loads training data in the shape of few-shot classification tasks
+            optimizer: optimizer to train the model
+            n_epochs: number of training epochs
+            val_loader: loads data from the validation set in the shape of few-shot classification
+                tasks
+
+        """
+        for epoch in range(n_epochs):
+            self.fit(
+                train_loader=train_loader,
+                optimizer=optimizer,
+                val_loader=val_loader,
+                validation_frequency=len(train_loader),
+            )
+
     def validate(self, val_loader: DataLoader) -> float:
         """
         Validate the model on the validation set.
