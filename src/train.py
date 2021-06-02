@@ -28,6 +28,6 @@ model = PrototypicalNetworks(convolutional_network).cuda()
 
 optimizer = Adam(params=model.parameters())
 
-model.fit(train_loader, optimizer)
+model.fit_multiple_epochs(train_loader, optimizer, n_epochs=2)
 
 torch.save(model.state_dict(), Path("./data/models/trained_model.tar"))
