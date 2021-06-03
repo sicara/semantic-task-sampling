@@ -47,7 +47,7 @@ class AbstractTaskSampler(Sampler):
     def __iter__(self):
         pass
 
-    def _sample_items_from_label(self, label: int) -> torch.Tensor:
+    def sample_items_from_label(self, label: int) -> torch.Tensor:
         """
         Sample images with a defined label.
         Args:

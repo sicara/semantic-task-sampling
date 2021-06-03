@@ -66,7 +66,7 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
             sampled_labels = self._sample_task_labels_from_potential()
 
             yield torch.cat(
-                [self._sample_items_from_label(int(label)) for label in sampled_labels]
+                [self.sample_items_from_label(int(label)) for label in sampled_labels]
             )
 
     def _sample_task_labels_from_potential(self) -> torch.Tensor:

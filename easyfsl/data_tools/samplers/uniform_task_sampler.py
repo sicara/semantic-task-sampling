@@ -15,7 +15,7 @@ class UniformTaskSampler(AbstractTaskSampler):
         for _ in range(self.n_tasks):
             yield torch.cat(
                 [
-                    self._sample_items_from_label(label)
+                    self.sample_items_from_label(label)
                     for label in random.sample(self.items_per_label.keys(), self.n_way)
                 ]
             )
