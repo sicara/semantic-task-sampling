@@ -1,7 +1,9 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
+import numpy as np
+from sklearn import metrics
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
@@ -25,6 +27,9 @@ class AbstractMetaLearner(nn.Module):
 
         self.best_validation_accuracy = 0.0
         self.best_model_state = None
+
+        self.training_tasks_record = []
+        self.training_confusion_matrix = None
 
     # pylint: disable=all
     @abstractmethod
@@ -148,6 +153,7 @@ class AbstractMetaLearner(nn.Module):
         support_labels: torch.Tensor,
         query_images: torch.Tensor,
         query_labels: torch.Tensor,
+        true_class_ids: List[int],
         optimizer: optim.Optimizer,
     ) -> float:
         """
@@ -157,6 +163,7 @@ class AbstractMetaLearner(nn.Module):
             support_labels: labels of support set images (used in the forward pass)
             query_images: query set images
             query_labels: labels of query set images (only used for loss computation)
+            true_class_ids: the ids (in the dataset) of the classes present in the task
             optimizer: optimizer to train the model
 
         Returns:
@@ -165,6 +172,12 @@ class AbstractMetaLearner(nn.Module):
         optimizer.zero_grad()
         self.process_support_set(support_images.cuda(), support_labels.cuda())
         classification_scores = self(query_images.cuda())
+
+        task_confusion_matrix = self.compute_task_confusion_matrix(
+            query_labels, classification_scores
+        )
+        self.update_training_tasks_record(true_class_ids, task_confusion_matrix)
+        self.update_training_confusion(true_class_ids, task_confusion_matrix)
 
         loss = self.compute_loss(classification_scores, query_labels.cuda())
         loss.backward()
@@ -178,6 +191,7 @@ class AbstractMetaLearner(nn.Module):
         optimizer: optim.Optimizer,
         val_loader: DataLoader = None,
         validation_frequency: int = 1000,
+        tqdm_description: str = "Meta-Training",
     ):
         """
         Train the model on few-shot classification tasks.
@@ -187,26 +201,30 @@ class AbstractMetaLearner(nn.Module):
             val_loader: loads data from the validation set in the shape of few-shot classification
                 tasks
             validation_frequency: number of training episodes between two validations
+            tqdm_description: description of the progress bar following training tasks
         """
         log_update_frequency = 10
 
         all_loss = []
+        self.initialize_training_confusion(train_loader)
+
         self.train()
         with tqdm(
-            enumerate(train_loader), total=len(train_loader), desc="Meta-Training"
+            enumerate(train_loader), total=len(train_loader), desc=tqdm_description
         ) as tqdm_train:
             for episode_index, (
                 support_images,
                 support_labels,
                 query_images,
                 query_labels,
-                _,
+                true_class_ids,
             ) in tqdm_train:
                 loss_value = self.fit_on_task(
                     support_images,
                     support_labels,
                     query_images,
                     query_labels,
+                    true_class_ids,
                     optimizer,
                 )
                 all_loss.append(loss_value)
@@ -221,6 +239,37 @@ class AbstractMetaLearner(nn.Module):
                 if val_loader:
                     if episode_index + 1 % validation_frequency == 0:
                         self.validate(val_loader)
+
+    def fit_multiple_epochs(
+        self,
+        train_loader: DataLoader,
+        optimizer: optim.Optimizer,
+        n_epochs: int,
+        val_loader: DataLoader = None,
+    ):
+        """
+        Fit on the dataloader for a given number of epochs. This function can be used to update the
+        dataloaders or optimizers between epochs. It is recommended to use a smaller length for the
+        train than when using fit() directly.
+        Using this function, validation will be performed at this end of each epoch.
+        Args:
+            train_loader: loads training data in the shape of few-shot classification tasks
+            optimizer: optimizer to train the model
+            n_epochs: number of training epochs
+            val_loader: loads data from the validation set in the shape of few-shot classification
+                tasks
+
+        """
+        for epoch in range(n_epochs):
+            self.fit(
+                train_loader=train_loader,
+                optimizer=optimizer,
+                val_loader=val_loader,
+                validation_frequency=len(train_loader),
+                tqdm_description=f"Epoch {epoch}",
+            )
+
+            train_loader.batch_sampler.update(self.training_confusion_matrix)
 
     def validate(self, val_loader: DataLoader) -> float:
         """
@@ -270,3 +319,70 @@ class AbstractMetaLearner(nn.Module):
         """
         self._check_that_best_state_is_defined()
         torch.save(self.best_model_state, output_path)
+
+    @staticmethod
+    def compute_task_confusion_matrix(ground_truth_labels, classification_scores):
+        """
+        Compute the task-level confusion matrix, of shape (n_way, n_way), from the model's
+        predictions in one task.
+        Args:
+            ground_truth_labels: ground truth labels
+            classification_scores: model's prediction
+
+        Returns:
+            task-level confusion matrix
+        """
+        return torch.tensor(
+            metrics.confusion_matrix(
+                ground_truth_labels.cpu(), classification_scores.argmax(dim=1).cpu()
+            )
+        )
+
+    def initialize_training_confusion(self, train_loader: DataLoader):
+        """
+        Initialize the training confusion matrix as a square 2-dim tensor. Its size is the total
+        number of classes in the dataset delivered by the train loader.
+        Args:
+            train_loader: training data loader
+        """
+        total_number_of_classes = np.max(train_loader.dataset.labels) + 1
+        self.training_confusion_matrix = torch.zeros(
+            (total_number_of_classes, total_number_of_classes)
+        )
+
+    def update_training_tasks_record(
+        self,
+        true_class_ids: List[int],
+        task_confusion_matrix: torch.Tensor,
+    ):
+        """
+        Record the true class ids and the task-level confusion matrix of a given task.
+        Args:
+            true_class_ids: the ids (in the dataset) of the classes present in the task
+            task_confusion_matrix: task-level confusion matrix of shape (n_way, n_way)
+        """
+
+        self.training_tasks_record.append(
+            {
+                "true_class_ids": true_class_ids,
+                "task_confusion_matrix": task_confusion_matrix,
+            }
+        )
+
+    def update_training_confusion(
+        self,
+        true_class_ids: List[int],
+        task_confusion_matrix: torch.Tensor,
+    ):
+        """
+        Update the global training confusion matrix from a task-level confusion matrix
+        Args:
+            true_class_ids: the ids (in the dataset) of the classes present in the task
+            task_confusion_matrix: task-level confusion matrix of shape (n_way, n_way)
+        """
+
+        for (local_label1, true_label1) in enumerate(true_class_ids):
+            for (local_label2, true_label2) in enumerate(true_class_ids):
+                self.training_confusion_matrix[
+                    true_label1, true_label2
+                ] += task_confusion_matrix[local_label1, local_label2]

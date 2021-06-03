@@ -6,11 +6,12 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 
-from easyfsl.data_tools import EasySet, TaskSampler
+from easyfsl.data_tools import EasySet
+from easyfsl.data_tools.samplers import UniformTaskSampler
 from easyfsl.methods import PrototypicalNetworks
 
 train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
-train_sampler = TaskSampler(
+train_sampler = UniformTaskSampler(
     train_set, n_way=5, n_shot=5, n_query=10, n_tasks=20
 )
 train_loader = DataLoader(
@@ -27,6 +28,6 @@ model = PrototypicalNetworks(convolutional_network).cuda()
 
 optimizer = Adam(params=model.parameters())
 
-model.fit(train_loader, optimizer)
+model.fit_multiple_epochs(train_loader, optimizer, n_epochs=2)
 
 torch.save(model.state_dict(), Path("./data/models/trained_model.tar"))

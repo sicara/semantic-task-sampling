@@ -61,6 +61,19 @@ def compute_backbone_output_shape(backbone: nn.Module) -> Tuple[int]:
     return tuple(output.shape[1:])
 
 
+def compute_biconfusion_matrix(confusion_matrix: torch.Tensor) -> torch.Tensor:
+    """
+    The biconfusion matrix is typically used to measure the hardness of the discrimination task between two classes.
+        Element (i,j) corresponds to the number of missclassifications between classes i and j, regardless of the
+        direction (i to j or j to i).
+    Args:
+        confusion_matrix: a 2-dimentional square matrix
+    Returns:
+        a 2-dimentional symmetric square matrix of the same shape as confusion_matrix.
+    """
+    return fill_diagonal(confusion_matrix + confusion_matrix.T, 0)
+
+
 def compute_prototypes(
     support_features: torch.Tensor, support_labels: torch.Tensor
 ) -> torch.Tensor:
@@ -81,4 +94,28 @@ def compute_prototypes(
             support_features[torch.nonzero(support_labels == label)].mean(0)
             for label in range(n_way)
         ]
+    )
+
+
+def fill_diagonal(square_tensor: torch.Tensor, scalar: float) -> torch.Tensor:
+    """
+    Fill the input tensor diagonal with a scalar value.
+    Args:
+        square_tensor: input tensor. Must be 2-dim and square
+        scalar: value with which to fill the diagonal
+
+    Returns:
+        input tensor with diagonal filled with the scalar value
+
+    Raises:
+        ValueError: if the input tensor is not 2-dim or not square
+    """
+    if (
+        len(square_tensor.shape) != 2
+        or square_tensor.shape[0] != square_tensor.shape[1]
+    ):
+        raise ValueError("Input tensor must be a 2-dim square tensor.")
+
+    return square_tensor.masked_fill(
+        torch.eye(square_tensor.shape[0], dtype=torch.bool), scalar
     )
