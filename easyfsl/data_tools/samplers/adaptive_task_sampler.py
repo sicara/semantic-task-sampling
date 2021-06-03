@@ -61,15 +61,23 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
             torch.ones((self.total_number_of_classes, self.total_number_of_classes)), 0
         )
 
-    def __iter__(self):
-        for _ in range(self.n_tasks):
-            sampled_labels = self._sample_task_labels_from_potential()
+    def update(self, confusion_matrix: torch.Tensor):
+        """
+        Updates the potential matrix using the new confusion matrix, and store the last-to-date
+        confusion matrix
+        Args:
+            confusion_matrix: confusion matrix updated from the last episodes
+        """
 
-            yield torch.cat(
-                [self.sample_items_from_label(int(label)) for label in sampled_labels]
-            )
+        normalized_confusion_matrix = nn.functional.normalize(
+            confusion_matrix, p=1, dim=1
+        )
 
-    def _sample_task_labels_from_potential(self) -> torch.Tensor:
+        self.potential_matrix = self.potential_matrix.pow(self.forgetting) * torch.exp(
+            self.hardness * compute_biconfusion_matrix(normalized_confusion_matrix)
+        )
+
+    def _sample_labels(self) -> torch.Tensor:
         """
         Iteratively sample task labels with a probability proportional to their potential given
         previously sampled labels, in a greedy fashion.
@@ -94,22 +102,6 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
         # pylint: disable=not-callable
         return torch.tensor(to_yield)
         # pylint: enable=not-callable
-
-    def update(self, confusion_matrix: torch.Tensor):
-        """
-        Updates the potential matrix using the new confusion matrix, and store the last-to-date
-        confusion matrix
-        Args:
-            confusion_matrix: confusion matrix updated from the last episodes
-        """
-
-        normalized_confusion_matrix = nn.functional.normalize(
-            confusion_matrix, p=1, dim=1
-        )
-
-        self.potential_matrix = self.potential_matrix.pow(self.forgetting) * torch.exp(
-            self.hardness * compute_biconfusion_matrix(normalized_confusion_matrix)
-        )
 
     @staticmethod
     def _sample_label_from_potential(potential: torch.Tensor) -> int:

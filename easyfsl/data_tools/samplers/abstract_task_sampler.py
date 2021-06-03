@@ -43,11 +43,24 @@ class AbstractTaskSampler(Sampler):
     def __len__(self):
         return self.n_tasks
 
-    @abstractmethod
     def __iter__(self):
-        pass
+        for _ in range(self.n_tasks):
+            yield torch.cat(
+                [
+                    self._sample_items_from_label(int(label))
+                    for label in self._sample_labels()
+                ]
+            )
 
-    def sample_items_from_label(self, label: int) -> torch.Tensor:
+    @abstractmethod
+    def _sample_labels(self) -> torch.Tensor:
+        """
+        Specific to each sampler.
+        Returns:
+            1-dim tensor of sampled labels (integers)
+        """
+
+    def _sample_items_from_label(self, label: int) -> torch.Tensor:
         """
         Sample images with a defined label.
         Args:
