@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 from torchvision import transforms
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 from easyfsl.data_tools.dag_utils import build_wordnet_dag, reduce_to_leaves
 
@@ -229,7 +230,7 @@ class EasySet(Dataset):
         """
         distances = np.zeros((len(self.class_names), len(self.class_names)))
 
-        for class_a in range(len(self.class_names)):
+        for class_a in tqdm(range(len(self.class_names)), unit="classes"):
             for class_b in range(class_a, len(self.class_names)):
                 distances[class_a, class_b] = self.get_semantic_distance(
                     semantic_dag, class_a, class_b

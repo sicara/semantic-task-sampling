@@ -7,6 +7,7 @@ from torch.utils.data import Dataset
 
 from easyfsl.data_tools.samplers import AbstractTaskSampler
 from easyfsl.data_tools.samplers.utils import sample_label_from_potential
+from easyfsl.utils import fill_diagonal
 
 
 class SemanticTaskSampler(AbstractTaskSampler):
@@ -49,9 +50,9 @@ class SemanticTaskSampler(AbstractTaskSampler):
             n_tasks=n_tasks,
         )
 
-        self.distances = torch.tensor(pd.read_csv(semantic_distances_csv).values)
+        self.distances = torch.tensor(pd.read_csv(semantic_distances_csv, header=None).values)
 
-        self.potential_matrix = torch.exp(-alpha * self.distances)
+        self.potential_matrix = fill_diagonal(torch.exp(-alpha * self.distances), 0)
 
     def _sample_labels(self) -> torch.Tensor:
         """
@@ -60,7 +61,7 @@ class SemanticTaskSampler(AbstractTaskSampler):
         Returns:
             1-dim tensor of sampled labels
         """
-        to_yield = [random.sample(self.items_per_label.keys(), 1)]
+        to_yield = random.sample(self.items_per_label.keys(), 1)
 
         potential = self.potential_matrix[to_yield[0]]
 
