@@ -11,9 +11,7 @@ from easyfsl.data_tools.samplers import UniformTaskSampler
 from easyfsl.methods import PrototypicalNetworks
 
 train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
-train_sampler = UniformTaskSampler(
-    train_set, n_way=5, n_shot=5, n_query=10, n_tasks=20
-)
+train_sampler = UniformTaskSampler(train_set, n_way=5, n_shot=5, n_query=10, n_tasks=20)
 train_loader = DataLoader(
     train_set,
     batch_sampler=train_sampler,

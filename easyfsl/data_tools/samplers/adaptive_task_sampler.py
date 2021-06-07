@@ -10,6 +10,7 @@ from torch import nn
 from torch.utils.data import Dataset
 
 from easyfsl.data_tools.samplers import AbstractTaskSampler
+from easyfsl.data_tools.samplers.utils import sample_label_from_potential
 from easyfsl.utils import fill_diagonal, compute_biconfusion_matrix
 
 
@@ -91,28 +92,14 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
             1-dim tensor of sampled labels
         """
         potential = self.potential_matrix.sum(dim=1)
-        to_yield = [self._sample_label_from_potential(potential)]
+        to_yield = [sample_label_from_potential(potential)]
 
         potential = self.potential_matrix[to_yield[0]]
 
         for _ in range(1, self.n_way):
-            to_yield.append(self._sample_label_from_potential(potential))
+            to_yield.append(sample_label_from_potential(potential))
             potential = potential * self.potential_matrix[to_yield[-1]]
 
         # pylint: disable=not-callable
         return torch.tensor(to_yield)
         # pylint: enable=not-callable
-
-    @staticmethod
-    def _sample_label_from_potential(potential: torch.Tensor) -> int:
-        """
-        Randomly sample a new label with the probability distribution obtained from normalized
-        label potentials
-        Args:
-            potential: the current potentials for to-be-sampled labels, given already-sampled
-                labels of this episode
-        Returns:
-            int: next sampled label
-        """
-
-        return int(torch.multinomial(nn.functional.normalize(potential, p=1, dim=0), 1))
