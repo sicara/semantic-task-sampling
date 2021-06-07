@@ -3,13 +3,9 @@ from pathlib import Path
 from typing import List, Union
 
 from PIL import Image
-import networkx as nx
-import numpy as np
 from torchvision import transforms
 from torch.utils.data import Dataset
-from tqdm import tqdm
 
-from easyfsl.data_tools.dag_utils import build_wordnet_dag, reduce_to_leaves
 
 NORMALIZE_DEFAULT = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
@@ -159,81 +155,3 @@ class EasySet(Dataset):
 
     def __len__(self) -> int:
         return len(self.labels)
-
-    def get_semantic_dag(self, path_to_wordnet: Path) -> nx.DiGraph:
-        """
-        Get the Directed Acyclic Graph where the leafs are the classes of the dataset, and that
-        defines the semantic hierarchy of classes following the Wordnet hierarchy.
-        Args:
-        path_to_wordnet: path to a txt file where each line contains an edge
-            (parent class, child class) of the Wordnet hierarchy.
-        Returns:
-            the semantic directed acyclic graph
-        """
-        wordnet_dag = build_wordnet_dag(path_to_wordnet)
-
-        return reduce_to_leaves(wordnet_dag, self.class_names)
-
-    def get_semantic_distance(
-        self, semantic_dag: nx.DiGraph, class_a: int, class_b: int
-    ) -> float:
-        """
-        Compute the Jiang and Conrath semantic distance between two classes of the dataset.
-        It is defined as 2 log(C) - (log(A) + log(B)) where A (resp. B) is the number of images
-        with label class_a (resp. class_b) in the dataset, and C is the number of images which label
-        is a descendant of the lowest common ancestor of class_a and class_b in the semantic DAG.
-        Note that the function is symmetric between class_a and class_b.
-        Args:
-            semantic_dag: Directed Acyclic Graph (DAG) where the leaves are the class of the dataset
-            class_a: first class
-            class_b: second class
-        Returns:
-            the Jiang and COnrath distance between class_a and class_b
-        """
-        if class_a == class_b:
-            return 0.0
-
-        lowest_common_ancestor = nx.lowest_common_ancestor(
-            semantic_dag, self.class_names[class_a], self.class_names[class_b]
-        )
-        spanned = [
-            node
-            for node in nx.algorithms.dag.descendants(
-                semantic_dag, lowest_common_ancestor
-            )
-            if semantic_dag.out_degree[node] == 0
-        ]
-
-        population_common_ancestor = sum(
-            [self.labels.count(self.class_names.index(leave)) for leave in spanned]
-        )
-
-        population_a = self.labels.count(class_a)
-        population_b = self.labels.count(class_b)
-
-        return 2 * np.log(population_common_ancestor) - (
-            np.log(population_a) + np.log(population_b)
-        )
-
-    def get_semantic_distance_matrix(self, semantic_dag: nx.DiGraph) -> np.ndarray:
-        """
-        Compute the Jiang and Conrath semantic distance between all classes of the dataset.
-        The distance between class_a and class_b is defined as 2 log(C) - (log(A) + log(B)) where
-        A (resp. B) is the number of images with label class_a (resp. class_b) in the dataset,
-        and C is the number of images which label is a descendant of the lowest common ancestor of
-        class_a and class_b in the semantic DAG.
-        Args:
-            semantic_dag: Directed Acyclic Graph (DAG) where the leaves are the class of the dataset
-        Returns:
-            symmetric square matrix of floats. Value at (i,j) is the semantic distance between
-                classes i and j
-        """
-        distances = np.zeros((len(self.class_names), len(self.class_names)))
-
-        for class_a in tqdm(range(len(self.class_names)), unit="classes"):
-            for class_b in range(class_a, len(self.class_names)):
-                distances[class_a, class_b] = self.get_semantic_distance(
-                    semantic_dag, class_a, class_b
-                )
-
-        return distances + distances.T

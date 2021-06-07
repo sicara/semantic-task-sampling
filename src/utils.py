@@ -10,6 +10,6 @@ def plot_dag(dag: nx.DiGraph):
     Args:
         dag: input directed acyclic graph
     """
-    pos = graphviz_layout(dag, prog='dot')
+    pos = graphviz_layout(dag, prog="dot")
     nx.draw(dag, pos, with_labels=False, node_size=10, arrows=False)
     plt.show()

@@ -50,7 +50,9 @@ class SemanticTaskSampler(AbstractTaskSampler):
             n_tasks=n_tasks,
         )
 
-        self.distances = torch.tensor(pd.read_csv(semantic_distances_csv, header=None).values)
+        self.distances = torch.tensor(
+            pd.read_csv(semantic_distances_csv, header=None).values
+        )
 
         self.potential_matrix = fill_diagonal(torch.exp(-alpha * self.distances), 0)
 
