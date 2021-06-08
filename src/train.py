@@ -7,11 +7,19 @@ from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import UniformTaskSampler
+from easyfsl.data_tools.samplers import SemanticTaskSampler
 from easyfsl.methods import PrototypicalNetworks
 
-train_set = EasySet(specs_file="./data/CUB/train.json", training=True)
-train_sampler = UniformTaskSampler(train_set, n_way=5, n_shot=5, n_query=10, n_tasks=20)
+train_set = EasySet(specs_file="./data/tiered_imagenet/train.json", training=True)
+train_sampler = SemanticTaskSampler(
+    train_set,
+    n_way=5,
+    n_shot=5,
+    n_query=10,
+    n_tasks=20,
+    alpha=0.5,
+    semantic_distances_csv=Path("data/tiered_imagenet/train_semantic_distances.csv"),
+)
 train_loader = DataLoader(
     train_set,
     batch_sampler=train_sampler,
