@@ -1,3 +1,4 @@
+import pandas as pd
 from abc import abstractmethod
 from pathlib import Path
 from typing import Union, List
@@ -9,7 +10,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from easyfsl.utils import sliding_average, compute_backbone_output_shape
+from easyfsl.utils import sliding_average, compute_backbone_output_shape, get_task_perf
 
 
 class AbstractMetaLearner(nn.Module):
@@ -89,7 +90,27 @@ class AbstractMetaLearner(nn.Module):
             == query_labels.cuda()
         ).sum().item(), len(query_labels)
 
-    def evaluate(self, data_loader: DataLoader) -> float:
+    def infer_on_one_task(
+        self,
+        support_images: torch.Tensor,
+        support_labels: torch.Tensor,
+        query_images: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        Predict the labels of query images given a few labelled support examples.
+        Args:
+            support_images: images of the support set
+            support_labels: labels of support set images
+            query_images: images of the query set
+        Returns:
+            classification scores of shape (number_of_query_images, n_way)
+        """
+
+        self.process_support_set(support_images.cuda(), support_labels.cuda())
+
+        return self(query_images.cuda()).detach()
+
+    def evaluate(self, data_loader: DataLoader) -> pd.DataFrame:
         """
         Evaluate the model on few-shot classification tasks
         Args:
@@ -97,9 +118,7 @@ class AbstractMetaLearner(nn.Module):
         Returns:
             average classification accuracy
         """
-        # We'll count everything and compute the ratio at the end
-        total_predictions = 0
-        correct_predictions = 0
+        list_of_task_perfs = []
 
         # eval mode affects the behaviour of some layers (such as batch normalization or dropout)
         # no_grad() tells torch not to keep in memory the whole computational graph
@@ -108,26 +127,23 @@ class AbstractMetaLearner(nn.Module):
             with tqdm(
                 enumerate(data_loader), total=len(data_loader), desc="Evaluation"
             ) as tqdm_eval:
-                for _, (
+                for task_id, (
                     support_images,
                     support_labels,
                     query_images,
                     query_labels,
-                    _,
+                    true_class_ids,
                 ) in tqdm_eval:
-                    correct, total = self.evaluate_on_one_task(
-                        support_images, support_labels, query_images, query_labels
+                    predicted_scores = self.infer_on_one_task(
+                        support_images, support_labels, query_images
+                    )
+                    list_of_task_perfs.append(
+                        get_task_perf(
+                            task_id, predicted_scores, query_labels, true_class_ids
+                        )
                     )
 
-                    total_predictions += total
-                    correct_predictions += correct
-
-                    # Log accuracy in real time
-                    tqdm_eval.set_postfix(
-                        accuracy=correct_predictions / total_predictions
-                    )
-
-        return correct_predictions / total_predictions
+        return pd.concat(list_of_task_perfs, ignore_index=True)
 
     def compute_loss(
         self, classification_scores: torch.Tensor, query_labels: torch.Tensor
