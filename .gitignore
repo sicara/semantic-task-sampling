@@ -133,7 +133,3 @@ dmypy.json
 
 # data
 data/CUB/images
-data/omniglot-py
-data/tiered_imagenet/*.csv
-*.tgz
-*.tar
