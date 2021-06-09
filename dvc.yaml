@@ -1,11 +1,69 @@
+vars:
+  - dataset:
+      root_dir: data/tiered_imagenet
+      specs_folder: specs
+      distances_folder: distances
+      models_folder: models
+      metrics_folder: metrics
+
 stages:
+  compute_distances:
+    foreach:
+      - train
+      - test
+    do:
+      cmd: python -m src.compute_semantic_distances
+        --split ${item}
+        --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+        --output-dir ${dataset.root_dir}/${dataset.distances_folder}
+        &> ${dataset.root_dir}/logs/compute_${item}_distances.out
+      deps:
+        - ${dataset.root_dir}/${dataset.specs_folder}/${item}.json
+        - ${dataset.root_dir}/${dataset.specs_folder}/wordnet.is_a.txt
+        - src/compute_semantic_distances.py
+      outs:
+        - ${dataset.root_dir}/logs/compute_${item}_distances.out
+        - ${dataset.root_dir}/${dataset.distances_folder}/${item}.csv
+
   train:
-    cmd: python -m src.train &> data/logs/train.out
+    cmd: python -m src.train
+      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+      --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+      &> ${dataset.root_dir}/logs/train.out
     deps:
-      - data/CUB/images/
-      - data/CUB/train.json
-      - data/CUB/val.json
+      - ${dataset.root_dir}/${dataset.specs_folder}/train.json
+      - ${dataset.root_dir}/${dataset.specs_folder}/val.json
+      - ${dataset.root_dir}/${dataset.distances_folder}/train.csv
       - src/train.py
     outs:
-      - data/models/trained_model.tar
-      - data/logs/train.out
+      - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+      - ${dataset.root_dir}/logs/train.out
+
+  evaluate:
+    cmd: python -m src.evaluate
+      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+      --trained-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+      --output-dir ${dataset.root_dir}/${dataset.metrics_folder}
+      &> ${dataset.root_dir}/logs/evaluate.out
+    deps:
+      - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+      - ${dataset.root_dir}/${dataset.specs_folder}/test.json
+      - src/evaluate.py
+    outs:
+      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
+      - ${dataset.root_dir}/logs/evaluate.out
+
+  compute_metrics:
+    cmd: python -m src.compute_metrics
+      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}
+      &> ${dataset.root_dir}/logs/compute_metrics.out
+    deps:
+      - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
+      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
+      - src/compute_metrics.py
+    outs:
+      - ${dataset.root_dir}/${dataset.metrics_folder}/task_performances.csv
+      - ${dataset.root_dir}/${dataset.metrics_folder}/accuracy_v_task_class_distance.png
+      - ${dataset.root_dir}/logs/compute_metrics.out

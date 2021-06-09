@@ -7,6 +7,7 @@ from typing import List, Tuple
 import torchvision
 from matplotlib import pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 from torch import nn
 
@@ -118,4 +119,43 @@ def fill_diagonal(square_tensor: torch.Tensor, scalar: float) -> torch.Tensor:
 
     return square_tensor.masked_fill(
         torch.eye(square_tensor.shape[0], dtype=torch.bool), scalar
+    )
+
+
+def get_task_perf(
+    task_id: int,
+    classification_scores: torch.Tensor,
+    labels: torch.Tensor,
+    class_ids: List[int],
+):
+    """
+    Records the classification results for each query instance.
+    Args:
+        task_id: index of the task
+        classification_scores: predicted classification scores
+        labels: ground truth labels in [0, n_way]
+        class_ids: indices (in the full dataset) of the classes composing the current
+            classification task
+    Returns:
+        pd.DataFrame: for each couple (query, class_id), gives classification score, class_id,
+            ground truth query label, current task id
+    """
+    classification_scores = classification_scores.cpu()
+
+    return pd.concat(
+        [
+            pd.DataFrame(
+                {
+                    "task_id": task_id,
+                    "image_id": i,
+                    "true_label": class_ids[labels[i]],
+                    "predicted_label": [
+                        class_ids[label]
+                        for label in range(classification_scores.shape[1])
+                    ],
+                    "score": classification_scores[i],
+                }
+            )
+            for i in range(labels.shape[0])
+        ]
     )
