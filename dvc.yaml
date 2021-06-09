@@ -29,6 +29,7 @@ stages:
     cmd: python -m src.train
       --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
       --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}
       --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
       &> ${dataset.root_dir}/logs/train.out
     deps:
@@ -38,6 +39,7 @@ stages:
       - src/train.py
     outs:
       - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+      - ${dataset.root_dir}/${dataset.metrics_folder}/training_tasks.pkl
       - ${dataset.root_dir}/logs/train.out
 
   evaluate:

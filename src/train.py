@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 
 import click
@@ -26,13 +27,19 @@ from easyfsl.methods import PrototypicalNetworks
     required=True,
 )
 @click.option(
+    "--metrics-dir",
+    help="Where to find and dump evaluation metrics",
+    type=Path,
+    required=True,
+)
+@click.option(
     "--output-model",
     help="Where to dump the archive containing trained model weights",
     type=Path,
     required=True,
 )
 @click.command()
-def main(specs_dir: Path, distances_dir: Path, output_model: Path):
+def main(specs_dir: Path, distances_dir: Path, metrics_dir: Path, output_model: Path):
     logger.info("Fetching training data...")
     train_set = EasySet(specs_file=specs_dir / "train.json", training=True)
     train_sampler = SemanticTaskSampler(
@@ -60,7 +67,13 @@ def main(specs_dir: Path, distances_dir: Path, output_model: Path):
     optimizer = Adam(params=model.parameters())
 
     logger.info("Starting training...")
-    model.fit_multiple_epochs(train_loader, optimizer, n_epochs=2)
+    training_tasks_record = model.fit_multiple_epochs(
+        train_loader, optimizer, n_epochs=2
+    )
+
+    record_dump_path = metrics_dir / "training_tasks.pkl"
+    pickle.dump(training_tasks_record, open(record_dump_path, "wb"))
+    logger.info(f"Training tasks record dumped at {record_dump_path}")
 
     torch.save(model.state_dict(), output_model)
     logger.info(f"Trained model weights dumped at {output_model}")
