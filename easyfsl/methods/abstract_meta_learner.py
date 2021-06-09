@@ -1,7 +1,7 @@
 import pandas as pd
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Dict
 
 import numpy as np
 from sklearn import metrics
@@ -262,7 +262,7 @@ class AbstractMetaLearner(nn.Module):
         optimizer: optim.Optimizer,
         n_epochs: int,
         val_loader: DataLoader = None,
-    ):
+    ) -> List[Dict]:
         """
         Fit on the dataloader for a given number of epochs. This function can be used to update the
         dataloaders or optimizers between epochs. It is recommended to use a smaller length for the
@@ -274,7 +274,10 @@ class AbstractMetaLearner(nn.Module):
             n_epochs: number of training epochs
             val_loader: loads data from the validation set in the shape of few-shot classification
                 tasks
-
+        Returns:
+            list of information about training tasks. For each training task:
+                the list of true class ids
+                the task-level confusion matrix (torch.Tensor)
         """
         for epoch in range(n_epochs):
             self.fit(
@@ -286,6 +289,8 @@ class AbstractMetaLearner(nn.Module):
             )
 
             train_loader.batch_sampler.update(self.training_confusion_matrix)
+
+        return self.training_tasks_record
 
     def validate(self, val_loader: DataLoader) -> float:
         """
