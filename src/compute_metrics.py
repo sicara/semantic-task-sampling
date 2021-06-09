@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 
 import click
@@ -25,11 +26,8 @@ def main(distances_dir: Path, metrics_dir: Path):
     results = pd.read_csv(metrics_dir / "raw_results.csv", index_col=0)
     distances = pd.read_csv(distances_dir / "test.csv", header=None).values
 
-    def median_class_distance(x):
-        return get_median_distance(x, distances)
-
-    def std_class_distance(x):
-        return get_distance_std(x, distances)
+    median_class_distance = partial(get_median_distance, distances=distances)
+    std_class_distance = partial(get_distance_std, distances=distances)
 
     statistics = (
         results.groupby("task_id")

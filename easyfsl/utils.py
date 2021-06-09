@@ -123,18 +123,18 @@ def fill_diagonal(square_tensor: torch.Tensor, scalar: float) -> torch.Tensor:
 
 
 def get_task_perf(
-    task_id,
-    classification_scores,
-    labels,
-    class_ids,
+    task_id: int,
+    classification_scores: torch.Tensor,
+    labels: torch.Tensor,
+    class_ids: List[int],
 ):
     """
     Records the classification results for each query instance.
     Args:
-        task_id (int): index of the task
-        classification_scores (torch.Tensor): predicted classification scores
-        labels (torch.Tensor): ground truth labels in [0, n_way]
-        class_ids (list[int]): indices (in the full dataset) of the classes composing the current
+        task_id: index of the task
+        classification_scores: predicted classification scores
+        labels: ground truth labels in [0, n_way]
+        class_ids: indices (in the full dataset) of the classes composing the current
             classification task
     Returns:
         pd.DataFrame: for each couple (query, class_id), gives classification score, class_id,
