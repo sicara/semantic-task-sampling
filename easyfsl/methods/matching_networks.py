@@ -19,7 +19,7 @@ class MatchingNetworks(AbstractMetaLearner):
     query labels using their cosine similarity to support images.
     """
 
-    def __init__(self, *args):
+    def __init__(self, **kwargs):
         """
         Build Matching Networks by calling the constructor of AbstractMetaLearner.
 
@@ -27,7 +27,7 @@ class MatchingNetworks(AbstractMetaLearner):
             ValueError: if the backbone is not a feature extractor,
             i.e. if its output for a given image is not a 1-dim tensor.
         """
-        super().__init__(*args)
+        super().__init__(**kwargs)
 
         if len(self.backbone_output_shape) != 1:
             raise ValueError(

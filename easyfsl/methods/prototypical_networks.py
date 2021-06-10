@@ -20,7 +20,7 @@ class PrototypicalNetworks(AbstractMetaLearner):
     classification scores for query images based on their euclidean distance to the prototypes.
     """
 
-    def __init__(self, *args):
+    def __init__(self, **kwargs):
         """
         Build Prototypical Networks by calling the constructor of AbstractMetaLearner.
 
@@ -28,7 +28,7 @@ class PrototypicalNetworks(AbstractMetaLearner):
             ValueError: if the backbone is not a feature extractor,
             i.e. if its output for a given image is not a 1-dim tensor.
         """
-        super().__init__(*args)
+        super().__init__(**kwargs)
 
         if len(self.backbone_output_shape) != 1:
             raise ValueError(

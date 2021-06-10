@@ -29,7 +29,7 @@ class RelationNetworks(AbstractMetaLearner):
     operations are forbidden.
     """
 
-    def __init__(self, *args, inner_relation_module_channels: int = 8):
+    def __init__(self, inner_relation_module_channels: int = 8, **kwargs):
         """
         Build Relation Networks by calling the constructor of AbstractMetaLearner.
         Args:
@@ -41,7 +41,7 @@ class RelationNetworks(AbstractMetaLearner):
             ValueError: if the backbone doesn't outputs feature maps, i.e. if its output for a
             given image is not a tensor of shape (n_channels, width, height)
         """
-        super().__init__(*args)
+        super().__init__(**kwargs)
 
         if len(self.backbone_output_shape) != 3:
             raise ValueError(
