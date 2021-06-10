@@ -26,14 +26,21 @@ def main(distances_dir: Path, metrics_dir: Path):
     results = pd.read_csv(metrics_dir / "raw_results.csv", index_col=0)
     distances = pd.read_csv(distances_dir / "test.csv", header=None).values
 
-    median_class_distance = partial(get_median_distance, distances=distances)
-    std_class_distance = partial(get_distance_std, distances=distances)
-
     statistics = (
         results.groupby("task_id")
         .true_label.unique()
-        .apply([median_class_distance, std_class_distance])
+        .apply(
+            [
+                partial(get_median_distance, distances=distances),
+                partial(get_distance_std, distances=distances),
+            ]
+        )
         .join(get_accuracies(results))
+    ).rename(
+        columns={
+            "get_median_distance": "median_class_distance",
+            "get_distance_std": "std_class_distance",
+        }
     )
 
     logger.info(
