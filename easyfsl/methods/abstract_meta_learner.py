@@ -23,7 +23,12 @@ class AbstractMetaLearner(nn.Module):
     Abstract class providing methods usable by all few-shot classification algorithms
     """
 
-    def __init__(self, backbone: nn.Module, tensorboard_writer: SummaryWriter = None):
+    def __init__(
+        self,
+        backbone: nn.Module,
+        tensorboard_writer: SummaryWriter = None,
+        device: str = "cuda",
+    ):
         super().__init__()
 
         self.backbone = backbone
@@ -42,6 +47,8 @@ class AbstractMetaLearner(nn.Module):
             logger.warning(
                 "No tensorboard writer specified. Training curves won't be logged."
             )
+
+        self.device = torch.device(device=device)
 
     # pylint: disable=all
     @abstractmethod
@@ -92,13 +99,15 @@ class AbstractMetaLearner(nn.Module):
         Returns the number of correct predictions of query labels, and the total number of
         predictions.
         """
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
         return (
             torch.max(
-                self(query_images.cuda()).detach().data,
+                self(query_images.to(self.device)).detach().data,
                 1,
             )[1]
-            == query_labels.cuda()
+            == query_labels.to(self.device)
         ).sum().item(), len(query_labels)
 
     def infer_on_one_task(
@@ -117,9 +126,11 @@ class AbstractMetaLearner(nn.Module):
             classification scores of shape (number_of_query_images, n_way)
         """
 
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
 
-        return self(query_images.cuda()).detach()
+        return self(query_images.to(self.device)).detach()
 
     def evaluate(self, data_loader: DataLoader) -> pd.DataFrame:
         """
@@ -153,7 +164,7 @@ class AbstractMetaLearner(nn.Module):
                             task_id, predicted_scores, query_labels, true_class_ids
                         ).assign(
                             task_loss=self.compute_loss(
-                                predicted_scores, query_labels.cuda()
+                                predicted_scores, query_labels.to(self.device)
                             ).item()
                         )
                     )
@@ -201,8 +212,10 @@ class AbstractMetaLearner(nn.Module):
             the value of the classification loss, and accuracy (for reporting purposes)
         """
         optimizer.zero_grad()
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
-        classification_scores = self(query_images.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
+        classification_scores = self(query_images.to(self.device))
 
         task_confusion_matrix = self.compute_task_confusion_matrix(
             query_labels, classification_scores
@@ -210,7 +223,7 @@ class AbstractMetaLearner(nn.Module):
         self.update_training_tasks_record(true_class_ids, task_confusion_matrix)
         self.update_training_confusion(true_class_ids, task_confusion_matrix)
 
-        loss = self.compute_loss(classification_scores, query_labels.cuda())
+        loss = self.compute_loss(classification_scores, query_labels.to(self.device))
         loss.backward()
         optimizer.step()
 

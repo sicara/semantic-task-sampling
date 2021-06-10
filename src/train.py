@@ -75,6 +75,12 @@ SAMPLERS = [
     type=Path,
     required=True,
 )
+@click.option(
+    "--device",
+    help="What device to train the model on",
+    type=str,
+    default="cuda",
+)
 @click.command()
 def main(
     sampler: str,
@@ -86,6 +92,7 @@ def main(
     metrics_dir: Path,
     tb_log_dir: Path,
     output_model: Path,
+    device: Path,
 ):
     logger.info("Fetching training data...")
     train_set = EasySet(specs_file=specs_dir / "train.json", training=True)
@@ -131,7 +138,8 @@ def main(
     model = PrototypicalNetworks(
         backbone=convolutional_network,
         tensorboard_writer=SummaryWriter(log_dir=tb_log_dir),
-    ).cuda()
+        device=device,
+    ).to(device)
 
     optimizer = Adam(params=model.parameters())
 
