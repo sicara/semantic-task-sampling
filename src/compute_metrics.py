@@ -6,7 +6,7 @@ from loguru import logger
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from src.utils import get_distance_std, get_median_distance
+from src.utils import get_distance_std, get_median_distance, get_accuracies
 
 
 @click.option(
@@ -33,15 +33,7 @@ def main(distances_dir: Path, metrics_dir: Path):
         results.groupby("task_id")
         .true_label.unique()
         .apply([median_class_distance, std_class_distance])
-        .join(
-            results.sort_values("score", ascending=False)
-            .drop_duplicates(["task_id", "image_id"])
-            .sort_values(["task_id", "image_id"])
-            .reset_index(drop=True)
-            .assign(accuracy=lambda df: df.true_label == df.predicted_label)
-            .groupby("task_id")
-            .accuracy.mean()
-        )
+        .join(get_accuracies(results))
     )
 
     logger.info(
