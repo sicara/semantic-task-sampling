@@ -92,7 +92,7 @@ def get_sampler(
         "n_way": 5,
         "n_shot": 5,
         "n_query": 10,
-        "n_tasks": 20,
+        "n_tasks": 200,
     }
     if sampler == "semantic":
         if semantic_alpha is None or distances_csv is None:

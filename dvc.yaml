@@ -31,44 +31,70 @@ stages:
     cmd: python -m src.train
       --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
       --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
-      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}
-      --tb-log-dir ${dataset.root_dir}/${dataset.tb_logs_folder}/${experiment_name}
-      --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
-      &> ${dataset.root_dir}/logs/train.out
+      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic
+      --tb-log-dir ${dataset.root_dir}/${dataset.tb_logs_folder}/semantic
+      --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic.tar
+      --sampler semantic
+      --device cuda:0
+      &> ${dataset.root_dir}/logs/train_semantic.out
+      & python -m src.train
+      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/adaptive
+      --tb-log-dir ${dataset.root_dir}/${dataset.tb_logs_folder}/adaptive
+      --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_adaptive.tar
+      --sampler adaptive
+      --device cuda:1
+      &> ${dataset.root_dir}/logs/train_adaptive.out
+      & python -m src.train
+      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/uniform
+      --tb-log-dir ${dataset.root_dir}/${dataset.tb_logs_folder}/uniform
+      --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_uniform.tar
+      --sampler uniform
+      --device cuda:2
+      &> ${dataset.root_dir}/logs/train_uniform.out
     deps:
       - ${dataset.root_dir}/${dataset.specs_folder}/train.json
       - ${dataset.root_dir}/${dataset.specs_folder}/val.json
       - ${dataset.root_dir}/${dataset.distances_folder}/train.csv
       - src/train.py
     outs:
-      - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
-      - ${dataset.root_dir}/${dataset.metrics_folder}/training_tasks.pkl
-      - ${dataset.root_dir}/logs/train.out
+      - ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic.tar
+      - ${dataset.root_dir}/${dataset.models_folder}/trained_model_adaptive.tar
+      - ${dataset.root_dir}/${dataset.models_folder}/trained_model_uniform.tar
+      - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/training_tasks.pkl
+      - ${dataset.root_dir}/${dataset.metrics_folder}/adaptive/training_tasks.pkl
+      - ${dataset.root_dir}/${dataset.metrics_folder}/uniform/training_tasks.pkl
+      - ${dataset.root_dir}/logs/train_semantic.out
+      - ${dataset.root_dir}/logs/train_adaptive.out
+      - ${dataset.root_dir}/logs/train_uniform.out
 
-  evaluate:
-    cmd: python -m src.evaluate
-      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
-      --trained-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
-      --output-dir ${dataset.root_dir}/${dataset.metrics_folder}
-      &> ${dataset.root_dir}/logs/evaluate.out
-    deps:
-      - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
-      - ${dataset.root_dir}/${dataset.specs_folder}/test.json
-      - src/evaluate.py
-    outs:
-      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
-      - ${dataset.root_dir}/logs/evaluate.out
-
-  compute_metrics:
-    cmd: python -m src.compute_metrics
-      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
-      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}
-      &> ${dataset.root_dir}/logs/compute_metrics.out
-    deps:
-      - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
-      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
-      - src/compute_metrics.py
-    outs:
-      - ${dataset.root_dir}/${dataset.metrics_folder}/task_performances.csv
-      - ${dataset.root_dir}/${dataset.metrics_folder}/accuracy_v_task_class_distance.png
-      - ${dataset.root_dir}/logs/compute_metrics.out
+#  evaluate:
+#    cmd: python -m src.evaluate
+#      --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+#      --trained-model ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+#      --output-dir ${dataset.root_dir}/${dataset.metrics_folder}
+#      &> ${dataset.root_dir}/logs/evaluate.out
+#    deps:
+#      - ${dataset.root_dir}/${dataset.models_folder}/trained_model.tar
+#      - ${dataset.root_dir}/${dataset.specs_folder}/test.json
+#      - src/evaluate.py
+#    outs:
+#      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
+#      - ${dataset.root_dir}/logs/evaluate.out
+#
+#  compute_metrics:
+#    cmd: python -m src.compute_metrics
+#      --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+#      --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}
+#      &> ${dataset.root_dir}/logs/compute_metrics.out
+#    deps:
+#      - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
+#      - ${dataset.root_dir}/${dataset.metrics_folder}/raw_results.csv
+#      - src/compute_metrics.py
+#    outs:
+#      - ${dataset.root_dir}/${dataset.metrics_folder}/task_performances.csv
+#      - ${dataset.root_dir}/${dataset.metrics_folder}/accuracy_v_task_class_distance.png
+#      - ${dataset.root_dir}/logs/compute_metrics.out

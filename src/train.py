@@ -107,7 +107,7 @@ def main(
     train_loader = DataLoader(
         train_set,
         batch_sampler=train_sampler,
-        num_workers=12,
+        num_workers=8,
         pin_memory=True,
         collate_fn=train_sampler.episodic_collate_fn,
     )
@@ -125,7 +125,7 @@ def main(
     val_loader = DataLoader(
         val_set,
         batch_sampler=val_sampler,
-        num_workers=12,
+        num_workers=8,
         pin_memory=True,
         collate_fn=val_sampler.episodic_collate_fn,
     )
@@ -147,7 +147,7 @@ def main(
     training_tasks_record = model.fit_multiple_epochs(
         train_loader,
         optimizer,
-        n_epochs=2,
+        n_epochs=100,
         val_loader=val_loader,
     )
 
