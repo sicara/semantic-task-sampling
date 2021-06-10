@@ -11,10 +11,40 @@ from torch.utils.tensorboard import SummaryWriter
 from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import SemanticTaskSampler, UniformTaskSampler
 from easyfsl.methods import PrototypicalNetworks
+from src.utils import get_sampler
+
+SAMPLERS = [
+    "uniform",
+    "adaptive",
+    "semantic",
+]
 
 
+@click.option(
+    "--sampler",
+    help="How to sample training tasks",
+    type=click.Choice(SAMPLERS),
+    default="uniform",
+)
+@click.option(
+    "--semantic-alpha",
+    help="Weight of semantic distances for class sampling",
+    type=float,
+    default=0.5,
+)
+@click.option(
+    "--adaptive-forgetting",
+    help="Forgetting hyperparameter for adaptive sampling",
+    type=float,
+    default=0.5,
+)
+@click.option(
+    "--adaptive-hardness",
+    help="Hardness hyperparameter for adaptive sampling",
+    type=float,
+    default=0.5,
+)
 @click.option(
     "--specs-dir",
     help="Where to find the dataset specs files",
@@ -47,6 +77,10 @@ from easyfsl.methods import PrototypicalNetworks
 )
 @click.command()
 def main(
+    sampler: str,
+    semantic_alpha: float,
+    adaptive_forgetting: float,
+    adaptive_hardness: float,
     specs_dir: Path,
     distances_dir: Path,
     metrics_dir: Path,
@@ -55,14 +89,13 @@ def main(
 ):
     logger.info("Fetching training data...")
     train_set = EasySet(specs_file=specs_dir / "train.json", training=True)
-    train_sampler = SemanticTaskSampler(
-        train_set,
-        n_way=5,
-        n_shot=5,
-        n_query=10,
-        n_tasks=20,
-        alpha=0.5,
-        semantic_distances_csv=Path(distances_dir / "train.csv"),
+    train_sampler = get_sampler(
+        sampler=sampler,
+        dataset=train_set,
+        distances_csv=distances_dir / "train.csv",
+        semantic_alpha=semantic_alpha,
+        adaptive_forgetting=adaptive_forgetting,
+        adaptive_hardness=adaptive_hardness,
     )
     train_loader = DataLoader(
         train_set,
@@ -74,12 +107,13 @@ def main(
 
     logger.info("Fetching validation data...")
     val_set = EasySet(specs_file=specs_dir / "val.json", training=True)
-    val_sampler = UniformTaskSampler(
-        val_set,
-        n_way=5,
-        n_shot=5,
-        n_query=10,
-        n_tasks=20,
+    val_sampler = get_sampler(
+        sampler="uniform",
+        dataset=val_set,
+        distances_csv=distances_dir / "train.json",
+        semantic_alpha=semantic_alpha,
+        adaptive_forgetting=adaptive_forgetting,
+        adaptive_hardness=adaptive_hardness,
     )
     val_loader = DataLoader(
         val_set,
