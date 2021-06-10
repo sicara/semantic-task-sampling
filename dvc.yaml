@@ -6,7 +6,7 @@ vars:
       distances_folder: distances
       models_folder: models
       metrics_folder: metrics
-      tb_log_dir: tb_logs
+      tb_logs_folder: tb_logs
 
 stages:
   compute_distances:
