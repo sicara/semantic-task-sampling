@@ -2,3 +2,6 @@
 /raw_results.csv
 /task_performances.csv
 /training_tasks.pkl
+/adaptive/
+/uniform/
+/semantic/
