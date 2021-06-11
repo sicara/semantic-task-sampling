@@ -3,7 +3,7 @@ from statistics import mean
 import pandas as pd
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Optional, Tuple
 
 import numpy as np
 from loguru import logger
@@ -197,7 +197,7 @@ class AbstractMetaLearner(nn.Module):
         query_labels: torch.Tensor,
         true_class_ids: List[int],
         optimizer: optim.Optimizer,
-    ) -> [float, float]:
+    ) -> Tuple[float, float]:
         """
         Predict query set labels and updates model's parameters using classification loss
         Args:
@@ -240,7 +240,7 @@ class AbstractMetaLearner(nn.Module):
         val_loader: DataLoader = None,
         validation_frequency: int = 1000,
         tqdm_description: str = "Meta-Training",
-        epoch: int = None,
+        epoch: Optional[int] = None,
     ):
         """
         Train the model on few-shot classification tasks.
