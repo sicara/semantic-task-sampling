@@ -2,7 +2,8 @@ schema: '2.0'
 stages:
   train:
     cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
-      data/tiered_imagenet/distances --output-model data/tiered_imagenet/models/trained_model.tar
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics --tb-log-dir
+      data/tiered_imagenet/tb_logs/semantic_one --output-model data/tiered_imagenet/models/trained_model.tar
       &> data/tiered_imagenet/logs/train.out
     deps:
     - path: data/tiered_imagenet/distances/train.csv
@@ -15,15 +16,18 @@ stages:
       md5: 64dde6b03b773bdf5b65c3dd04770e81
       size: 8495
     - path: src/train.py
-      md5: 27524bf158f750a700950ec3a7ff34c5
-      size: 1888
+      md5: e974e9f819c72d598eb0ab513a10b17d
+      size: 3145
     outs:
     - path: data/tiered_imagenet/logs/train.out
-      md5: e20f94d03983459a32c7eeacd1e373ea
-      size: 3232
+      md5: fd15927232b5c616eb4960987211f244
+      size: 5879
+    - path: data/tiered_imagenet/metrics/training_tasks.pkl
+      md5: 7081acff92cf5e498dbcfc7a99173f33
+      size: 20329
     - path: data/tiered_imagenet/models/trained_model.tar
-      md5: 153df61d5b92fc301a9ae89634ec9aa7
-      size: 44787141
+      md5: 844511084c5dede741d9dacdb5b8c614
+      size: 44787200
   compute_distances@test:
     cmd: python -m src.compute_semantic_distances --split test --specs-dir data/tiered_imagenet/specs
       --output-dir data/tiered_imagenet/distances &> data/tiered_imagenet/logs/compute_test_distances.out
@@ -70,21 +74,21 @@ stages:
       &> data/tiered_imagenet/logs/evaluate.out
     deps:
     - path: data/tiered_imagenet/models/trained_model.tar
-      md5: 153df61d5b92fc301a9ae89634ec9aa7
-      size: 44787141
+      md5: 844511084c5dede741d9dacdb5b8c614
+      size: 44787200
     - path: data/tiered_imagenet/specs/test.json
       md5: 522a3fae2c4919b3b1d02c7f1221cc20
       size: 13976
     - path: src/evaluate.py
-      md5: 1a71a5fa759d6eed40481be3b59cf97c
-      size: 1737
+      md5: e5b3f77d2e31d38b90e7036bf8a828a7
+      size: 1746
     outs:
     - path: data/tiered_imagenet/logs/evaluate.out
-      md5: a79a37c79f53569e449419bf40257396
-      size: 1255
+      md5: 0f1542010992eb5fe7aabd283a3a08c4
+      size: 1410
     - path: data/tiered_imagenet/metrics/raw_results.csv
-      md5: 3f59db147a1cab4ac58e2ad490c04415
-      size: 135783
+      md5: 130ba28ddd983b9cd67ac2a443bc9219
+      size: 231202
   compute_metrics:
     cmd: python -m src.compute_metrics --distances-dir data/tiered_imagenet/distances
       --metrics-dir data/tiered_imagenet/metrics &> data/tiered_imagenet/logs/compute_metrics.out
@@ -93,18 +97,18 @@ stages:
       md5: 84de996abe3b91d74ae9599578a9fc90
       size: 467358
     - path: data/tiered_imagenet/metrics/raw_results.csv
-      md5: 3f59db147a1cab4ac58e2ad490c04415
-      size: 135783
+      md5: 130ba28ddd983b9cd67ac2a443bc9219
+      size: 231202
     - path: src/compute_metrics.py
-      md5: 170e0d45e2192c8e48d48fb2b7419d5b
-      size: 1945
+      md5: 23db77dcf154ac1c0cd286dc9001f4eb
+      size: 1788
     outs:
     - path: data/tiered_imagenet/logs/compute_metrics.out
-      md5: 0d8aae874b10ed2dcd57a7439e15c317
-      size: 426
+      md5: 44c4ab8319dce45bfdcd81592c82f69a
+      size: 441
     - path: data/tiered_imagenet/metrics/accuracy_v_task_class_distance.png
-      md5: 15dcbaf46806688197f5fca9e80d7cac
-      size: 16969
+      md5: 3ebf7f474a8fbd927a6fcb9b97d8fb59
+      size: 15714
     - path: data/tiered_imagenet/metrics/task_performances.csv
-      md5: 2d4e837c3b1609aee1731a276a1f0a3e
+      md5: d3f5cd209e5022ac44de42d3c43da96c
       size: 945

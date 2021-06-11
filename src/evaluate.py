@@ -49,7 +49,7 @@ def main(specs_dir: Path, trained_model: Path, output_dir: Path):
     logger.info("Retrieving model...")
     convolutional_network = resnet18(pretrained=False)
     convolutional_network.fc = nn.Flatten()
-    model = PrototypicalNetworks(convolutional_network).cuda()
+    model = PrototypicalNetworks(backbone=convolutional_network).cuda()
     model.load_state_dict(torch.load(trained_model))
 
     logger.info("Starting evaluation...")

@@ -1,16 +1,21 @@
+from statistics import mean
+
 import pandas as pd
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union, List
+from typing import Union, List, Dict, Optional, Tuple
 
 import numpy as np
+from loguru import logger
 from sklearn import metrics
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from easyfsl.utils import sliding_average, compute_backbone_output_shape, get_task_perf
+from src.utils import get_accuracies
 
 
 class AbstractMetaLearner(nn.Module):
@@ -18,7 +23,12 @@ class AbstractMetaLearner(nn.Module):
     Abstract class providing methods usable by all few-shot classification algorithms
     """
 
-    def __init__(self, backbone: nn.Module):
+    def __init__(
+        self,
+        backbone: nn.Module,
+        tensorboard_writer: SummaryWriter = None,
+        device: str = "cuda",
+    ):
         super().__init__()
 
         self.backbone = backbone
@@ -31,6 +41,14 @@ class AbstractMetaLearner(nn.Module):
 
         self.training_tasks_record = []
         self.training_confusion_matrix = None
+
+        self.tensorboard_writer = tensorboard_writer
+        if not tensorboard_writer:
+            logger.warning(
+                "No tensorboard writer specified. Training curves won't be logged."
+            )
+
+        self.device = torch.device(device=device)
 
     # pylint: disable=all
     @abstractmethod
@@ -81,13 +99,15 @@ class AbstractMetaLearner(nn.Module):
         Returns the number of correct predictions of query labels, and the total number of
         predictions.
         """
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
         return (
             torch.max(
-                self(query_images.cuda()).detach().data,
+                self(query_images.to(self.device)).detach().data,
                 1,
             )[1]
-            == query_labels.cuda()
+            == query_labels.to(self.device)
         ).sum().item(), len(query_labels)
 
     def infer_on_one_task(
@@ -106,9 +126,11 @@ class AbstractMetaLearner(nn.Module):
             classification scores of shape (number_of_query_images, n_way)
         """
 
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
 
-        return self(query_images.cuda()).detach()
+        return self(query_images.to(self.device)).detach()
 
     def evaluate(self, data_loader: DataLoader) -> pd.DataFrame:
         """
@@ -140,6 +162,10 @@ class AbstractMetaLearner(nn.Module):
                     list_of_task_perfs.append(
                         get_task_perf(
                             task_id, predicted_scores, query_labels, true_class_ids
+                        ).assign(
+                            task_loss=self.compute_loss(
+                                predicted_scores, query_labels.to(self.device)
+                            ).item()
                         )
                     )
 
@@ -171,7 +197,7 @@ class AbstractMetaLearner(nn.Module):
         query_labels: torch.Tensor,
         true_class_ids: List[int],
         optimizer: optim.Optimizer,
-    ) -> float:
+    ) -> Tuple[float, float]:
         """
         Predict query set labels and updates model's parameters using classification loss
         Args:
@@ -183,11 +209,13 @@ class AbstractMetaLearner(nn.Module):
             optimizer: optimizer to train the model
 
         Returns:
-            the value of the classification loss (for reporting purposes)
+            the value of the classification loss, and accuracy (for reporting purposes)
         """
         optimizer.zero_grad()
-        self.process_support_set(support_images.cuda(), support_labels.cuda())
-        classification_scores = self(query_images.cuda())
+        self.process_support_set(
+            support_images.to(self.device), support_labels.to(self.device)
+        )
+        classification_scores = self(query_images.to(self.device))
 
         task_confusion_matrix = self.compute_task_confusion_matrix(
             query_labels, classification_scores
@@ -195,11 +223,15 @@ class AbstractMetaLearner(nn.Module):
         self.update_training_tasks_record(true_class_ids, task_confusion_matrix)
         self.update_training_confusion(true_class_ids, task_confusion_matrix)
 
-        loss = self.compute_loss(classification_scores, query_labels.cuda())
+        loss = self.compute_loss(classification_scores, query_labels.to(self.device))
         loss.backward()
         optimizer.step()
 
-        return loss.item()
+        accuracy = metrics.accuracy_score(
+            query_labels.cpu(), classification_scores.argmax(dim=1).cpu()
+        )
+
+        return loss.item(), accuracy
 
     def fit(
         self,
@@ -208,6 +240,7 @@ class AbstractMetaLearner(nn.Module):
         val_loader: DataLoader = None,
         validation_frequency: int = 1000,
         tqdm_description: str = "Meta-Training",
+        epoch: Optional[int] = None,
     ):
         """
         Train the model on few-shot classification tasks.
@@ -218,10 +251,12 @@ class AbstractMetaLearner(nn.Module):
                 tasks
             validation_frequency: number of training episodes between two validations
             tqdm_description: description of the progress bar following training tasks
+            epoch: possibility to specify an epoch (for tensorboard writer)
         """
         log_update_frequency = 10
 
         all_loss = []
+        all_accuracy = []
         self.initialize_training_confusion(train_loader)
 
         self.train()
@@ -235,7 +270,7 @@ class AbstractMetaLearner(nn.Module):
                 query_labels,
                 true_class_ids,
             ) in tqdm_train:
-                loss_value = self.fit_on_task(
+                loss_value, train_accuracy = self.fit_on_task(
                     support_images,
                     support_labels,
                     query_images,
@@ -244,6 +279,7 @@ class AbstractMetaLearner(nn.Module):
                     optimizer,
                 )
                 all_loss.append(loss_value)
+                all_accuracy.append(train_accuracy)
 
                 # Log training loss in real time
                 if episode_index % log_update_frequency == 0:
@@ -251,30 +287,39 @@ class AbstractMetaLearner(nn.Module):
                         loss=sliding_average(all_loss, log_update_frequency)
                     )
 
-                # Validation
-                if val_loader:
-                    if episode_index + 1 % validation_frequency == 0:
-                        self.validate(val_loader)
+        # Validation
+        validation_accuracy, validation_loss = self.validate(val_loader)
+
+        if self.tensorboard_writer:
+            if epoch is None:
+                logger.warning(f"No epoch specified. Tensorboard writing could fail.")
+            self.tensorboard_writer.add_scalar("Train/loss", mean(all_loss), epoch)
+            self.tensorboard_writer.add_scalar("Train/acc", mean(all_accuracy), epoch)
+            self.tensorboard_writer.add_scalar("Val/acc", validation_accuracy, epoch)
+            self.tensorboard_writer.add_scalar("Val/loss", validation_loss, epoch)
 
     def fit_multiple_epochs(
         self,
         train_loader: DataLoader,
         optimizer: optim.Optimizer,
         n_epochs: int,
-        val_loader: DataLoader = None,
-    ):
+        val_loader: DataLoader,
+    ) -> List[Dict]:
         """
         Fit on the dataloader for a given number of epochs. This function can be used to update the
         dataloaders or optimizers between epochs. It is recommended to use a smaller length for the
         train than when using fit() directly.
-        Using this function, validation will be performed at this end of each epoch.
+        Using this function, validation will be performed at the end of each epoch.
         Args:
             train_loader: loads training data in the shape of few-shot classification tasks
             optimizer: optimizer to train the model
             n_epochs: number of training epochs
             val_loader: loads data from the validation set in the shape of few-shot classification
                 tasks
-
+        Returns:
+            list of information about training tasks. For each training task:
+                the list of true class ids
+                the task-level confusion matrix (torch.Tensor)
         """
         for epoch in range(n_epochs):
             self.fit(
@@ -283,27 +328,32 @@ class AbstractMetaLearner(nn.Module):
                 val_loader=val_loader,
                 validation_frequency=len(train_loader),
                 tqdm_description=f"Epoch {epoch}",
+                epoch=epoch,
             )
 
             train_loader.batch_sampler.update(self.training_confusion_matrix)
 
-    def validate(self, val_loader: DataLoader) -> float:
+        return self.training_tasks_record
+
+    def validate(self, val_loader: DataLoader) -> [float, float]:
         """
         Validate the model on the validation set.
         Args:
             val_loader: loads data from the validation set in the shape of few-shot classification
                 tasks
         Returns:
-            average classification accuracy on the validation set
+            average classification accuracy and loss on the validation set
         """
-        validation_accuracy = self.evaluate(val_loader)
+        validation_results = self.evaluate(val_loader)
+        validation_accuracy = get_accuracies(validation_results).mean()
+        validation_loss = validation_results.task_loss.mean()
         print(f"Validation accuracy: {(100 * validation_accuracy):.2f}%")
         # If this was the best validation performance, we save the model state
         if validation_accuracy > self.best_validation_accuracy:
             print("Best validation accuracy so far!")
             self.best_model_state = self.state_dict()
 
-        return validation_accuracy
+        return validation_accuracy, validation_loss
 
     def _check_that_best_state_is_defined(self):
         """
