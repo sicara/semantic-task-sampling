@@ -94,6 +94,8 @@ def main(
     output_model: Path,
     device: Path,
 ):
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+
     logger.info("Fetching training data...")
     train_set = EasySet(specs_file=specs_dir / "train.json", training=True)
     train_sampler = get_sampler(
@@ -147,7 +149,7 @@ def main(
     training_tasks_record = model.fit_multiple_epochs(
         train_loader,
         optimizer,
-        n_epochs=100,
+        n_epochs=200,
         val_loader=val_loader,
     )
 
