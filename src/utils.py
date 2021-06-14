@@ -1,4 +1,7 @@
 import itertools
+
+import torch
+from functools import partial
 from pathlib import Path
 from statistics import median, stdev
 from typing import List
@@ -110,3 +113,71 @@ def get_sampler(
         return UniformTaskSampler(**common_args)
     else:
         raise ValueError(f"Unknown sampler : {sampler}")
+
+
+def get_intra_class_distances(training_tasks_record: List, distances: np.ndarray):
+    df = pd.DataFrame(training_tasks_record)
+    return df.join(
+        df.true_class_ids.apply(
+            [
+                partial(get_median_distance, distances=distances),
+                partial(get_distance_std, distances=distances),
+            ]
+        ).rename(
+            columns={
+                "get_median_distance": "median_distance",
+                "get_distance_std": "std_distance",
+            }
+        )
+    )
+
+
+def get_training_confusion_for_single_task(row, n_classes):
+    indices = []
+    values = []
+
+    for (local_label1, true_label1) in enumerate(row["true_class_ids"]):
+        for (local_label2, true_label2) in enumerate(row["true_class_ids"]):
+            indices.append([true_label1, true_label2])
+            values.append(row["task_confusion_matrix"][local_label1, local_label2])
+
+    return torch.sparse_coo_tensor(
+        torch.tensor(indices).T, values, (n_classes, n_classes)
+    )
+
+
+def get_training_confusion(df, n_classes):
+    return torch.sparse.sum(
+        torch.stack(
+            [
+                get_training_confusion_for_single_task(row, n_classes)
+                for _, row in df.iterrows()
+            ]
+        ),
+        dim=0,
+    ).to_dense()
+
+
+def get_sampled_together_for_single_task(row, n_classes):
+    indices = []
+    values = []
+
+    for label1, label2 in itertools.combinations(row["true_class_ids"], 2):
+        indices.append([min(label1, label2), max(label1, label2)])
+        values.append(1)
+
+    return torch.sparse_coo_tensor(
+        torch.tensor(indices).T, values, (n_classes, n_classes)
+    )
+
+
+def get_sampled_together(df, n_classes):
+    return torch.sparse.sum(
+        torch.stack(
+            [
+                get_sampled_together_for_single_task(row, n_classes)
+                for _, row in df.iterrows()
+            ]
+        ),
+        dim=0,
+    ).to_dense()
