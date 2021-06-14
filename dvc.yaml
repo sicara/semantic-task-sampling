@@ -86,3 +86,18 @@ stages:
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/accuracy_v_task_class_distance.png
         - ${dataset.root_dir}/logs/compute_metrics_${item}.out
+
+  get_train_stats:
+    foreach: ${alpha_grid}
+    do:
+      cmd: python -m src.get_training_tasks_stats
+        --training-tasks-record ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_tasks.pkl
+        --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+        --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
+      deps:
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_tasks.pkl
+        - ${dataset.root_dir}/${dataset.distances_folder}/train.csv
+      outs:
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/intra_training_task_distances.csv
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_classes_sampled_together.png
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_classes_biconfusion.png
