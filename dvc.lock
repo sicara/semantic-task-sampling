@@ -400,3 +400,83 @@ stages:
     - path: data/tiered_imagenet/metrics/semantic/0.05/task_performances.csv
       md5: 0057dcc60c4fec689222b5b767054dc4
       size: 943
+  get_train_stats@0.05:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic/0.05/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic/0.05
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic/0.05/training_tasks.pkl
+      md5: fd78d33fb3bd3926599c20aaf8e54c7c
+      size: 20161654
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic/0.05/intra_training_task_distances.csv
+      md5: 86767aeef323b02287e2ce696314d15b
+      size: 1709649
+    - path: data/tiered_imagenet/metrics/semantic/0.05/training_classes_biconfusion.png
+      md5: abfa36218e6568cb374525977e90092b
+      size: 181817
+    - path: data/tiered_imagenet/metrics/semantic/0.05/training_classes_sampled_together.png
+      md5: c10b2144ed6ca34356275c113d2cd70d
+      size: 152967
+  get_train_stats@0.1:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic/0.1/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic/0.1
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic/0.1/training_tasks.pkl
+      md5: b90f3038248e2138519ddd1340c70876
+      size: 20166556
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic/0.1/intra_training_task_distances.csv
+      md5: 872adf619f1f4a69610bc47f2c0a7ec9
+      size: 1709224
+    - path: data/tiered_imagenet/metrics/semantic/0.1/training_classes_biconfusion.png
+      md5: 47f0260c4515f9d196ada3fb84fba7fd
+      size: 172635
+    - path: data/tiered_imagenet/metrics/semantic/0.1/training_classes_sampled_together.png
+      md5: 1b62d820ed08c4bf294d4827327ae59a
+      size: 148950
+  get_train_stats@0.005:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic/0.005/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic/0.005
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic/0.005/training_tasks.pkl
+      md5: b140fcc52c4e63b9179d1d1494053a30
+      size: 20166255
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic/0.005/intra_training_task_distances.csv
+      md5: 83dd7f269f4ac8d2a49d09599164d6af
+      size: 1709465
+    - path: data/tiered_imagenet/metrics/semantic/0.005/training_classes_biconfusion.png
+      md5: 040c90c7394fc51ba45a414c16906f9c
+      size: 188841
+    - path: data/tiered_imagenet/metrics/semantic/0.005/training_classes_sampled_together.png
+      md5: 8a6edc7304f997d1f337c3c222614df6
+      size: 152248
+  get_train_stats@0.01:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic/0.01/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic/0.01
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic/0.01/training_tasks.pkl
+      md5: 91d18bff6893ef1b7752e2bcd3b24bcd
+      size: 20166010
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic/0.01/intra_training_task_distances.csv
+      md5: 10f2693a4a0d1b87ed37baf9cc29470b
+      size: 1709476
+    - path: data/tiered_imagenet/metrics/semantic/0.01/training_classes_biconfusion.png
+      md5: 97dc03276a1352021ed1e941972b4569
+      size: 188844
+    - path: data/tiered_imagenet/metrics/semantic/0.01/training_classes_sampled_together.png
+      md5: 39d554089ce902f817bb12f60e98b81b
+      size: 150111
