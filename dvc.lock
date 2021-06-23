@@ -480,3 +480,35 @@ stages:
     - path: data/tiered_imagenet/metrics/semantic/0.01/training_classes_sampled_together.png
       md5: 39d554089ce902f817bb12f60e98b81b
       size: 150111
+  create_testbed@5:
+    cmd: python -m src.create_testbed --n-shot 5 --out-file data/tiered_imagenet/testbeds/testbed_5_shot.csv
+    deps:
+    - path: data/tiered_imagenet/distances/test.csv
+      md5: 84de996abe3b91d74ae9599578a9fc90
+      size: 467358
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: src/create_testbed.py
+      md5: 365c30f3fe15f3cabcacd0a059549598
+      size: 6062
+    outs:
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+  create_testbed@1:
+    cmd: python -m src.create_testbed --n-shot 1 --out-file data/tiered_imagenet/testbeds/testbed_1_shot.csv
+    deps:
+    - path: data/tiered_imagenet/distances/test.csv
+      md5: 84de996abe3b91d74ae9599578a9fc90
+      size: 467358
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: src/create_testbed.py
+      md5: 365c30f3fe15f3cabcacd0a059549598
+      size: 6062
+    outs:
+    - path: data/tiered_imagenet/testbeds/testbed_1_shot.csv
+      md5: 9923a9df3301ccdc89b7348eb3f219d6
+      size: 12439289

@@ -108,12 +108,6 @@ def main(
 
     tasks = sample_tasks(n_tasks, n_way, distances, alpha, beta_penalty)
 
-    tasks.groupby("task").variance.mean().hist().set_title("variances")
-    plt.show()
-
-    tasks.labels.value_counts().sort_index().hist().set_title("occurrences")
-    plt.show()
-
     logger.info("Sampling images ...")
     tasks_with_samples = sample_items_from_classes(tasks, specs_json, n_shot, n_query)
 
