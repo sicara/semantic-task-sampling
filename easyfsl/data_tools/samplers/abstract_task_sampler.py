@@ -5,6 +5,8 @@ from typing import List, Tuple
 import torch
 from torch.utils.data import Sampler, Dataset
 
+from easyfsl.utils import sort_items_per_label
+
 
 class AbstractTaskSampler(Sampler):
     """
@@ -30,15 +32,10 @@ class AbstractTaskSampler(Sampler):
         self.n_query = n_query
         self.n_tasks = n_tasks
 
-        self.items_per_label = {}
         assert hasattr(
             dataset, "labels"
         ), "Task samplers need a dataset with a field 'label' containing the labels of all images."
-        for item, label in enumerate(dataset.labels):
-            if label in self.items_per_label.keys():
-                self.items_per_label[label].append(item)
-            else:
-                self.items_per_label[label] = [item]
+        self.items_per_label = sort_items_per_label(dataset.labels)
 
     def __len__(self):
         return self.n_tasks
