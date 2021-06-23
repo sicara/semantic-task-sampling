@@ -32,6 +32,21 @@ stages:
         - ${dataset.root_dir}/logs/compute_${item}_distances.out
         - ${dataset.root_dir}/${dataset.distances_folder}/${item}.csv
 
+  create_testbed:
+    foreach:
+      - 1
+      - 5
+    do:
+      cmd: python -m src.create_testbed
+        --n-shot ${item}
+        --out-file ${dataset.root_dir}/testbed/testbed_${item}_shot.csv
+      deps:
+        - ${dataset.root_dir}/${dataset.specs_folder}/test.json
+        - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
+        - src/create_testbed.py
+      outs:
+        - ${dataset.root_dir}/testbed/testbed_${item}_shot.csv
+
   train:
     foreach: ${alpha_grid}
     do:
