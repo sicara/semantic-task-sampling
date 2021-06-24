@@ -490,12 +490,18 @@ stages:
       md5: 522a3fae2c4919b3b1d02c7f1221cc20
       size: 13976
     - path: src/create_testbed.py
-      md5: 365c30f3fe15f3cabcacd0a059549598
-      size: 6062
+      md5: d1308278205f33454b02c06b910a0360
+      size: 9942
     outs:
     - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
       md5: dcdbfef577d631c048f744c91d9cc01e
       size: 16912160
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot_occ.png
+      md5: dac8808888df5d729bcb4558eff50ecd
+      size: 13638
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot_pv.png
+      md5: 1f955edce5067da0838e3bc7d47ad2d6
+      size: 17303
   create_testbed@1:
     cmd: python -m src.create_testbed --n-shot 1 --out-file data/tiered_imagenet/testbeds/testbed_1_shot.csv
     deps:
@@ -506,9 +512,15 @@ stages:
       md5: 522a3fae2c4919b3b1d02c7f1221cc20
       size: 13976
     - path: src/create_testbed.py
-      md5: 365c30f3fe15f3cabcacd0a059549598
-      size: 6062
+      md5: d1308278205f33454b02c06b910a0360
+      size: 9942
     outs:
     - path: data/tiered_imagenet/testbeds/testbed_1_shot.csv
       md5: 9923a9df3301ccdc89b7348eb3f219d6
       size: 12439289
+    - path: data/tiered_imagenet/testbeds/testbed_1_shot_occ.png
+      md5: dac8808888df5d729bcb4558eff50ecd
+      size: 13638
+    - path: data/tiered_imagenet/testbeds/testbed_1_shot_pv.png
+      md5: 1f955edce5067da0838e3bc7d47ad2d6
+      size: 17303
