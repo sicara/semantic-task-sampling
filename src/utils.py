@@ -3,7 +3,7 @@ import itertools
 import torch
 from functools import partial
 from pathlib import Path
-from statistics import median, stdev
+from statistics import median, stdev, mean
 from typing import List
 
 import numpy as np
@@ -65,6 +65,25 @@ def get_distance_std(labels: List[int], distances: np.ndarray):
     return stdev(
         [
             distances[label_a, label_b]
+            for label_a, label_b in itertools.combinations(labels, 2)
+        ]
+    )
+
+
+def get_pseudo_variance(labels: List[int], distances: np.ndarray) -> float:
+    """
+    From a list of labels and a matrix of pair-wise distances, compute the pseudo-variance
+    distance of all possible pairs from the list, i.e. the mean of all square distances.
+    Args:
+        labels: integer labels in range(len(distances))
+        distances: square symmetric matrix
+
+    Returns:
+        pseudo-variance
+    """
+    return mean(
+        [
+            (distances[label_a, label_b] ** 2)
             for label_a, label_b in itertools.combinations(labels, 2)
         ]
     )

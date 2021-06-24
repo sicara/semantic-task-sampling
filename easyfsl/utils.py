@@ -2,7 +2,7 @@
 General utilities
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import torchvision
 from matplotlib import pyplot as plt
@@ -159,3 +159,24 @@ def get_task_perf(
             for i in range(labels.shape[0])
         ]
     )
+
+
+def sort_items_per_label(labels: List[int]) -> Dict[int, List[int]]:
+    """
+    From a list of integer labels, returns for each unique label the list of indices of occurences.
+    Args:
+        labels: list of integers
+
+    Returns:
+        a dictionary where the keys are the unique values of the input list, and the values are
+            the lists of indices where the corresponding key occurs in the input list.
+    """
+
+    items_per_label = {}
+    for item, label in enumerate(labels):
+        if label in items_per_label.keys():
+            items_per_label[label].append(item)
+        else:
+            items_per_label[label] = [item]
+
+    return items_per_label
