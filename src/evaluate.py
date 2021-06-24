@@ -9,12 +9,19 @@ from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers import UniformTaskSampler
+from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
 from easyfsl.methods import PrototypicalNetworks
 
 
 @click.option(
     "--specs-dir",
     help="Where to find the dataset specs files",
+    type=Path,
+    required=True,
+)
+@click.option(
+    "--testbed",
+    help="Path to the CSV defining the testbed",
     type=Path,
     required=True,
 )
@@ -28,15 +35,12 @@ from easyfsl.methods import PrototypicalNetworks
     "--output-dir", help="Where to dump evaluation results", type=Path, required=True
 )
 @click.command()
-def main(specs_dir: Path, trained_model: Path, output_dir: Path):
+def main(specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path):
     logger.info("Fetching test data...")
     test_set = EasySet(specs_file=specs_dir / "test.json", training=False)
-    test_sampler = UniformTaskSampler(
+    test_sampler = TestbedSampler(
         test_set,
-        n_way=5,
-        n_shot=5,
-        n_query=10,
-        n_tasks=20,
+        testbed,
     )
     test_loader = DataLoader(
         test_set,

@@ -77,12 +77,14 @@ stages:
     do:
       cmd: python -m src.evaluate
         --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
+        --testbed ${dataset.root_dir}/testbeds/testbed_5_shot.csv
         --trained-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
         --output-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
         &> ${dataset.root_dir}/logs/evaluate_${item}.out
       deps:
         - ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
         - ${dataset.root_dir}/${dataset.specs_folder}/test.json
+        - ${dataset.root_dir}/testbeds/testbed_5_shot.csv
         - src/evaluate.py
       outs:
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/raw_results.csv
@@ -92,16 +94,16 @@ stages:
     foreach: ${alpha_grid}
     do:
       cmd: python -m src.compute_metrics
-        --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
+        --testbed ${dataset.root_dir}/testbeds/testbed_5_shot.csv
         --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
         &> ${dataset.root_dir}/logs/compute_metrics_${item}.out
       deps:
-        - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
+        - ${dataset.root_dir}/testbeds/testbed_5_shot.csv
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/raw_results.csv
         - src/compute_metrics.py
       outs:
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/accuracy_v_task_class_distance.png
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/accuracy_v_variance.png
         - ${dataset.root_dir}/logs/compute_metrics_${item}.out
 
   get_train_stats:
