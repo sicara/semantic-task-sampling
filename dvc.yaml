@@ -46,6 +46,8 @@ stages:
         - src/create_testbed.py
       outs:
         - ${dataset.root_dir}/testbeds/testbed_${item}_shot.csv
+        - ${dataset.root_dir}/testbeds/testbed_${item}_shot_pv.png
+        - ${dataset.root_dir}/testbeds/testbed_${item}_shot_occ.png
 
   train:
     foreach: ${alpha_grid}

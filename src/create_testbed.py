@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import List, Dict
 
@@ -108,24 +109,48 @@ def main(
 
     tasks = sample_tasks(n_tasks, n_way, distances, alpha, beta_penalty)
 
+    save_tasks_plots(tasks, out_file)
+
     logger.info("Sampling images ...")
     tasks_with_samples = sample_items_from_classes(tasks, specs_json, n_shot, n_query)
 
     tasks_with_samples.to_csv(out_file)
     logger.info(f"Testbed dumped to {out_file}")
 
-    return tasks_with_samples
-
 
 def sample_tasks(
     n_tasks: int, n_way: int, distances: torch.Tensor, alpha: float, beta_penalty: float
 ) -> pd.DataFrame:
+    """
+    Sample n_tasks tasks, each of which is defined by n_way classes. Sampling is performed according
+    to two criterias:
+        - we enforce that classes close to each other (according to the specified distances matrix)
+        are more likely to be sampled together (the hardness of this criteria is controlled by alpha)
+        - we enforce that classes that were already sampled in previous tasks are less likely to be
+        sampled again (the hardness of this criteria is controlled by beta_penalty).
+    Note that we "oversample": we first generate 2 * n_tasks tasks, then drop duplicate tasks and
+    subsample n_tasks tasks from the remaining tasks.
+    Args:
+        n_tasks: number of output tasks
+        n_way: number of classes per task
+        distances: matrix of distances between classes. Also defines the total number of classes.
+        alpha: hardness of the distance criteria
+        beta_penalty: hardness of the penalty for previously sampled classes
+
+    Returns:
+        a dataframe with n_tasks * n_way lines, and three columns "task", "labels", and "variance".
+        "variance" is defined as the sum of all square distances between pairs of classes in the
+        task (and therefore is the same between any two lines that have the same value in the "task"
+        column).
+    """
     list_of_task_classes = []
     variance = []
     n_appearances = torch.ones((len(distances),))
     potential_matrix = fill_diagonal(torch.exp(-alpha * distances), 0)
 
-    for _ in tqdm(range(2 * n_tasks)):
+    sursampling_factor = 2
+
+    for _ in tqdm(range(sursampling_factor * n_tasks)):
         penalty = torch.exp(-beta_penalty * n_appearances / max(n_appearances))
         task_classes = [sample_label_from_potential(penalty)]
         potential = potential_matrix[task_classes[0]] * penalty
@@ -156,8 +181,41 @@ def sample_tasks(
     )
 
 
+def save_tasks_plots(tasks: pd.DataFrame, out_file: Path):
+    """
+    Plot two histograms:
+        - label occurrences: to evaluate the balance between classes in the testbed.
+        - pseudo-variances: to evaluate that the testbed covers quasi-evenly a wide range of
+            pseudo-variances
+    Args:
+        tasks: dataframe of tasks, output of sample_tasks
+        out_file: where the testbed will be dumped. We will save the plots next to it.
+    """
+
+    tasks.groupby("task").variance.mean().hist().set_title(
+        "histogram of pseudo-variances"
+    )
+    pseudo_variances_file = out_file.parent / f"{out_file.stem}_pv.png"
+    plt.savefig(pseudo_variances_file)
+
+    plt.clf()
+    tasks.labels.value_counts().hist().set_title("histogram of label occurrences")
+    occurrences_file = out_file.parent / f"{out_file.stem}_occ.png"
+    plt.savefig(occurrences_file)
+
+    logger.info(f"Histogram of pseudo-variances dumped to {pseudo_variances_file}")
+    logger.info(f"Histogram of label occurrences dumped to {occurrences_file}")
+
+
 class ItemsSampler:
-    def __init__(self, items_per_label):
+    """
+    This is a custom sampler with two necessary properties:
+        - sample batchs of elements by label without replacement
+        - if there are not enough elements left to constitute a batch, reshuffle labels and restart
+    Note: this might be doable with built-in torch samplers (BatchSampler and SubsetRandomSampler).
+    """
+
+    def __init__(self, items_per_label: Dict[int, List[int]]):
         self.items_per_label = items_per_label
         self.available_items_per_label = {
             label: items.copy() for label, items in self.items_per_label.items()
@@ -166,6 +224,17 @@ class ItemsSampler:
             np.random.shuffle(items)
 
     def sample_items(self, n_items: int, label: int) -> List[int]:
+        """
+        Sample n_times indices from the available indices for the specified labels. If we don't have
+        enough indices left, we reshuffle the whole list of indices for this label, and use this as
+        the list of available indices.
+        Args:
+            n_items: number of indices to sample
+            label: label for which we sample indices
+
+        Returns:
+            n_items integers
+        """
         if n_items > len(self.available_items_per_label[label]):
             self.available_items_per_label[label] = self.items_per_label[label].copy()
             np.random.shuffle(self.available_items_per_label[label])
@@ -179,9 +248,24 @@ class ItemsSampler:
 def sample_items_from_classes(
     tasks_df: pd.DataFrame, specs_json: Path, n_shot: int, n_query: int
 ) -> pd.DataFrame:
+    """
+    For each label in a task, sample n_shot + n_query images and split them between support and
+    query. Images are sampled without replacement to ensure that we use as many images as possible
+    for each class.
+    Args:
+        tasks_df: input dataframe with the columns task, labels and variance
+        specs_json: specs file of the test dataset
+        n_shot: number of support images per class per task
+        n_query: number of query images per class per task
+
+    Returns:
+        input dataframe, but with (n_shot + n_query) times more rows, and two more columns:
+            image_id (integer) and support (bool).
+    """
     test_set = EasySet(specs_json)
     items_per_label = sort_items_per_label(test_set.labels)
     item_sampler = ItemsSampler(items_per_label)
+
     return (
         tasks_df.assign(
             image_ids=lambda df: [
@@ -200,7 +284,7 @@ def sample_items_from_classes(
             ignore_index=False,
         )
         .explode("image_id")
-        .assign(support=lambda df: df.variable.str.fullmatch("support"))
+        .assign(support=lambda df: df.variable == "support")
         .drop(columns="variable")
         .sort_values(["task", "labels", "support"])
         .reset_index(drop=True)
