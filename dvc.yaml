@@ -1,17 +1,5 @@
 vars:
-  - experiment_name: semantic_one
-  - dataset:
-      root_dir: data/tiered_imagenet
-      specs_folder: specs
-      distances_folder: distances
-      models_folder: models
-      metrics_folder: metrics
-      tb_logs_folder: tb_logs
-  - alpha_grid:
-      - 0.005
-      - 0.01
-      - 0.05
-      - 0.1
+  - params.py
 
 stages:
   compute_distances:
@@ -21,16 +9,16 @@ stages:
     do:
       cmd: python -m src.compute_semantic_distances
         --split ${item}
-        --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
-        --output-dir ${dataset.root_dir}/${dataset.distances_folder}
-        &> ${dataset.root_dir}/logs/compute_${item}_distances.out
+        --specs-dir ${specs_dir}
+        --output-dir ${distances_dir}
+        &> ${logs_dir}/compute_${item}_distances.out
       deps:
-        - ${dataset.root_dir}/${dataset.specs_folder}/${item}.json
-        - ${dataset.root_dir}/${dataset.specs_folder}/wordnet.is_a.txt
+        - ${specs_dir}/${item}.json
+        - ${specs_dir}/wordnet.is_a.txt
         - src/compute_semantic_distances.py
       outs:
-        - ${dataset.root_dir}/logs/compute_${item}_distances.out
-        - ${dataset.root_dir}/${dataset.distances_folder}/${item}.csv
+        - ${logs_dir}/compute_${item}_distances.out
+        - ${distances_dir}/${item}.csv
 
   create_testbed:
     foreach:
@@ -39,92 +27,91 @@ stages:
     do:
       cmd: python -m src.create_testbed
         --n-shot ${item}
-        --out-file ${dataset.root_dir}/testbeds/testbed_${item}_shot.csv
+        --out-file ${testbeds_dir}/testbed_${item}_shot.csv
       deps:
-        - ${dataset.root_dir}/${dataset.specs_folder}/test.json
-        - ${dataset.root_dir}/${dataset.distances_folder}/test.csv
+        - ${specs_dir}/test.json
+        - ${distances_dir}/test.csv
         - src/create_testbed.py
       outs:
-        - ${dataset.root_dir}/testbeds/testbed_${item}_shot.csv
-        - ${dataset.root_dir}/testbeds/testbed_${item}_shot_pv.png
-        - ${dataset.root_dir}/testbeds/testbed_${item}_shot_occ.png
+        - ${testbeds_dir}/testbed_${item}_shot.csv
+        - ${testbeds_dir}/testbed_${item}_shot_pv.png
+        - ${testbeds_dir}/testbed_${item}_shot_occ.png
 
   train:
-    foreach: ${alpha_grid}
+    foreach: ${grid_search}
     do:
       cmd: python -m src.train
-        --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
-        --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
-        --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
-        --tb-log-dir ${dataset.root_dir}/${dataset.tb_logs_folder}/semantic/${item}
-        --output-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
-        --sampler semantic
-        --semantic-alpha ${item}
+        --specs-dir ${specs_dir}
+        --distances-dir ${distances_dir}
+        --metrics-dir ${metrics_dir}/${item.name}
+        --tb-log-dir ${tb_logs_dir}/${item.name}
+        --output-model ${models_dir}/trained_model_${item.name}.tar
+        --sampler ${item.sampler}
+        --semantic-alpha ${item.alpha}
         --device cuda:0
-        &> ${dataset.root_dir}/logs/train_semantic_${item}.out
+        &> ${logs_dir}/train_${item.name}.out
       deps:
-        - ${dataset.root_dir}/${dataset.specs_folder}/train.json
-        - ${dataset.root_dir}/${dataset.specs_folder}/val.json
-        - ${dataset.root_dir}/${dataset.distances_folder}/train.csv
+        - ${specs_dir}/train.json
+        - ${specs_dir}/val.json
+        - ${distances_dir}/train.csv
         - src/train.py
       outs:
-        - ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_tasks.pkl
-        - ${dataset.root_dir}/logs/train_semantic_${item}.out
+        - ${models_dir}/trained_model_${item.name}.tar
+        - ${metrics_dir}/${item.name}/training_tasks.pkl
+        - ${logs_dir}/train_${item.name}.out
 
   evaluate:
-    foreach: ${alpha_grid}
+    foreach: ${grid_search}
     do:
       cmd: python -m src.evaluate
-        --specs-dir ${dataset.root_dir}/${dataset.specs_folder}
-        --testbed ${dataset.root_dir}/testbeds/testbed_5_shot.csv
-        --trained-model ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
-        --output-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
-        &> ${dataset.root_dir}/logs/evaluate_${item}.out
+        --specs-dir ${specs_dir}
+        --testbed ${testbeds_dir}/testbed_5_shot.csv
+        --trained-model ${models_dir}/trained_model_${item.name}.tar
+        --output-dir ${metrics_dir}/${item.name}
+        &> ${logs_dir}/evaluate_${item.name}.out
       deps:
-        - ${dataset.root_dir}/${dataset.models_folder}/trained_model_semantic_${item}.tar
-        - ${dataset.root_dir}/${dataset.specs_folder}/test.json
-        - ${dataset.root_dir}/testbeds/testbed_5_shot.csv
+        - ${models_dir}/trained_model_${item.name}.tar
+        - ${specs_dir}/test.json
+        - ${testbeds_dir}/testbed_5_shot.csv
         - src/evaluate.py
       outs:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/raw_results.csv
-        - ${dataset.root_dir}/logs/evaluate_${item}.out
+        - ${metrics_dir}/${item.name}/raw_results.csv
+        - ${logs_dir}/evaluate_${item.name}.out
 
   compute_metrics:
-    foreach: ${alpha_grid}
+    foreach: ${grid_search}
     do:
       cmd: python -m src.compute_metrics
-        --testbed ${dataset.root_dir}/testbeds/testbed_5_shot.csv
-        --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
-        &> ${dataset.root_dir}/logs/compute_metrics_${item}.out
+        --testbed ${testbeds_dir}/testbed_5_shot.csv
+        --metrics-dir ${metrics_dir}/${item.name}
+        &> ${logs_dir}/compute_metrics_${item.name}.out
       deps:
-        - ${dataset.root_dir}/testbeds/testbed_5_shot.csv
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/raw_results.csv
+        - ${testbeds_dir}/testbed_5_shot.csv
+        - ${metrics_dir}/${item.name}/raw_results.csv
         - src/compute_metrics.py
       outs:
-#        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/accuracy_v_variance.png
-        - ${dataset.root_dir}/logs/compute_metrics_${item}.out
+        - ${metrics_dir}/${item.name}/accuracy_v_variance.png
+        - ${logs_dir}/compute_metrics_${item.name}.out
       metrics:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/evaluation_metrics.json
+        - ${metrics_dir}/${item.name}/evaluation_metrics.json
       plots:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv:
+        - ${metrics_dir}/${item.name}/task_performances.csv:
             x: variance
             y: accuracy
-            title: alpha ${item}
+            title: ${item.name}
             template: smooth
 
   get_train_stats:
-    foreach: ${alpha_grid}
+    foreach: ${grid_search}
     do:
       cmd: python -m src.get_training_tasks_stats
-        --training-tasks-record ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_tasks.pkl
-        --distances-dir ${dataset.root_dir}/${dataset.distances_folder}
-        --metrics-dir ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}
+        --training-tasks-record ${metrics_dir}/${item.name}/training_tasks.pkl
+        --distances-dir ${distances_dir}
+        --metrics-dir ${metrics_dir}/${item.name}
       deps:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_tasks.pkl
-        - ${dataset.root_dir}/${dataset.distances_folder}/train.csv
+        - ${metrics_dir}/${item.name}/training_tasks.pkl
+        - ${distances_dir}/train.csv
       outs:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/intra_training_task_distances.csv
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_classes_sampled_together.png
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/training_classes_biconfusion.png
+        - ${metrics_dir}/${item.name}/intra_training_task_distances.csv
+        - ${metrics_dir}/${item.name}/training_classes_sampled_together.png
+        - ${metrics_dir}/${item.name}/training_classes_biconfusion.png
