@@ -1,4 +1,5 @@
-from functools import partial
+import json
+
 from pathlib import Path
 
 import click
@@ -6,7 +7,7 @@ from loguru import logger
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from src.utils import get_distance_std, get_median_distance, get_accuracies
+from src.utils import get_accuracies
 
 
 @click.option(
@@ -33,14 +34,38 @@ def main(testbed: Path, metrics_dir: Path):
         axis=1,
     )
 
-    logger.info(
-        f"Evaluation accuracy {100 * statistics['accuracy'].mean()}%"
-        f" +- {100 * statistics['accuracy'].std()}%"
-    )
-
     stats_file = metrics_dir / "task_performances.csv"
     statistics.to_csv(stats_file)
     logger.info(f"Task statistics dumped at {stats_file}")
+
+    metrics_json = metrics_dir / "evaluation_metrics.json"
+    json.dump(
+        {
+            "accuracy": statistics.accuracy.mean(),
+            "std": statistics.accuracy.std(),
+            "first_quartile_acc": statistics.loc[
+                statistics.variance < statistics.variance.quantile(0.25)
+            ].accuracy.mean(),
+            "second_quartile_acc": statistics.loc[
+                statistics.variance.between(
+                    statistics.variance.quantile(0.25),
+                    statistics.variance.quantile(0.50),
+                )
+            ].accuracy.mean(),
+            "third_quartile_acc": statistics.loc[
+                statistics.variance.between(
+                    statistics.variance.quantile(0.50),
+                    statistics.variance.quantile(0.75),
+                )
+            ].accuracy.mean(),
+            "fourth_quartile_acc": statistics.loc[
+                statistics.variance.quantile(0.75) <= statistics.variance
+            ].accuracy.mean(),
+        },
+        open(metrics_json, "w"),
+        indent=4,
+    )
+    logger.info(f"Metrics dumped to {metrics_json}")
 
     plot_file = metrics_dir / "accuracy_v_variance.png"
     statistics.plot(x="variance", y="accuracy", kind="scatter")
