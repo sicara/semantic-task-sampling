@@ -104,6 +104,10 @@ def get_accuracies(results: pd.DataFrame) -> pd.Series:
 def get_sampler(
     sampler: str,
     dataset: EasySet,
+    n_way: int,
+    n_shot: int,
+    n_query: int,
+    n_tasks: int,
     distances_csv: Path = None,
     semantic_alpha: float = None,
     adaptive_forgetting: float = None,
@@ -111,10 +115,10 @@ def get_sampler(
 ):
     common_args = {
         "dataset": dataset,
-        "n_way": 5,
-        "n_shot": 5,
-        "n_query": 10,
-        "n_tasks": 200,
+        "n_way": n_way,
+        "n_shot": n_shot,
+        "n_query": n_query,
+        "n_tasks": n_tasks,
     }
     if sampler == "semantic":
         if semantic_alpha is None or distances_csv is None:
