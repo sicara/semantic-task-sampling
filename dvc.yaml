@@ -1,6 +1,3 @@
-vars:
-  - params.py
-
 stages:
   compute_distances:
     foreach:
