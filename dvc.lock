@@ -175,15 +175,18 @@ stages:
       md5: dcdbfef577d631c048f744c91d9cc01e
       size: 16912160
     - path: src/compute_metrics.py
-      md5: 8676cb7a461f61b7b408810065a9ab82
-      size: 1368
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
     outs:
     - path: data/tiered_imagenet/logs/compute_metrics_0.005.out
-      md5: ba9443bfbd1ad11b9559d3a08c4f1276
-      size: 691
+      md5: b4f3396e78ad2d5bf43e2bed2725c64e
+      size: 725
     - path: data/tiered_imagenet/metrics/semantic/0.005/accuracy_v_variance.png
       md5: 7b73fc87d4373b64aeb84147ff74725a
       size: 57555
+    - path: data/tiered_imagenet/metrics/semantic/0.005/evaluation_metrics.json
+      md5: a11d69c44bea4c72eeffc06dad7bbd2e
+      size: 226
     - path: data/tiered_imagenet/metrics/semantic/0.005/task_performances.csv
       md5: 6eee13e8cb90be4dc74157abd8766322
       size: 138451
@@ -250,15 +253,18 @@ stages:
       md5: dcdbfef577d631c048f744c91d9cc01e
       size: 16912160
     - path: src/compute_metrics.py
-      md5: 8676cb7a461f61b7b408810065a9ab82
-      size: 1368
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
     outs:
     - path: data/tiered_imagenet/logs/compute_metrics_0.1.out
-      md5: bb56926021db5e1e399239639fc8da48
-      size: 686
+      md5: 6fba826b40a761261430433a09831a45
+      size: 719
     - path: data/tiered_imagenet/metrics/semantic/0.1/accuracy_v_variance.png
       md5: af1bd631a8caf0e3aa38a56dd6b50606
       size: 56650
+    - path: data/tiered_imagenet/metrics/semantic/0.1/evaluation_metrics.json
+      md5: ac7e7669ddcb60d454079a0179d2e813
+      size: 235
     - path: data/tiered_imagenet/metrics/semantic/0.1/task_performances.csv
       md5: ecd4919b6db4fca5f1feaa2f89cc5cbe
       size: 138438
@@ -325,15 +331,18 @@ stages:
       md5: dcdbfef577d631c048f744c91d9cc01e
       size: 16912160
     - path: src/compute_metrics.py
-      md5: 8676cb7a461f61b7b408810065a9ab82
-      size: 1368
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
     outs:
     - path: data/tiered_imagenet/logs/compute_metrics_0.01.out
-      md5: 6c087f51f97bee6f11307af9639ade97
-      size: 699
+      md5: b59a6118759bf0ce16695b4054384215
+      size: 722
     - path: data/tiered_imagenet/metrics/semantic/0.01/accuracy_v_variance.png
       md5: 2bd4cfe89e9341813df969df51e4dcb8
       size: 53726
+    - path: data/tiered_imagenet/metrics/semantic/0.01/evaluation_metrics.json
+      md5: ccd1008b88fb796bca2319d0f8284f63
+      size: 246
     - path: data/tiered_imagenet/metrics/semantic/0.01/task_performances.csv
       md5: 8958c739018e27b02e9da0648003c207
       size: 138430
@@ -400,15 +409,18 @@ stages:
       md5: dcdbfef577d631c048f744c91d9cc01e
       size: 16912160
     - path: src/compute_metrics.py
-      md5: 8676cb7a461f61b7b408810065a9ab82
-      size: 1368
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
     outs:
     - path: data/tiered_imagenet/logs/compute_metrics_0.05.out
-      md5: f1210a962a5078c12b6c4c9eec7fb4c1
-      size: 688
+      md5: 25160237b7a98d48722354350c228357
+      size: 722
     - path: data/tiered_imagenet/metrics/semantic/0.05/accuracy_v_variance.png
       md5: 933d77cc7495b461faa20783f790db93
       size: 57356
+    - path: data/tiered_imagenet/metrics/semantic/0.05/evaluation_metrics.json
+      md5: 0d1d8c7906341782c536fddfa1ee9105
+      size: 235
     - path: data/tiered_imagenet/metrics/semantic/0.05/task_performances.csv
       md5: bcfae2ca975585265e20ad897fcb1234
       size: 138448

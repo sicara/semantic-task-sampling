@@ -102,11 +102,17 @@ stages:
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/raw_results.csv
         - src/compute_metrics.py
       outs:
-        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv
+#        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/accuracy_v_variance.png
         - ${dataset.root_dir}/logs/compute_metrics_${item}.out
       metrics:
         - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/evaluation_metrics.json
+      plots:
+        - ${dataset.root_dir}/${dataset.metrics_folder}/semantic/${item}/task_performances.csv:
+            x: variance
+            y: accuracy
+            title: alpha ${item}
+            template: smooth
 
   get_train_stats:
     foreach: ${alpha_grid}
