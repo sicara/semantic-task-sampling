@@ -8,11 +8,17 @@ testbeds_dir: data/tiered_imagenet/testbeds
 
 grid_search:
   - sampler: semantic
-    alpha: 0.005
-    name: semantic_0005
+    alpha: 0.0
+    name: semantic_0
+  - sampler: semantic
+    alpha: 0.001
+    name: semantic_e3
   - sampler: semantic
     alpha: 0.01
-    name: semantic_001
+    name: semantic_e2
+  - sampler: semantic
+    alpha: 0.1
+    name: semantic_e1
   - sampler: uniform
     alpha: 0.0
     name: uniform

@@ -548,3 +548,591 @@ stages:
     - path: data/tiered_imagenet/testbeds/testbed_1_shot_pv.png
       md5: 1f955edce5067da0838e3bc7d47ad2d6
       size: 17303
+  train@3:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e1
+      --tb-log-dir data/tiered_imagenet/tb_logs/semantic_e1 --output-model data/tiered_imagenet/models/trained_model_semantic_e1.tar
+      --sampler semantic --semantic-alpha 0.1 --device cuda:0 &> data/tiered_imagenet/logs/train_semantic_e1.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_semantic_e1.out
+      md5: dbf8217033a774cbf00659abe1ea3dd8
+      size: 5204839
+    - path: data/tiered_imagenet/metrics/semantic_e1/training_tasks.pkl
+      md5: 2728a1d89e1a026dbd9301b6ab489ff6
+      size: 25211091
+    - path: data/tiered_imagenet/models/trained_model_semantic_e1.tar
+      md5: 13a22af93985706413676dd452c5aa3a
+      size: 44787199
+  get_train_stats@3:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic_e1/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e1
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic_e1/training_tasks.pkl
+      md5: 2728a1d89e1a026dbd9301b6ab489ff6
+      size: 25211091
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic_e1/intra_training_task_distances.csv
+      md5: 72c457f2af648779e7733449a4cedcc0
+      size: 2138671
+    - path: data/tiered_imagenet/metrics/semantic_e1/training_classes_biconfusion.png
+      md5: ab2b97278b00ca66040e54bb8503fa34
+      size: 176643
+    - path: data/tiered_imagenet/metrics/semantic_e1/training_classes_sampled_together.png
+      md5: 5b6a1db8ce8286b8e687a942465f04ff
+      size: 159862
+  evaluate@3:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_semantic_e1.tar --output-dir
+      data/tiered_imagenet/metrics/semantic_e1 &> data/tiered_imagenet/logs/evaluate_semantic_e1.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_semantic_e1.tar
+      md5: 13a22af93985706413676dd452c5aa3a
+      size: 44787199
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_semantic_e1.out
+      md5: 03538c2b60630b6c6c0ef98eb0243689
+      size: 370214
+    - path: data/tiered_imagenet/metrics/semantic_e1/raw_results.csv
+      md5: 603052f931bedf4c698ce59532a02063
+      size: 63739814
+  compute_metrics@3:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/semantic_e1 &> data/tiered_imagenet/logs/compute_metrics_semantic_e1.out
+    deps:
+    - path: data/tiered_imagenet/metrics/semantic_e1/raw_results.csv
+      md5: 603052f931bedf4c698ce59532a02063
+      size: 63739814
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_semantic_e1.out
+      md5: bc47b9e7609ab2136c00eefb9f296cc7
+      size: 716
+    - path: data/tiered_imagenet/metrics/semantic_e1/accuracy_v_variance.png
+      md5: 82afa30ea4453c7b188e637848bdb0b5
+      size: 57978
+    - path: data/tiered_imagenet/metrics/semantic_e1/evaluation_metrics.json
+      md5: 6e78cb5a86060660213ec8b22238cb90
+      size: 225
+    - path: data/tiered_imagenet/metrics/semantic_e1/task_performances.csv
+      md5: 8f75418f3f8960bdcd95c32e0cdaccc8
+      size: 138430
+  train@0:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_0
+      --tb-log-dir data/tiered_imagenet/tb_logs/semantic_0 --output-model data/tiered_imagenet/models/trained_model_semantic_0.tar
+      --sampler semantic --semantic-alpha 0.0 --device cuda:0 &> data/tiered_imagenet/logs/train_semantic_0.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_semantic_0.out
+      md5: fadf38d0612049dd87e51ae636dd90fd
+      size: 5207453
+    - path: data/tiered_imagenet/metrics/semantic_0/training_tasks.pkl
+      md5: 96c32635be515bc0ff5f9d3e8b148e78
+      size: 25201792
+    - path: data/tiered_imagenet/models/trained_model_semantic_0.tar
+      md5: ec922a913b7177ee35da4dc39ca80bd8
+      size: 44787139
+  get_train_stats@0:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic_0/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_0
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic_0/training_tasks.pkl
+      md5: 96c32635be515bc0ff5f9d3e8b148e78
+      size: 25201792
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic_0/intra_training_task_distances.csv
+      md5: 83530ef31806e14eac87f63f61eef4c9
+      size: 2139360
+    - path: data/tiered_imagenet/metrics/semantic_0/training_classes_biconfusion.png
+      md5: 0f8cf882217c9a42a1160d3a64373bf3
+      size: 187950
+    - path: data/tiered_imagenet/metrics/semantic_0/training_classes_sampled_together.png
+      md5: c78e2f83255f2dff724acaa06557bedc
+      size: 155579
+  evaluate@0:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_semantic_0.tar --output-dir
+      data/tiered_imagenet/metrics/semantic_0 &> data/tiered_imagenet/logs/evaluate_semantic_0.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_semantic_0.tar
+      md5: ec922a913b7177ee35da4dc39ca80bd8
+      size: 44787139
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_semantic_0.out
+      md5: d18954f02b346f6e0db11a80a0e14756
+      size: 370112
+    - path: data/tiered_imagenet/metrics/semantic_0/raw_results.csv
+      md5: 32c7c3feff723fe001b2172a831651b5
+      size: 63750722
+  compute_metrics@0:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/semantic_0 &> data/tiered_imagenet/logs/compute_metrics_semantic_0.out
+    deps:
+    - path: data/tiered_imagenet/metrics/semantic_0/raw_results.csv
+      md5: 32c7c3feff723fe001b2172a831651b5
+      size: 63750722
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_semantic_0.out
+      md5: 2be800b9dab781ad7a358ae653860ce2
+      size: 713
+    - path: data/tiered_imagenet/metrics/semantic_0/accuracy_v_variance.png
+      md5: f887b5432e3652f4f027e7cb3042ceba
+      size: 57785
+    - path: data/tiered_imagenet/metrics/semantic_0/evaluation_metrics.json
+      md5: fade68187a00254b007efa5d9271e05e
+      size: 225
+    - path: data/tiered_imagenet/metrics/semantic_0/task_performances.csv
+      md5: bcc3f618b8ee3a747f1d0a2e9a4007dc
+      size: 138438
+  train@1:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e3
+      --tb-log-dir data/tiered_imagenet/tb_logs/semantic_e3 --output-model data/tiered_imagenet/models/trained_model_semantic_e3.tar
+      --sampler semantic --semantic-alpha 0.001 --device cuda:0 &> data/tiered_imagenet/logs/train_semantic_e3.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_semantic_e3.out
+      md5: d5cbe0e4679ddace2b33a28dcda1e197
+      size: 5210405
+    - path: data/tiered_imagenet/metrics/semantic_e3/training_tasks.pkl
+      md5: 363bed3d0258898d0cbfd1ff50a0ff48
+      size: 25200337
+    - path: data/tiered_imagenet/models/trained_model_semantic_e3.tar
+      md5: 4773528756d5e993e9b6cf63f1bbf402
+      size: 44787142
+  get_train_stats@1:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic_e3/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e3
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic_e3/training_tasks.pkl
+      md5: 363bed3d0258898d0cbfd1ff50a0ff48
+      size: 25200337
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic_e3/intra_training_task_distances.csv
+      md5: 5a9562c6d7ec217cc760bb07a6253fac
+      size: 2139659
+    - path: data/tiered_imagenet/metrics/semantic_e3/training_classes_biconfusion.png
+      md5: 1720df842db66bdbb1d21082ad5c7ef3
+      size: 185559
+    - path: data/tiered_imagenet/metrics/semantic_e3/training_classes_sampled_together.png
+      md5: ce452bea3d6ff1ca591858934dac9705
+      size: 152914
+  evaluate@1:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_semantic_e3.tar --output-dir
+      data/tiered_imagenet/metrics/semantic_e3 &> data/tiered_imagenet/logs/evaluate_semantic_e3.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_semantic_e3.tar
+      md5: 4773528756d5e993e9b6cf63f1bbf402
+      size: 44787142
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_semantic_e3.out
+      md5: c31fa7fd23cb35ec6bdade8641fa143a
+      size: 369778
+    - path: data/tiered_imagenet/metrics/semantic_e3/raw_results.csv
+      md5: c808ac66249cde0bbb2df2bffcd1aa5a
+      size: 63712123
+  compute_metrics@1:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/semantic_e3 &> data/tiered_imagenet/logs/compute_metrics_semantic_e3.out
+    deps:
+    - path: data/tiered_imagenet/metrics/semantic_e3/raw_results.csv
+      md5: c808ac66249cde0bbb2df2bffcd1aa5a
+      size: 63712123
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_semantic_e3.out
+      md5: 80b1610726d5f1915744159d0b0d0d19
+      size: 716
+    - path: data/tiered_imagenet/metrics/semantic_e3/accuracy_v_variance.png
+      md5: acba5fce5d8e2122e77ad277b4d6c215
+      size: 55491
+    - path: data/tiered_imagenet/metrics/semantic_e3/evaluation_metrics.json
+      md5: a2def98b6553db83cf5fe6240ee09a11
+      size: 226
+    - path: data/tiered_imagenet/metrics/semantic_e3/task_performances.csv
+      md5: de47922bd7df1c2109f6c2dfd355c3a5
+      size: 138465
+  train@5:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/adaptive
+      --tb-log-dir data/tiered_imagenet/tb_logs/adaptive --output-model data/tiered_imagenet/models/trained_model_adaptive.tar
+      --sampler adaptive --semantic-alpha 0.0 --device cuda:0 &> data/tiered_imagenet/logs/train_adaptive.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_adaptive.out
+      md5: cca6e87a89a58110542bee88395f0c2e
+      size: 5206172
+    - path: data/tiered_imagenet/metrics/adaptive/training_tasks.pkl
+      md5: b6ca4ff0c4228ec0126df0d840819ccd
+      size: 25208592
+    - path: data/tiered_imagenet/models/trained_model_adaptive.tar
+      md5: 11e4a677cc29211bd6d9b3ed6b3eca78
+      size: 44787159
+  get_train_stats@5:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/adaptive/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/adaptive
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/adaptive/training_tasks.pkl
+      md5: b6ca4ff0c4228ec0126df0d840819ccd
+      size: 25208592
+    outs:
+    - path: data/tiered_imagenet/metrics/adaptive/intra_training_task_distances.csv
+      md5: f3253b4b9626ee4e619a559db931f9ff
+      size: 2139866
+    - path: data/tiered_imagenet/metrics/adaptive/training_classes_biconfusion.png
+      md5: 57c6df758590f07356e8f60ba378874f
+      size: 187733
+    - path: data/tiered_imagenet/metrics/adaptive/training_classes_sampled_together.png
+      md5: 7b603fd33d359a6e7471d0dea3eb1335
+      size: 154114
+  evaluate@5:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_adaptive.tar --output-dir
+      data/tiered_imagenet/metrics/adaptive &> data/tiered_imagenet/logs/evaluate_adaptive.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_adaptive.tar
+      md5: 11e4a677cc29211bd6d9b3ed6b3eca78
+      size: 44787159
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_adaptive.out
+      md5: 97106665f1757215e1870a9b00e8ce84
+      size: 369834
+    - path: data/tiered_imagenet/metrics/adaptive/raw_results.csv
+      md5: fd186d8df8d4e136a4769a236a779034
+      size: 63746583
+  compute_metrics@5:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/adaptive &> data/tiered_imagenet/logs/compute_metrics_adaptive.out
+    deps:
+    - path: data/tiered_imagenet/metrics/adaptive/raw_results.csv
+      md5: fd186d8df8d4e136a4769a236a779034
+      size: 63746583
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_adaptive.out
+      md5: 478ea0cb3cfcea2c04398e2f42f7a160
+      size: 707
+    - path: data/tiered_imagenet/metrics/adaptive/accuracy_v_variance.png
+      md5: 24e07551b8175ccdc4a50db580401534
+      size: 57480
+    - path: data/tiered_imagenet/metrics/adaptive/evaluation_metrics.json
+      md5: 9a74a3e42b86df3cb9536a92efc308f0
+      size: 246
+    - path: data/tiered_imagenet/metrics/adaptive/task_performances.csv
+      md5: 01ea7c3ae569ea460a2e8eb08d912caa
+      size: 138401
+  train@4:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/uniform
+      --tb-log-dir data/tiered_imagenet/tb_logs/uniform --output-model data/tiered_imagenet/models/trained_model_uniform.tar
+      --sampler uniform --semantic-alpha 0.0 --device cuda:0 &> data/tiered_imagenet/logs/train_uniform.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_uniform.out
+      md5: f0712823f377b927215c7fcf393dd069
+      size: 5208282
+    - path: data/tiered_imagenet/metrics/uniform/training_tasks.pkl
+      md5: 4457bb5a02fe05fa26bdfb60a4f590e0
+      size: 25209718
+    - path: data/tiered_imagenet/models/trained_model_uniform.tar
+      md5: aa3068f5be3956a204b1648b37a00a7d
+      size: 44787174
+  get_train_stats@4:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/uniform/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/uniform
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/uniform/training_tasks.pkl
+      md5: 4457bb5a02fe05fa26bdfb60a4f590e0
+      size: 25209718
+    outs:
+    - path: data/tiered_imagenet/metrics/uniform/intra_training_task_distances.csv
+      md5: a83db4f7087f085f74fad9b0bf0a4a1a
+      size: 2139626
+    - path: data/tiered_imagenet/metrics/uniform/training_classes_biconfusion.png
+      md5: 9d47c9e35e8cb2c70605f5a9fcc0ed39
+      size: 190555
+    - path: data/tiered_imagenet/metrics/uniform/training_classes_sampled_together.png
+      md5: db0c9ac0cdbff336593e0d0f012c7656
+      size: 155613
+  evaluate@4:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_uniform.tar --output-dir
+      data/tiered_imagenet/metrics/uniform &> data/tiered_imagenet/logs/evaluate_uniform.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_uniform.tar
+      md5: aa3068f5be3956a204b1648b37a00a7d
+      size: 44787174
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_uniform.out
+      md5: 7ebdb5b405334b914676431e32696339
+      size: 369990
+    - path: data/tiered_imagenet/metrics/uniform/raw_results.csv
+      md5: 5be6c6cd2ec64bff7d9d791a7f2db76c
+      size: 63717594
+  compute_metrics@4:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/uniform &> data/tiered_imagenet/logs/compute_metrics_uniform.out
+    deps:
+    - path: data/tiered_imagenet/metrics/uniform/raw_results.csv
+      md5: 5be6c6cd2ec64bff7d9d791a7f2db76c
+      size: 63717594
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_uniform.out
+      md5: 137ef5ac9c88832730aaa3123119e478
+      size: 704
+    - path: data/tiered_imagenet/metrics/uniform/accuracy_v_variance.png
+      md5: cb3041cfd19c3305f2d985aaa5a93bad
+      size: 56489
+    - path: data/tiered_imagenet/metrics/uniform/evaluation_metrics.json
+      md5: b10ed697fb774ca16b1081dee6c7b799
+      size: 245
+    - path: data/tiered_imagenet/metrics/uniform/task_performances.csv
+      md5: a74d75aff38fc56be418e9f7bbbbe751
+      size: 138444
+  train@2:
+    cmd: python -m src.train --specs-dir data/tiered_imagenet/specs --distances-dir
+      data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e2
+      --tb-log-dir data/tiered_imagenet/tb_logs/semantic_e2 --output-model data/tiered_imagenet/models/trained_model_semantic_e2.tar
+      --sampler semantic --semantic-alpha 0.01 --device cuda:0 &> data/tiered_imagenet/logs/train_semantic_e2.out
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/specs/train.json
+      md5: 3d8a420c1257c8d0c3dc3e1cbe3403a8
+      size: 30593
+    - path: data/tiered_imagenet/specs/val.json
+      md5: 64dde6b03b773bdf5b65c3dd04770e81
+      size: 8495
+    - path: src/train.py
+      md5: dce903a010c5c952a9ecaa7c2b267f67
+      size: 4945
+    outs:
+    - path: data/tiered_imagenet/logs/train_semantic_e2.out
+      md5: 4730281ef941db53f799f71a87282f15
+      size: 5210418
+    - path: data/tiered_imagenet/metrics/semantic_e2/training_tasks.pkl
+      md5: 82c9de0cdb3dfbee7874d0d5d09256ae
+      size: 25209322
+    - path: data/tiered_imagenet/models/trained_model_semantic_e2.tar
+      md5: 3aed35ae59c710686bcdefcbd9ed04c2
+      size: 44787163
+  get_train_stats@2:
+    cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/semantic_e2/training_tasks.pkl
+      --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics/semantic_e2
+    deps:
+    - path: data/tiered_imagenet/distances/train.csv
+      md5: daecfc11832898acdea1ceb04bbae72c
+      size: 2252160
+    - path: data/tiered_imagenet/metrics/semantic_e2/training_tasks.pkl
+      md5: 82c9de0cdb3dfbee7874d0d5d09256ae
+      size: 25209322
+    outs:
+    - path: data/tiered_imagenet/metrics/semantic_e2/intra_training_task_distances.csv
+      md5: f3562d601ad53c571ac4052be8a59891
+      size: 2139662
+    - path: data/tiered_imagenet/metrics/semantic_e2/training_classes_biconfusion.png
+      md5: 8d50f7dc6d161aa3edc8b3f54ac8999c
+      size: 184083
+    - path: data/tiered_imagenet/metrics/semantic_e2/training_classes_sampled_together.png
+      md5: 026835a9d86dd26ed5d95f0113ac5cdb
+      size: 154310
+  evaluate@2:
+    cmd: python -m src.evaluate --specs-dir data/tiered_imagenet/specs --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --trained-model data/tiered_imagenet/models/trained_model_semantic_e2.tar --output-dir
+      data/tiered_imagenet/metrics/semantic_e2 &> data/tiered_imagenet/logs/evaluate_semantic_e2.out
+    deps:
+    - path: data/tiered_imagenet/models/trained_model_semantic_e2.tar
+      md5: 3aed35ae59c710686bcdefcbd9ed04c2
+      size: 44787163
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 522a3fae2c4919b3b1d02c7f1221cc20
+      size: 13976
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/evaluate.py
+      md5: fccb30849bcb7bb8f5ade6b2780e1f9b
+      size: 1887
+    outs:
+    - path: data/tiered_imagenet/logs/evaluate_semantic_e2.out
+      md5: 0de3d7f1fe2a4fd7ff7e9e277d52f16c
+      size: 369264
+    - path: data/tiered_imagenet/metrics/semantic_e2/raw_results.csv
+      md5: 55ecc0f84b4f0950cbcdf606d117daf9
+      size: 63733166
+  compute_metrics@2:
+    cmd: python -m src.compute_metrics --testbed data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      --metrics-dir data/tiered_imagenet/metrics/semantic_e2 &> data/tiered_imagenet/logs/compute_metrics_semantic_e2.out
+    deps:
+    - path: data/tiered_imagenet/metrics/semantic_e2/raw_results.csv
+      md5: 55ecc0f84b4f0950cbcdf606d117daf9
+      size: 63733166
+    - path: data/tiered_imagenet/testbeds/testbed_5_shot.csv
+      md5: dcdbfef577d631c048f744c91d9cc01e
+      size: 16912160
+    - path: src/compute_metrics.py
+      md5: d13f5f9c3d7188b002299f827bdd9e68
+      size: 2292
+    outs:
+    - path: data/tiered_imagenet/logs/compute_metrics_semantic_e2.out
+      md5: 6d85ade2fd1cfcc08954fa87da0b2f8e
+      size: 716
+    - path: data/tiered_imagenet/metrics/semantic_e2/accuracy_v_variance.png
+      md5: c01548c16192b34ca17db631891ab0b6
+      size: 57657
+    - path: data/tiered_imagenet/metrics/semantic_e2/evaluation_metrics.json
+      md5: 8a970ecba4360d482141984dcb50115a
+      size: 224
+    - path: data/tiered_imagenet/metrics/semantic_e2/task_performances.csv
+      md5: 6847aabf8790a667ed853f4b720c948f
+      size: 138385
