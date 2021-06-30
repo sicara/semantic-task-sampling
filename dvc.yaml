@@ -45,7 +45,8 @@ stages:
         --output-model ${models_dir}/trained_model_${item.name}.tar
         --sampler ${item.sampler}
         --semantic-alpha ${item.alpha}
-        --device cuda:0
+        --random-seed 0
+        --device cuda:1
         &> ${logs_dir}/train_${item.name}.out
       deps:
         - ${specs_dir}/train.json

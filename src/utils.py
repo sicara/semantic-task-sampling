@@ -1,5 +1,6 @@
 import itertools
 
+import random
 import torch
 from functools import partial
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
@@ -204,3 +206,17 @@ def get_sampled_together(df, n_classes):
         ),
         dim=0,
     ).to_dense()
+
+
+def set_random_seed(seed: int):
+    """
+    Set random, numpy and torch random seed, for reproducibility of the training
+    Args:
+        seed: defined random seed
+    """
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    logger.info(f"Random seed : {seed}")
