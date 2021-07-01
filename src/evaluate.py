@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader
 from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import UniformTaskSampler
 from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
 from easyfsl.methods import PrototypicalNetworks
 
@@ -34,8 +33,16 @@ from easyfsl.methods import PrototypicalNetworks
 @click.option(
     "--output-dir", help="Where to dump evaluation results", type=Path, required=True
 )
+@click.option(
+    "--device",
+    help="What device to train the model on",
+    type=str,
+    default="cuda",
+)
 @click.command()
-def main(specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path):
+def main(
+    specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path, device: str
+):
     logger.info("Fetching test data...")
     test_set = EasySet(specs_file=specs_dir / "test.json", training=False)
     test_sampler = TestbedSampler(
@@ -53,7 +60,9 @@ def main(specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path):
     logger.info("Retrieving model...")
     convolutional_network = resnet18(pretrained=False)
     convolutional_network.fc = nn.Flatten()
-    model = PrototypicalNetworks(backbone=convolutional_network).cuda()
+    model = PrototypicalNetworks(backbone=convolutional_network, device=device).to(
+        device
+    )
     model.load_state_dict(torch.load(trained_model))
 
     logger.info("Starting evaluation...")

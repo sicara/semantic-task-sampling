@@ -66,6 +66,7 @@ stages:
         --testbed ${testbeds_dir}/testbed_5_shot.csv
         --trained-model ${models_dir}/trained_model_${item.name}.tar
         --output-dir ${metrics_dir}/${item.name}
+        --device cuda:1
         &> ${logs_dir}/evaluate_${item.name}.out
       deps:
         - ${models_dir}/trained_model_${item.name}.tar
