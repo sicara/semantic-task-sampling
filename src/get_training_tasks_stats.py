@@ -36,7 +36,8 @@ from src.utils import (
 @click.command()
 def main(training_tasks_record: Path, distances_dir: Path, metrics_dir: Path):
     logger.info("Loading training records...")
-    training_tasks_record = pickle.load(open(training_tasks_record, "rb"))
+    with open(training_tasks_record, "rb") as file:
+        training_tasks_record = pickle.load(file)
 
     logger.info("Computing metrics...")
     distances = pd.read_csv(distances_dir / "train.csv", header=None).values

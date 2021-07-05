@@ -39,32 +39,33 @@ def main(testbed: Path, metrics_dir: Path):
     logger.info(f"Task statistics dumped at {stats_file}")
 
     metrics_json = metrics_dir / "evaluation_metrics.json"
-    json.dump(
-        {
-            "accuracy": statistics.accuracy.mean(),
-            "std": statistics.accuracy.std(),
-            "first_quartile_acc": statistics.loc[
-                statistics.variance < statistics.variance.quantile(0.25)
-            ].accuracy.mean(),
-            "second_quartile_acc": statistics.loc[
-                statistics.variance.between(
-                    statistics.variance.quantile(0.25),
-                    statistics.variance.quantile(0.50),
-                )
-            ].accuracy.mean(),
-            "third_quartile_acc": statistics.loc[
-                statistics.variance.between(
-                    statistics.variance.quantile(0.50),
-                    statistics.variance.quantile(0.75),
-                )
-            ].accuracy.mean(),
-            "fourth_quartile_acc": statistics.loc[
-                statistics.variance.quantile(0.75) <= statistics.variance
-            ].accuracy.mean(),
-        },
-        open(metrics_json, "w"),
-        indent=4,
-    )
+    with open(metrics_json, "w") as file:
+        json.dump(
+            {
+                "accuracy": statistics.accuracy.mean(),
+                "std": statistics.accuracy.std(),
+                "first_quartile_acc": statistics.loc[
+                    statistics.variance < statistics.variance.quantile(0.25)
+                ].accuracy.mean(),
+                "second_quartile_acc": statistics.loc[
+                    statistics.variance.between(
+                        statistics.variance.quantile(0.25),
+                        statistics.variance.quantile(0.50),
+                    )
+                ].accuracy.mean(),
+                "third_quartile_acc": statistics.loc[
+                    statistics.variance.between(
+                        statistics.variance.quantile(0.50),
+                        statistics.variance.quantile(0.75),
+                    )
+                ].accuracy.mean(),
+                "fourth_quartile_acc": statistics.loc[
+                    statistics.variance.quantile(0.75) <= statistics.variance
+                ].accuracy.mean(),
+            },
+            file,
+            indent=4,
+        )
     logger.info(f"Metrics dumped to {metrics_json}")
 
     plot_file = metrics_dir / "accuracy_v_variance.png"

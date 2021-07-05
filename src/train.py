@@ -204,7 +204,10 @@ def main(
     )
 
     record_dump_path = metrics_dir / "training_tasks.pkl"
-    pickle.dump(training_tasks_record, open(record_dump_path, "wb"))
+
+    with open(record_dump_path, "wb") as file:
+        pickle.dump(training_tasks_record, file)
+
     logger.info(f"Training tasks record dumped at {record_dump_path}")
 
     torch.save(model.state_dict(), output_model)
