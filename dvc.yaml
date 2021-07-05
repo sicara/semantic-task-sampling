@@ -18,9 +18,7 @@ stages:
         - ${distances_dir}/${item}.csv
 
   create_testbed:
-    foreach:
-      - 1
-      - 5
+    foreach: ${number_of_ways}
     do:
       cmd: python -m src.create_testbed
         --n-shot ${item}
@@ -45,8 +43,8 @@ stages:
         --output-model ${models_dir}/trained_model_${item.name}.tar
         --sampler ${item.sampler}
         --semantic-alpha ${item.alpha}
-        --random-seed 1
-        --device cuda:1
+        --random-seed ${random_seed}
+        --device {device}
         &> ${logs_dir}/train_${item.name}.out
       deps:
         - ${specs_dir}/train.json
@@ -66,7 +64,7 @@ stages:
         --testbed ${testbeds_dir}/testbed_5_shot.csv
         --trained-model ${models_dir}/trained_model_${item.name}.tar
         --output-dir ${metrics_dir}/${item.name}
-        --device cuda:1
+        --device ${device}
         &> ${logs_dir}/evaluate_${item.name}.out
       deps:
         - ${models_dir}/trained_model_${item.name}.tar
