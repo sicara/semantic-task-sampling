@@ -1,5 +1,6 @@
 import itertools
 
+import random
 import torch
 from functools import partial
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
@@ -104,6 +106,10 @@ def get_accuracies(results: pd.DataFrame) -> pd.Series:
 def get_sampler(
     sampler: str,
     dataset: EasySet,
+    n_way: int,
+    n_shot: int,
+    n_query: int,
+    n_tasks: int,
     distances_csv: Path = None,
     semantic_alpha: float = None,
     adaptive_forgetting: float = None,
@@ -111,10 +117,10 @@ def get_sampler(
 ):
     common_args = {
         "dataset": dataset,
-        "n_way": 5,
-        "n_shot": 5,
-        "n_query": 10,
-        "n_tasks": 200,
+        "n_way": n_way,
+        "n_shot": n_shot,
+        "n_query": n_query,
+        "n_tasks": n_tasks,
     }
     if sampler == "semantic":
         if semantic_alpha is None or distances_csv is None:
@@ -200,3 +206,17 @@ def get_sampled_together(df, n_classes):
         ),
         dim=0,
     ).to_dense()
+
+
+def set_random_seed(seed: int):
+    """
+    Set random, numpy and torch random seed, for reproducibility of the training
+    Args:
+        seed: defined random seed
+    """
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    logger.info(f"Random seed : {seed}")

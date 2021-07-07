@@ -1,0 +1,35 @@
+specs_dir: data/tiered_imagenet/specs
+distances_dir: data/tiered_imagenet/distances
+models_dir: data/tiered_imagenet/models
+metrics_dir: data/tiered_imagenet/metrics
+tb_logs_dir: data/tiered_imagenet/tb_logs
+logs_dir: data/tiered_imagenet/logs
+testbeds_dir: data/tiered_imagenet/testbeds
+
+number_of_ways:
+  - 1
+  - 5
+
+grid_search:
+  - sampler: semantic
+    alpha: 0.0
+    name: semantic_0
+  - sampler: semantic
+    alpha: 0.001
+    name: semantic_e3
+  - sampler: semantic
+    alpha: 0.01
+    name: semantic_e2
+  - sampler: semantic
+    alpha: 0.1
+    name: semantic_e1
+  - sampler: uniform
+    alpha: 0.0
+    name: uniform
+  - sampler: adaptive
+    alpha: 0.0
+    name: adaptive
+
+device: cuda:1
+
+random_seed: 1

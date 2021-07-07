@@ -61,7 +61,8 @@ class EasySet(Dataset):
         if specs_file.suffix != ".json":
             raise ValueError("EasySet requires specs in a JSON file.")
 
-        specs = json.load(open(specs_file, "r"))
+        with open(specs_file, "r") as file:
+            specs = json.load(file)
 
         if "class_names" not in specs.keys() or "class_roots" not in specs.keys():
             raise ValueError(
