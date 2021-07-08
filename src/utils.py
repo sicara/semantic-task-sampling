@@ -5,7 +5,7 @@ import torch
 from functools import partial
 from pathlib import Path
 from statistics import median, stdev, mean
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -13,13 +13,19 @@ from loguru import logger
 from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
+from torch import nn
+from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
+from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers import (
     SemanticTaskSampler,
     AdaptiveTaskSampler,
     UniformTaskSampler,
+    AbstractTaskSampler,
 )
+from easyfsl.methods import PrototypicalNetworks
 
 
 def plot_dag(dag: nx.DiGraph):
@@ -208,3 +214,54 @@ def set_random_seed(seed: int):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     logger.info(f"Random seed : {seed}")
+
+
+def create_dataloader(dataset: EasySet, sampler: AbstractTaskSampler, n_workers: int):
+    """
+    Create a torch dataloader of tasks from the input dataset sampled according
+    to the input tensor.
+    Args:
+        dataset: dataset from which to sample tasks
+        sampler: task sampler, must implement an episodic_collate_fn method
+        n_workers: number of workers of the dataloader
+
+    Returns:
+        a dataloader of tasks
+    """
+    return DataLoader(
+        dataset,
+        batch_sampler=sampler,
+        num_workers=n_workers,
+        pin_memory=True,
+        collate_fn=sampler.episodic_collate_fn,
+    )
+
+
+def build_model(
+    device: str,
+    tb_writer: Optional[SummaryWriter] = None,
+    pretrained_weights: Optional[Path] = None,
+):
+    """
+    Build a model and cast it on the appropriate device
+    Args:
+        device: device on which to put the model
+        tb_writer: a tensorboard writer to log training events
+        pretrained_weights: if you want to use pretrained_weights for the backbone
+
+    Returns:
+        a few-shot learning model
+    """
+    convolutional_network = resnet18(pretrained=False)
+    convolutional_network.fc = nn.Flatten()
+
+    model = PrototypicalNetworks(
+        backbone=convolutional_network,
+        tensorboard_writer=tb_writer,
+        device=device,
+    ).to(device)
+
+    if pretrained_weights is not None:
+        model.load_state_dict(torch.load(pretrained_weights))
+
+    return model

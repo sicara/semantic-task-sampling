@@ -12,7 +12,7 @@ from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
 from easyfsl.methods import PrototypicalNetworks
-from src.utils import get_sampler, set_random_seed
+from src.utils import get_sampler, set_random_seed, create_dataloader, build_model
 
 SAMPLERS = [
     "uniform",
@@ -134,7 +134,7 @@ def main(
     tb_log_dir: Path,
     output_model: Path,
     random_seed: int,
-    device: Path,
+    device: str,
 ):
     metrics_dir.mkdir(parents=True, exist_ok=True)
     n_validation_tasks = 100
@@ -156,13 +156,7 @@ def main(
         adaptive_forgetting=adaptive_forgetting,
         adaptive_hardness=adaptive_hardness,
     )
-    train_loader = DataLoader(
-        train_set,
-        batch_sampler=train_sampler,
-        num_workers=n_workers,
-        pin_memory=True,
-        collate_fn=train_sampler.episodic_collate_fn,
-    )
+    train_loader = create_dataloader(train_set, train_sampler, n_workers)
 
     logger.info("Fetching validation data...")
     val_set = EasySet(specs_file=specs_dir / "val.json", training=True)
@@ -174,24 +168,12 @@ def main(
         n_query=n_query,
         n_tasks=n_validation_tasks,
     )
-    val_loader = DataLoader(
-        val_set,
-        batch_sampler=val_sampler,
-        num_workers=n_workers,
-        pin_memory=True,
-        collate_fn=val_sampler.episodic_collate_fn,
-    )
+    val_loader = create_dataloader(val_set, val_sampler, n_workers)
 
     tb_log_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info("Building model...")
-    convolutional_network = resnet18(pretrained=False)
-    convolutional_network.fc = nn.Flatten()
-    model = PrototypicalNetworks(
-        backbone=convolutional_network,
-        tensorboard_writer=SummaryWriter(log_dir=tb_log_dir),
-        device=device,
-    ).to(device)
+    model = build_model(device=device, tb_writer=SummaryWriter(log_dir=tb_log_dir))
 
     optimizer = Adam(params=model.parameters())
 
