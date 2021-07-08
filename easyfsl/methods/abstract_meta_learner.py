@@ -14,8 +14,12 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from easyfsl.utils import sliding_average, compute_backbone_output_shape, get_task_perf
-from src.utils import get_accuracies
+from easyfsl.utils import (
+    sliding_average,
+    compute_backbone_output_shape,
+    get_task_perf,
+    get_accuracies,
+)
 
 
 class AbstractMetaLearner(nn.Module):

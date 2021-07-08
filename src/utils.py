@@ -91,18 +91,6 @@ def get_pseudo_variance(labels: List[int], distances: np.ndarray) -> float:
     )
 
 
-def get_accuracies(results: pd.DataFrame) -> pd.Series:
-    return (
-        results.sort_values("score", ascending=False)
-        .drop_duplicates(["task_id", "image_id"])
-        .sort_values(["task_id", "image_id"])
-        .reset_index(drop=True)
-        .assign(accuracy=lambda df: df.true_label == df.predicted_label)
-        .groupby("task_id")
-        .accuracy.mean()
-    )
-
-
 def get_sampler(
     sampler: str,
     dataset: EasySet,

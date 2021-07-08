@@ -7,7 +7,7 @@ from loguru import logger
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from src.utils import get_accuracies
+from easyfsl.utils import get_accuracies
 
 
 @click.option(
