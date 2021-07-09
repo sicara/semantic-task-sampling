@@ -27,12 +27,6 @@ from src.utils import set_random_seed
     required=True,
 )
 @click.option(
-    "--metrics-dir",
-    help="Where to find and dump evaluation metrics",
-    type=Path,
-    required=True,
-)
-@click.option(
     "--tb-log-dir",
     help="Where to dump tensorboard event files",
     type=Path,
@@ -60,13 +54,11 @@ from src.utils import set_random_seed
 def main(
     n_epochs: int,
     specs_dir: Path,
-    metrics_dir: Path,
     tb_log_dir: Path,
     output_model: Path,
     random_seed: int,
     device: str,
 ):
-    metrics_dir.mkdir(parents=True, exist_ok=True)
     n_workers = 12
     batch_size = 64
     loss_fn = nn.CrossEntropyLoss()

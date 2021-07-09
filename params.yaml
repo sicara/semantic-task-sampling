@@ -32,4 +32,6 @@ grid_search:
 
 device: cuda:1
 
+pretraining_random_seed: 0
+
 random_seed: 1
