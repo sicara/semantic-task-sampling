@@ -67,7 +67,7 @@ def main(
     device: str,
 ):
     metrics_dir.mkdir(parents=True, exist_ok=True)
-    n_workers = 8
+    n_workers = 12
     batch_size = 64
     loss_fn = nn.CrossEntropyLoss()
 
@@ -86,7 +86,7 @@ def main(
     model = resnet18(pretrained=False).to(device)
     model.fc = nn.Linear(
         in_features=model.fc.in_features,
-        out_features=len(train_set.number_of_classes()),
+        out_features=train_set.number_of_classes(),
     ).to(device)
 
     logger.info("Starting training...")
@@ -100,7 +100,7 @@ def main(
     model = trainer.train(model, train_loader, n_epochs)
 
     model.fc = nn.Flatten()
-    torch.save(model.state_dict(), output_model)
+    torch.save(model.state_dict(prefix="backbone."), output_model)
     logger.info(f"Pretrained model weights dumped at {output_model}")
 
 
