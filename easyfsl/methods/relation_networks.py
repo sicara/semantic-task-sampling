@@ -5,6 +5,7 @@ https://github.com/floodsung/LearningToCompare_FSL
 
 import torch
 import torch.nn as nn
+
 from easyfsl.methods import AbstractMetaLearner
 from easyfsl.utils import compute_prototypes
 

@@ -10,6 +10,7 @@ from torchvision.models import resnet18
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
 from easyfsl.methods import PrototypicalNetworks
+from src.utils import build_model, create_dataloader
 
 
 @click.option(
@@ -43,27 +44,18 @@ from easyfsl.methods import PrototypicalNetworks
 def main(
     specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path, device: str
 ):
+    n_workers = 8
+
     logger.info("Fetching test data...")
     test_set = EasySet(specs_file=specs_dir / "test.json", training=False)
     test_sampler = TestbedSampler(
         test_set,
         testbed,
     )
-    test_loader = DataLoader(
-        test_set,
-        batch_sampler=test_sampler,
-        num_workers=12,
-        pin_memory=True,
-        collate_fn=test_sampler.episodic_collate_fn,
-    )
+    test_loader = create_dataloader(test_set, test_sampler, n_workers)
 
     logger.info("Retrieving model...")
-    convolutional_network = resnet18(pretrained=False)
-    convolutional_network.fc = nn.Flatten()
-    model = PrototypicalNetworks(backbone=convolutional_network, device=device).to(
-        device
-    )
-    model.load_state_dict(torch.load(trained_model))
+    model = build_model(device=device, pretrained_weights=trained_model)
 
     logger.info("Starting evaluation...")
     results = model.evaluate(test_loader)

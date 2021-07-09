@@ -1,13 +1,13 @@
-import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
 import click
-from loguru import logger
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+from loguru import logger
+from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 from easyfsl.data_tools import EasySet

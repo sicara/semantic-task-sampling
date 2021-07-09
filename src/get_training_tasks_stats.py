@@ -1,17 +1,16 @@
 import pickle
-
 from pathlib import Path
 
 import click
-from loguru import logger
-from matplotlib import pyplot as plt
 import pandas as pd
 import seaborn
+from loguru import logger
+from matplotlib import pyplot as plt
 
 from src.utils import (
     get_intra_class_distances,
-    get_training_confusion,
     get_sampled_together,
+    get_training_confusion,
 )
 
 

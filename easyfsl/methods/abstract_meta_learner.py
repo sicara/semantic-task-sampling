@@ -1,21 +1,24 @@
-from statistics import mean
-
-import pandas as pd
 from abc import abstractmethod
 from pathlib import Path
-from typing import Union, List, Dict, Optional, Tuple
+from statistics import mean
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
+import torch
 from loguru import logger
 from sklearn import metrics
-import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from easyfsl.utils import sliding_average, compute_backbone_output_shape, get_task_perf
-from src.utils import get_accuracies
+from easyfsl.utils import (
+    compute_backbone_output_shape,
+    get_accuracies,
+    get_task_perf,
+    sliding_average,
+)
 
 
 class AbstractMetaLearner(nn.Module):

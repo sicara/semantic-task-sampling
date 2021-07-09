@@ -2,13 +2,13 @@
 General utilities
 """
 
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
-import torchvision
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+import torchvision
+from matplotlib import pyplot as plt
 from torch import nn
 
 
@@ -180,3 +180,15 @@ def sort_items_per_label(labels: List[int]) -> Dict[int, List[int]]:
             items_per_label[label] = [item]
 
     return items_per_label
+
+
+def get_accuracies(results: pd.DataFrame) -> pd.Series:
+    return (
+        results.sort_values("score", ascending=False)
+        .drop_duplicates(["task_id", "image_id"])
+        .sort_values(["task_id", "image_id"])
+        .reset_index(drop=True)
+        .assign(accuracy=lambda df: df.true_label == df.predicted_label)
+        .groupby("task_id")
+        .accuracy.mean()
+    )
