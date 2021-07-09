@@ -3,7 +3,7 @@ from abc import abstractmethod
 from typing import List, Tuple
 
 import torch
-from torch.utils.data import Sampler, Dataset
+from torch.utils.data import Dataset, Sampler
 
 from easyfsl.utils import sort_items_per_label
 

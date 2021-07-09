@@ -10,7 +10,7 @@ from torchvision.models import resnet18
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
 from easyfsl.methods import PrototypicalNetworks
-from src.utils import create_dataloader, build_model
+from src.utils import build_model, create_dataloader
 
 
 @click.option(

@@ -2,13 +2,13 @@
 General utilities
 """
 
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
-import torchvision
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
+import torchvision
+from matplotlib import pyplot as plt
 from torch import nn
 
 

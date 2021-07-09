@@ -4,7 +4,7 @@ import click
 import pandas as pd
 from loguru import logger
 
-from easyfsl.data_tools import EasySet, EasySemantics
+from easyfsl.data_tools import EasySemantics, EasySet
 
 
 @click.option(

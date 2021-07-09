@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import List, Iterator
+from typing import Iterator, List
+
 import pandas as pd
 
 from easyfsl.data_tools import EasySet

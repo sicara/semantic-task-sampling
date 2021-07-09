@@ -3,9 +3,8 @@ from pathlib import Path
 from typing import List, Union
 
 from PIL import Image
-from torchvision import transforms
 from torch.utils.data import Dataset
-
+from torchvision import transforms
 
 NORMALIZE_DEFAULT = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 

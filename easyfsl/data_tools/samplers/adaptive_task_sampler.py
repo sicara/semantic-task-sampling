@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 
 from easyfsl.data_tools.samplers import AbstractTaskSampler
 from easyfsl.data_tools.samplers.utils import sample_label_from_potential
-from easyfsl.utils import fill_diagonal, compute_biconfusion_matrix
+from easyfsl.utils import compute_biconfusion_matrix, fill_diagonal
 
 
 class AdaptiveTaskSampler(AbstractTaskSampler):

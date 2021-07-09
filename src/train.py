@@ -12,7 +12,7 @@ from torchvision.models import resnet18
 
 from easyfsl.data_tools import EasySet
 from easyfsl.methods import PrototypicalNetworks
-from src.utils import get_sampler, set_random_seed, create_dataloader, build_model
+from src.utils import build_model, create_dataloader, get_sampler, set_random_seed
 
 SAMPLERS = [
     "uniform",
