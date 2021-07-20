@@ -58,7 +58,7 @@ stages:
         --output-model ${models_dir}/trained_model_${item.name}.tar
         --sampler ${item.sampler}
         --semantic-alpha ${item.alpha}
-        --random-seed ${random_seed}
+        --random-seed ${item.seed}
         --device ${device}
         --pretrained-weights ${models_dir}/pretrained_model.tar
         &> ${logs_dir}/train_${item.name}.out

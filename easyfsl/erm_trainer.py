@@ -48,7 +48,7 @@ class ERMTrainer:
             data_loader,
             desc=f"Epoch {epoch}",
         ) as tqdm_train:
-            for batch_id, (images, labels) in tqdm_train:
+            for images, labels in tqdm_train:
                 model, loss_value = self.fit(
                     model, images.to(self.device), labels.to(self.device)
                 )
