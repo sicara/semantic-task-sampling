@@ -32,21 +32,6 @@ stages:
         - ${testbeds_dir}/testbed_${item}_shot_pv.png
         - ${testbeds_dir}/testbed_${item}_shot_occ.png
 
-  pretrain:
-    cmd: python -m src.pretrain
-      --n-epochs 20
-      --specs-dir ${specs_dir}
-      --tb-log-dir ${tb_logs_dir}/pretraining
-      --output-model ${models_dir}/pretrained_model.tar
-      --random-seed ${pretraining_random_seed}
-      --device ${device}
-      &> ${logs_dir}/pretrain.out
-    deps:
-      - ${specs_dir}/train.json
-    outs:
-      - ${models_dir}/pretrained_model.tar
-      - ${logs_dir}/pretrain.out
-
   train:
     foreach: ${grid_search}
     do:
@@ -60,13 +45,11 @@ stages:
         --semantic-alpha ${item.alpha}
         --random-seed ${item.seed}
         --device ${device}
-        --pretrained-weights ${models_dir}/pretrained_model.tar
         &> ${logs_dir}/train_${item.name}.out
       deps:
         - ${specs_dir}/train.json
         - ${specs_dir}/val.json
         - ${distances_dir}/train.csv
-        - ${models_dir}/pretrained_model.tar
         - src/train.py
       outs:
         - ${models_dir}/trained_model_${item.name}.tar
