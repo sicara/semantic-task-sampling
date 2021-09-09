@@ -18,3 +18,23 @@ Research code for experiments on semantic task sampling.
 
 1. Create a virtualenv with Python 3.8
 2. `pip install -r dev_requirements.txt`
+
+### Paths to datasets
+Paths to images are defined in specification files such as [this one](data/tiered_imagenet/specs/train.json).
+All images are expected to be found in `data/{dataset_name}/images`. For instance,
+for tieredImageNet we expect a structure like this one:
+```
+data
+|
+|----tiered_imagenet
+|    |
+|    |----images
+|    |    |
+|    |    |----n04542943
+|    |    |----n04554684
+|    |    |----...
+```
+If you can't host the data there for any reason, you can create a symlink:
+```bash
+ln -s path/to/where/your/data/really/is data/tiered_imagenet/images
+```
