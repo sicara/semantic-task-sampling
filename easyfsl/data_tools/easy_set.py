@@ -155,3 +155,6 @@ class EasySet(Dataset):
 
     def __len__(self) -> int:
         return len(self.labels)
+
+    def number_of_classes(self):
+        return len(self.class_names)

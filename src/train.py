@@ -1,5 +1,6 @@
 import pickle
 from pathlib import Path
+from typing import Optional
 
 import click
 import torch
@@ -76,6 +77,13 @@ SAMPLERS = [
     default=0.5,
 )
 @click.option(
+    "--pretrained-weights",
+    help="It's possible to load pretrained weights. "
+    "This ensures that different algorithms have the same starting weights.",
+    type=Path,
+    required=False,
+)
+@click.option(
     "--specs-dir",
     help="Where to find the dataset specs files",
     type=Path,
@@ -128,6 +136,7 @@ def main(
     semantic_alpha: float,
     adaptive_forgetting: float,
     adaptive_hardness: float,
+    pretrained_weights: Optional[Path],
     specs_dir: Path,
     distances_dir: Path,
     metrics_dir: Path,
@@ -138,7 +147,7 @@ def main(
 ):
     metrics_dir.mkdir(parents=True, exist_ok=True)
     n_validation_tasks = 100
-    n_workers = 8
+    n_workers = 12
 
     set_random_seed(random_seed)
 
@@ -173,7 +182,11 @@ def main(
     tb_log_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info("Building model...")
-    model = build_model(device=device, tb_writer=SummaryWriter(log_dir=tb_log_dir))
+    model = build_model(
+        device=device,
+        tb_writer=SummaryWriter(log_dir=tb_log_dir),
+        pretrained_weights=pretrained_weights,
+    )
 
     optimizer = Adam(params=model.parameters())
 

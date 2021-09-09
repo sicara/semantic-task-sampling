@@ -13,22 +13,52 @@ number_of_ways:
 grid_search:
   - sampler: semantic
     alpha: 0.0
-    name: semantic_0
+    seed: 0
+    name: semantic_0_seed_0
   - sampler: semantic
     alpha: 0.001
-    name: semantic_e3
+    seed: 0
+    name: semantic_e3_seed_0
   - sampler: semantic
     alpha: 0.01
-    name: semantic_e2
+    seed: 0
+    name: semantic_e2_seed_0
   - sampler: semantic
     alpha: 0.1
-    name: semantic_e1
+    seed: 0
+    name: semantic_e1_seed_0
   - sampler: uniform
     alpha: 0.0
-    name: uniform
+    seed: 0
+    name: uniform_seed_0
   - sampler: adaptive
     alpha: 0.0
-    name: adaptive
+    seed: 0
+    name: adaptive_seed_0
+  - sampler: semantic
+    alpha: 0.0
+    seed: 1
+    name: semantic_0_seed_1
+  - sampler: semantic
+    alpha: 0.001
+    seed: 1
+    name: semantic_e3_seed_1
+  - sampler: semantic
+    alpha: 0.01
+    seed: 1
+    name: semantic_e2_seed_1
+  - sampler: semantic
+    alpha: 0.1
+    seed: 1
+    name: semantic_e1_seed_1
+  - sampler: uniform
+    alpha: 0.0
+    seed: 1
+    name: uniform_seed_1
+  - sampler: adaptive
+    alpha: 0.0
+    seed: 1
+    name: adaptive_seed_1
 
 device: cuda:1
 
