@@ -133,3 +133,4 @@ dmypy.json
 
 # data
 data/CUB/images
+data/tiered_imagenet/images
