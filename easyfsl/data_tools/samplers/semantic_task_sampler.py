@@ -1,3 +1,6 @@
+from typing import Callable
+
+import numpy as np
 import random
 from pathlib import Path
 
@@ -8,6 +11,12 @@ from torch.utils.data import Dataset
 from easyfsl.data_tools.samplers import AbstractTaskSampler
 from easyfsl.data_tools.samplers.utils import sample_label_from_potential
 from easyfsl.utils import fill_diagonal
+
+STRATEGIES = {
+    "constant": lambda alpha, epoch: alpha,
+    "exponential": lambda alpha, epoch: alpha * epoch,
+    "linear": lambda alpha, epoch: alpha * np.log(epoch + 1),
+}
 
 
 class SemanticTaskSampler(AbstractTaskSampler):
@@ -29,6 +38,7 @@ class SemanticTaskSampler(AbstractTaskSampler):
         n_tasks: int,
         semantic_distances_csv: Path,
         alpha: float,
+        strategy: str = "constant",
     ):
         """
         Args:
@@ -41,6 +51,8 @@ class SemanticTaskSampler(AbstractTaskSampler):
             semantic_distances_csv: path to a csv file containing pair-wise semantic distances
                 between classes
             alpha: float factor weighting the importance of semantic distances in the sampling
+            strategy: defines the curriculum strategy to update alpha at each learning step.
+                Must be a key of STRATEGIES
         """
         super().__init__(
             dataset=dataset,
@@ -54,7 +66,10 @@ class SemanticTaskSampler(AbstractTaskSampler):
             pd.read_csv(semantic_distances_csv, header=None).values
         )
 
-        self.potential_matrix = fill_diagonal(torch.exp(-alpha * self.distances), 0)
+        self.alpha = alpha
+        self.alpha_fn = self._get_alpha_fn(strategy)
+        self.learning_step = 0
+        self.potential_matrix = self._compute_potential_matrix()
 
     def _sample_labels(self) -> torch.Tensor:
         """
@@ -74,3 +89,31 @@ class SemanticTaskSampler(AbstractTaskSampler):
         # pylint: disable=not-callable
         return torch.tensor(to_yield)
         # pylint: enable=not-callable
+
+    def update(self, **kwargs):
+        """
+        Increment the learning step and update the potential matrix. This implements curriculum
+        semantic sampling.
+        """
+        self.learning_step += 1
+        self.potential_matrix = self._compute_potential_matrix()
+
+    @staticmethod
+    def _get_alpha_fn(strategy: str) -> Callable[[float, int], float]:
+        if strategy not in STRATEGIES.keys():
+            raise ValueError(
+                f"{strategy} is not a valid strategy. Valid strategies are: {', '.join(STRATEGIES.keys())}."
+            )
+        return STRATEGIES[strategy]
+
+    def _compute_potential_matrix(self) -> torch.Tensor:
+        """
+        Compute the potential matrix depending on the initial alpha, the learning step and the
+        function (alpha_fn) corresponding to the chosen curriculum strategy.
+        Returns:
+            the potential matrix
+        """
+        return fill_diagonal(
+            torch.exp(-self.distances * self.alpha_fn(self.alpha, self.learning_step)),
+            0,
+        )
