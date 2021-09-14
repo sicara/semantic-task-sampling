@@ -12,6 +12,7 @@ class ERMTrainer:
     """
     Train a model with classical Empirical Risk Minimization.
     """
+
     def __init__(
         self,
         optimizer: torch.optim.Optimizer,
