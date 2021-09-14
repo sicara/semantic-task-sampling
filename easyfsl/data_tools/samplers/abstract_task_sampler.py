@@ -72,7 +72,7 @@ class AbstractTaskSampler(Sampler):
         )
         # pylint: enable=not-callable
 
-    def update(self, confusion_matrix: torch.Tensor):
+    def update(self, **kwargs):
         pass
 
     def episodic_collate_fn(

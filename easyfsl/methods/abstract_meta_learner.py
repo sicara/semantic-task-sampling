@@ -334,7 +334,9 @@ class AbstractMetaLearner(nn.Module):
                 epoch=epoch,
             )
 
-            train_loader.batch_sampler.update(self.training_confusion_matrix)
+            train_loader.batch_sampler.update(
+                confusion_matrix=self.training_confusion_matrix
+            )
 
         return self.training_tasks_record
 
