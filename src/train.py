@@ -65,6 +65,12 @@ SAMPLERS = [
     default=0.5,
 )
 @click.option(
+    "--semantic-strategy",
+    help="Curriculum strategy of the semantic sampling",
+    type=str,
+    default="constant",
+)
+@click.option(
     "--adaptive-forgetting",
     help="Forgetting hyperparameter for adaptive sampling",
     type=float,
@@ -134,6 +140,7 @@ def main(
     n_epochs: int,
     n_tasks_per_epoch: int,
     semantic_alpha: float,
+    semantic_strategy: str,
     adaptive_forgetting: float,
     adaptive_hardness: float,
     pretrained_weights: Optional[Path],
@@ -162,6 +169,7 @@ def main(
         n_tasks=n_tasks_per_epoch,
         distances_csv=distances_dir / "train.csv",
         semantic_alpha=semantic_alpha,
+        semantic_strategy=semantic_strategy,
         adaptive_forgetting=adaptive_forgetting,
         adaptive_hardness=adaptive_hardness,
     )

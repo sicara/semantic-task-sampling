@@ -43,6 +43,7 @@ stages:
         --output-model ${models_dir}/trained_model_${item.name}.tar
         --sampler ${item.sampler}
         --semantic-alpha ${item.alpha}
+        --semantic-strategy ${item.strategy}
         --random-seed ${item.seed}
         --device ${device}
         &> ${logs_dir}/train_${item.name}.out

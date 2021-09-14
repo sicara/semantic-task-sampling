@@ -38,7 +38,7 @@ class SemanticTaskSampler(AbstractTaskSampler):
         n_tasks: int,
         semantic_distances_csv: Path,
         alpha: float,
-        strategy: str = "constant",
+        strategy: str,
     ):
         """
         Args:
@@ -52,7 +52,7 @@ class SemanticTaskSampler(AbstractTaskSampler):
                 between classes
             alpha: float factor weighting the importance of semantic distances in the sampling
             strategy: defines the curriculum strategy to update alpha at each learning step.
-                Must be a key of STRATEGIES
+                Must be a key of STRATEGIES.
         """
         super().__init__(
             dataset=dataset,
