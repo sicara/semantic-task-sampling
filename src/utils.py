@@ -105,6 +105,7 @@ def get_sampler(
     n_tasks: int,
     distances_csv: Path = None,
     semantic_alpha: float = None,
+    semantic_strategy: str = None,
     adaptive_forgetting: float = None,
     adaptive_hardness: float = None,
 ):
@@ -116,10 +117,13 @@ def get_sampler(
         "n_tasks": n_tasks,
     }
     if sampler == "semantic":
-        if semantic_alpha is None or distances_csv is None:
+        if semantic_alpha is None or distances_csv is None or semantic_strategy is None:
             raise ValueError("Missing arguments for semantic sampler")
         return SemanticTaskSampler(
-            alpha=semantic_alpha, semantic_distances_csv=distances_csv, **common_args
+            alpha=semantic_alpha,
+            strategy=semantic_strategy,
+            semantic_distances_csv=distances_csv,
+            **common_args,
         )
     if sampler == "adaptive":
         if adaptive_forgetting is None or adaptive_hardness is None:

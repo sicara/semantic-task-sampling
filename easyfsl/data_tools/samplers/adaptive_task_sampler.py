@@ -62,14 +62,13 @@ class AdaptiveTaskSampler(AbstractTaskSampler):
             torch.ones((self.total_number_of_classes, self.total_number_of_classes)), 0
         )
 
-    def update(self, confusion_matrix: torch.Tensor):
+    def update(self, confusion_matrix: torch.Tensor, **kwargs):
         """
         Updates the potential matrix using the new confusion matrix, and store the last-to-date
         confusion matrix
         Args:
             confusion_matrix: confusion matrix updated from the last episodes
         """
-
         normalized_confusion_matrix = nn.functional.normalize(
             confusion_matrix, p=1, dim=1
         )
