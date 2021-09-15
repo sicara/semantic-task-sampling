@@ -10,38 +10,42 @@ number_of_ways:
   - 1
   - 5
 
-grid_search:
-  - sampler: semantic
-    alpha: 0.1
-    seed: 0
-    strategy: constant
-    name: semantic_e1_constant
-  - sampler: semantic
-    alpha: 0.1
-    seed: 0
-    strategy: linear
-    name: semantic_e1_linear
-  - sampler: semantic
-    alpha: 0.1
-    seed: 0
-    strategy: exponential
-    name: semantic_e1_exponential
-  - sampler: semantic
-    alpha: 0.O1
-    seed: 0
-    strategy: constant
-    name: semantic_e0_constant
-  - sampler: semantic
-    alpha: 0.O1
-    seed: 0
-    strategy: linear
-    name: semantic_e0_linear
-  - sampler: semantic
-    alpha: 0.O1
-    seed: 0
-    strategy: exponential
-    name: semantic_e0_exponential
+#grid_search:
+#  - sampler: semantic
+#    alpha: 0.1
+#    seed: 0
+#    strategy: constant
+#    name: semantic_e1_constant
+#  - sampler: semantic
+#    alpha: 0.1
+#    seed: 0
+#    strategy: linear
+#    name: semantic_e1_linear
+#  - sampler: semantic
+#    alpha: 0.1
+#    seed: 0
+#    strategy: exponential
+#    name: semantic_e1_exponential
+#  - sampler: semantic
+#    alpha: 0.O1
+#    seed: 0
+#    strategy: constant
+#    name: semantic_e0_constant
+#  - sampler: semantic
+#    alpha: 0.O1
+#    seed: 0
+#    strategy: linear
+#    name: semantic_e0_linear
+#  - sampler: semantic
+#    alpha: 0.O1
+#    seed: 0
+#    strategy: exponential
+#    name: semantic_e0_exponential
 
+sampler: semantic
+alpha: 0.01
+strategy: constant
+seed: 0
 device: cuda:1
 
 random_seed: 1
