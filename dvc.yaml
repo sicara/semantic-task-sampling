@@ -24,12 +24,14 @@ stages:
         --distances-csv ${distances_dir}/test.csv
         --specs-json ${specs_dir}/test.json
         --out-file ${testbeds_dir}/testbed_${item}_shot.csv
+        &> ${logs_dir}/create_testbed_${item}.out
       deps:
         - ${distances_dir}/test.csv
       outs:
         - ${testbeds_dir}/testbed_${item}_shot.csv
         - ${testbeds_dir}/testbed_${item}_shot_pv.png
         - ${testbeds_dir}/testbed_${item}_shot_occ.png
+        - ${logs_dir}/create_testbed_${item}.out
 
   train:
     cmd: python -m src.train
@@ -48,12 +50,12 @@ stages:
       --semantic-strategy ${train.strategy}
       --random-seed ${train.seed}
       --device ${device}
-      &> ${logs_dir}/train_semantic.out
+      &> ${logs_dir}/train.out
     deps:
       - ${distances_dir}/train.csv
     outs:
       - ${models_dir}/trained_model.tar
-      - ${metrics_dir}/semantic/training_tasks.pkl
+      - ${metrics_dir}/training_tasks.pkl
       - ${logs_dir}/train.out
 
   evaluate:
