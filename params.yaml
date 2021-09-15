@@ -42,7 +42,7 @@ number_of_ways:
 #    strategy: exponential
 #    name: semantic_e0_exponential
 
-sampler: semantic
+sampler: semantic-dvc-exp
 alpha: 0.01
 strategy: constant
 seed: 0
