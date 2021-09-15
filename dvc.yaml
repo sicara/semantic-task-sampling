@@ -48,7 +48,7 @@ stages:
       --device ${device}
       --n-epochs 2
       --n-tasks-per-epoch 50
-      &> ${logs_dir}/train_semantic.out
+#      &> ${logs_dir}/train_semantic.out
     deps:
       - ${specs_dir}/train.json
       - ${specs_dir}/val.json
@@ -57,7 +57,7 @@ stages:
     outs:
       - ${models_dir}/trained_model_semantic.tar
       - ${metrics_dir}/semantic/training_tasks.pkl
-      - ${logs_dir}/train_semantic.out
+#      - ${logs_dir}/train_semantic.out
 
 #  evaluate:
 #    foreach: ${grid_search}
