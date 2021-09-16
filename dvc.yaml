@@ -8,7 +8,7 @@ stages:
         --split ${item}
         --specs-dir ${specs_dir}
         --output-dir ${distances_dir}
-        &> ${logs_dir}/compute_${item}_distances.out
+        &> ${logs_dir}/compute_distances_${item}.out
       deps:
         - ${specs_dir}/${item}.json
         - ${specs_dir}/wordnet.is_a.txt
