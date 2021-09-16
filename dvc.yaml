@@ -109,6 +109,7 @@ stages:
       --training-tasks-record ${metrics_dir}/training_tasks.pkl
       --distances-dir ${distances_dir}
       --metrics-dir ${metrics_dir}
+      &> ${logs_dir}/get_train_stats.out
     deps:
       - ${metrics_dir}/training_tasks.pkl
       - ${distances_dir}/train.csv
@@ -117,3 +118,4 @@ stages:
       - ${metrics_dir}/intra_training_task_distances.csv
       - ${metrics_dir}/training_classes_sampled_together.png
       - ${metrics_dir}/training_classes_biconfusion.png
+      - ${logs_dir}/get_train_stats.out
