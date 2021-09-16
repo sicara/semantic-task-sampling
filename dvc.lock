@@ -50,6 +50,7 @@ stages:
   get_train_stats:
     cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/training_tasks.pkl
       --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics
+      &> data/tiered_imagenet/logs/get_train_stats.out
     deps:
     - path: data/tiered_imagenet/distances/train.csv
       md5: daecfc11832898acdea1ceb04bbae72c
@@ -61,6 +62,9 @@ stages:
       md5: a9d1a8424913224674a8bafe84d1d1df
       size: 1795
     outs:
+    - path: data/tiered_imagenet/logs/get_train_stats.out
+      md5: 4f6d4e4405c2073d8b8ec87d1f76e7a1
+      size: 264
     - path: data/tiered_imagenet/metrics/intra_training_task_distances.csv
       md5: 2d81fa25e28c291edf80748a15950b00
       size: 4025
