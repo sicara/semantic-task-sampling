@@ -61,6 +61,7 @@ stages:
       - ${distances_dir}/train.csv
       - ${specs_dir}/train.json
       - ${specs_dir}/val.json
+      - src/train.py
     outs:
       - ${models_dir}/trained_model.tar
       - ${metrics_dir}/training_tasks.pkl
