@@ -37,16 +37,19 @@ stages:
     - path: data/tiered_imagenet/specs/val.json
       md5: 41bf011f930c7b07ea8eff4216f91ee3
       size: 6846
+    - path: src/train.py
+      md5: d80232a8788e1a7004c92ed8ad2f55bb
+      size: 5314
     outs:
     - path: data/tiered_imagenet/logs/train.out
-      md5: 1de00a5cfec8a1d1bc0b566d874b7d47
-      size: 22721
+      md5: 000ff116eb3fdaea5ee1067eed520107
+      size: 24139
     - path: data/tiered_imagenet/metrics/training_tasks.pkl
-      md5: 190d163b5dd0eaf6c392608c85fa4892
-      size: 50587
+      md5: 55e189b6d7c2604e28d0eab74d48275f
+      size: 50389
     - path: data/tiered_imagenet/models/trained_model.tar
-      md5: 1783a8594765a0cec6e64a0144263399
-      size: 44787277
+      md5: fce5f5f96f7a4d53da69ee761dc4a064
+      size: 44787182
   get_train_stats:
     cmd: python -m src.get_training_tasks_stats --training-tasks-record data/tiered_imagenet/metrics/training_tasks.pkl
       --distances-dir data/tiered_imagenet/distances --metrics-dir data/tiered_imagenet/metrics
@@ -56,14 +59,14 @@ stages:
       md5: daecfc11832898acdea1ceb04bbae72c
       size: 2252160
     - path: data/tiered_imagenet/metrics/training_tasks.pkl
-      md5: 190d163b5dd0eaf6c392608c85fa4892
-      size: 50587
+      md5: 55e189b6d7c2604e28d0eab74d48275f
+      size: 50389
     - path: src/get_training_tasks_stats.py
       md5: a9d1a8424913224674a8bafe84d1d1df
       size: 1795
     outs:
     - path: data/tiered_imagenet/logs/get_train_stats.out
-      md5: 4f6d4e4405c2073d8b8ec87d1f76e7a1
+      md5: 77109dbcdd571d4b8901e5be941a3eda
       size: 264
     - path: data/tiered_imagenet/metrics/intra_training_task_distances.csv
       md5: 2d81fa25e28c291edf80748a15950b00
@@ -127,8 +130,8 @@ stages:
       --device cuda:1 &> data/tiered_imagenet/logs/evaluate.out
     deps:
     - path: data/tiered_imagenet/models/trained_model.tar
-      md5: 1783a8594765a0cec6e64a0144263399
-      size: 44787277
+      md5: fce5f5f96f7a4d53da69ee761dc4a064
+      size: 44787182
     - path: data/tiered_imagenet/specs/test.json
       md5: 5eae905f4cd9e59bc0f138d5e84e485a
       size: 11256
@@ -140,8 +143,8 @@ stages:
       size: 1760
     outs:
     - path: data/tiered_imagenet/logs/evaluate.out
-      md5: 36f5fe4e9b5a9a37b0b837e02a2896f8
-      size: 370795
+      md5: b9987af09481277b34b59bbdc1cfc2da
+      size: 383472
     - path: data/tiered_imagenet/metrics/raw_results.csv
       md5: 516359b7f6b8f3e7a3e9abd52309071d
       size: 63291391

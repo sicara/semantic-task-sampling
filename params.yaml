@@ -15,8 +15,8 @@ n_shot: 5
 testbed:
   n_tasks: 5000
   n_shot:
-    - 1
-    - 5
+  - 1
+  - 5
 
 train:
   n_epoch: 2
