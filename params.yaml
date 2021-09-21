@@ -6,7 +6,7 @@ tb_logs_dir: data/tiered_imagenet/tb_logs
 logs_dir: data/tiered_imagenet/logs
 testbeds_dir: data/tiered_imagenet/testbeds
 
-device: cuda:1
+device: cuda:2
 
 n_way: 5
 n_query: 10
@@ -15,13 +15,13 @@ n_shot: 5
 testbed:
   n_tasks: 5000
   n_shot:
-    - 1
-    - 5
+  - 1
+  - 5
 
 train:
   n_epoch: 2
   n_tasks_per_epoch: 50
   sampler: semantic
   alpha: 0.01
-  strategy: constant
+  strategy: linear
   seed: 0
