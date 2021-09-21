@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Dict
 
 import click
-import yaml  # TODO: add to requirements
+import yaml
 
 
 @click.option(
