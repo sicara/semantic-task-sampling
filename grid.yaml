@@ -1,0 +1,10 @@
+untracked_files:
+  - data/tiered_imagenet/images
+
+grid:
+  - train.strategy: constant
+    device: cuda:1
+  - train.strategy: linear
+    device: cuda:2
+  - train.strategy: exponential
+    device: cuda:3
