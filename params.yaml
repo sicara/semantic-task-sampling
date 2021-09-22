@@ -19,8 +19,8 @@ testbed:
     - 5
 
 train:
-  n_epoch: 2
-  n_tasks_per_epoch: 50
+  n_epoch: 100
+  n_tasks_per_epoch: 500
   sampler: semantic
   alpha: 0.01
   strategy: constant

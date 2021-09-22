@@ -3,8 +3,14 @@ untracked_files:
 
 grid:
   - train.strategy: constant
+    train.alpha: 0.01
+    device: cuda:0
+  - train.strategy: constant
+    train.alpha: 0.1
     device: cuda:1
-  - train.strategy: linear
+  - train.strategy: exponential
+    train.alpha: 0.01
     device: cuda:2
   - train.strategy: exponential
+    train.alpha: 0.1
     device: cuda:3
