@@ -2,11 +2,11 @@ untracked_files:
   - data/tiered_imagenet/images
 
 grid:
-  - train.strategy: constant
-    train.alpha: 0.01
-    device: cuda:0
-  - train.strategy: constant
+  - train.strategy: linear
     train.alpha: 0.1
+    device: cuda:0
+  - train.strategy: exponential
+    train.alpha: 0.001
     device: cuda:1
   - train.strategy: exponential
     train.alpha: 0.01

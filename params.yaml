@@ -24,4 +24,4 @@ train:
   sampler: semantic
   alpha: 0.01
   strategy: constant
-  seed: 0
+  seed: 1
