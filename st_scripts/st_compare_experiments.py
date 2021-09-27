@@ -1,21 +1,34 @@
 import streamlit as st
 
-from st_helpers import get_all_exps, get_all_metrics, download_tensorboards, bar_plot
+from st_helpers import *
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Compare experiments", layout="wide")
 
 all_dvc_exps = get_all_exps()
-all_metrics = get_all_metrics(all_dvc_exps.index.to_list())
+all_metrics = get_metrics(all_dvc_exps.index.to_list())
 
 selected_exps = st.sidebar.multiselect(
-    label="select commits",
+    label="Select experiments",
     options=all_dvc_exps.index,
     format_func=lambda x: f"{all_dvc_exps.parent_hash[x][:7]} - {x}",
 )
 
+st.title("Params")
+all_params = get_params(selected_exps)
+
+
+selected_params = st.multiselect(
+    label="Select displayed params",
+    options=all_params.columns.to_list(),
+    default=all_params.columns.to_list(),
+)
+
+st.write(all_params[selected_params])
+
 st.title("Metrics")
-metrics_df = all_metrics.loc[lambda df: df.exp_name.isin(selected_exps)]
+metrics_df = all_metrics.loc[lambda df: df.index.isin(selected_exps)]
 st.write(metrics_df)
+
 
 column_1, column_2 = st.columns(2)
 

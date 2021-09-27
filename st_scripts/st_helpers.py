@@ -1,5 +1,6 @@
 import json
 
+import yaml
 from dvc.repo.get import get
 from hashlib import sha1
 from pathlib import Path
@@ -14,23 +15,40 @@ from streamlit.delta_generator import DeltaGenerator
 from tensorboard import program
 
 DVC_REPO = Repo("")
+PARAMS_FILE = "params.yaml"
 METRICS_FILE = "data/tiered_imagenet/metrics/evaluation_metrics.json"
 TENSORBOARD_CACHE_DIR = Path("streamlit_cache") / "tensorboard"
 TENSORBOARD_LOGS_DIR = "data/tiered_imagenet/tb_logs"
 
+
+def read_params(rev: str) -> Dict:
+    with dvc.api.open(PARAMS_FILE, rev=rev) as file:
+        evaluation_metrics = yaml.safe_load(file)
+
+    return evaluation_metrics
+
+
 def read_metrics(rev: str) -> Dict:
-    with dvc.api.open(
-        METRICS_FILE, rev=rev
-    ) as file:
+    with dvc.api.open(METRICS_FILE, rev=rev) as file:
         evaluation_metrics = json.load(file)
 
     return evaluation_metrics
 
+
 @st.cache
-def get_all_metrics(exp_list: List[str]) -> pd.DataFrame:
+def get_params(
+    exp_list: List[str],
+) -> pd.DataFrame:  # TODO: flatten nested params like in dvc exp show
+    return pd.DataFrame(
+        [{"exp_name": exp, **read_params(exp)} for exp in exp_list]
+    ).set_index("exp_name")
+
+
+@st.cache
+def get_metrics(exp_list: List[str]) -> pd.DataFrame:
     return pd.DataFrame(
         [{"exp_name": exp, **read_metrics(exp)} for exp in exp_list]
-    )
+    ).set_index("exp_name")
 
 
 @st.cache
@@ -46,7 +64,6 @@ def get_all_exps():
     ).set_index("exp_name")
 
 
-
 def get_hash_from_list(list_to_hash: List) -> str:
     return sha1(json.dumps(sorted(list_to_hash)).encode()).hexdigest()
 
@@ -58,6 +75,7 @@ def download_dir(path, git_rev, out):
         out=out,
         rev=git_rev,
     )
+
 
 @st.cache
 def download_tensorboards(revs):
