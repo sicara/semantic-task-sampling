@@ -19,8 +19,10 @@ PARAMS_FILE = "params.yaml"
 METRICS_FILE = "data/tiered_imagenet/metrics/evaluation_metrics.json"
 TENSORBOARD_CACHE_DIR = Path("streamlit_cache") / "tensorboard"
 TENSORBOARD_LOGS_DIR = "data/tiered_imagenet/tb_logs"
+DEFAULT_DISPLAYED_PARAMS = "train.*"
 
 
+@st.cache
 def read_params(rev: str) -> Dict:
     with dvc.api.open(PARAMS_FILE, rev=rev) as file:
         evaluation_metrics = yaml.safe_load(file)
@@ -28,6 +30,7 @@ def read_params(rev: str) -> Dict:
     return evaluation_metrics
 
 
+@st.cache
 def read_metrics(rev: str) -> Dict:
     with dvc.api.open(METRICS_FILE, rev=rev) as file:
         evaluation_metrics = json.load(file)
@@ -35,16 +38,17 @@ def read_metrics(rev: str) -> Dict:
     return evaluation_metrics
 
 
-@st.cache
 def get_params(
     exp_list: List[str],
-) -> pd.DataFrame:  # TODO: flatten nested params like in dvc exp show
-    return pd.DataFrame(
-        [{"exp_name": exp, **read_params(exp)} for exp in exp_list]
+) -> pd.DataFrame:
+    return pd.concat(
+        [
+            pd.json_normalize(read_params(exp), sep=".").assign(exp_name=exp)
+            for exp in exp_list
+        ]
     ).set_index("exp_name")
 
 
-@st.cache
 def get_metrics(exp_list: List[str]) -> pd.DataFrame:
     return pd.DataFrame(
         [{"exp_name": exp, **read_metrics(exp)} for exp in exp_list]
@@ -78,14 +82,14 @@ def download_dir(path, git_rev, out):
 
 
 @st.cache
-def download_tensorboards(revs):
-    cache_dir = TENSORBOARD_CACHE_DIR / get_hash_from_list(revs)
+def download_tensorboards(exps: Dict[str, str]):
+    cache_dir = TENSORBOARD_CACHE_DIR / get_hash_from_list(list(exps.keys()))
     if not cache_dir.exists():
-        for git_rev in revs:
+        for exp, git_rev in exps.items():
             download_dir(
                 path=TENSORBOARD_LOGS_DIR,
                 git_rev=git_rev,
-                out=str(cache_dir / git_rev),
+                out=str(cache_dir / exp),
             )
 
     tb = program.TensorBoard()
@@ -93,9 +97,7 @@ def download_tensorboards(revs):
     return tb.launch()
 
 
-def bar_plot(
-    accuracy: pd.Series, error: pd.Series, st_column: DeltaGenerator, title: str
-):
+def bar_plot(accuracy: pd.Series, st_column: DeltaGenerator, title: str):
 
     fig, ax = plt.subplots()
     accuracy.plot.bar(
@@ -104,7 +106,6 @@ def bar_plot(
         fontsize=15,
         alpha=0.5,
         grid=True,
-        yerr=error,
     )
-    plt.legend(loc="lower left")
+    # plt.legend(loc="lower left")
     st_column.pyplot(fig)
