@@ -1,6 +1,7 @@
 import json
 
 import yaml
+from PIL import Image
 from dvc.repo.get import get
 from hashlib import sha1
 from pathlib import Path
@@ -16,18 +17,19 @@ from tensorboard import program
 
 DVC_REPO = Repo("")
 PARAMS_FILE = "params.yaml"
-METRICS_FILE = "data/tiered_imagenet/metrics/evaluation_metrics.json"
+METRICS_DIR = Path("data/tiered_imagenet/metrics")
+METRICS_FILE = METRICS_DIR / "evaluation_metrics.json"
+TENSORBOARD_LOGS_DIR = Path("data/tiered_imagenet/tb_logs")
 TENSORBOARD_CACHE_DIR = Path("streamlit_cache") / "tensorboard"
-TENSORBOARD_LOGS_DIR = "data/tiered_imagenet/tb_logs"
 DEFAULT_DISPLAYED_PARAMS = "train.*"
 
 
 @st.cache
 def read_params(rev: str) -> Dict:
     with dvc.api.open(PARAMS_FILE, rev=rev) as file:
-        evaluation_metrics = yaml.safe_load(file)
+        params = yaml.safe_load(file)
 
-    return evaluation_metrics
+    return params
 
 
 @st.cache
@@ -109,3 +111,21 @@ def bar_plot(accuracy: pd.Series, st_column: DeltaGenerator, title: str):
     )
     # plt.legend(loc="lower left")
     st_column.pyplot(fig)
+
+
+def plot_image(path: Path, exp: str, column: DeltaGenerator, caption: str = None):
+    with dvc.api.open(path, rev=exp, mode="rb") as file:
+        column.image(Image.open(file), caption=caption)
+
+
+def read_csv(path: Path, exp: str) -> pd.DataFrame:
+    with dvc.api.open(path, rev=exp, mode="r") as file:
+        df = pd.read_csv(file, index_col=0)
+    return df
+
+
+def display_fn(x, exps_df, all_params, selected_params):
+    to_display = f"{exps_df.parent_hash[x][:7]} - {x}"
+    for param in selected_params:
+        to_display += f" - {param} {all_params[param][x]}"
+    return to_display
