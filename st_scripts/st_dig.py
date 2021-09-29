@@ -36,21 +36,21 @@ def st_dig():
     metrics = read_metrics(selected_exp)
     params = read_params(selected_exp)
 
-    columns = st.columns(3)
+    json_column, heatmaps_column, plots_column = st.columns(3)
 
-    columns[0].write(metrics)
-    columns[0].write(params)
+    json_column.write(metrics)
+    json_column.write(params)
 
     plot_image(
         METRICS_DIR / "training_classes_biconfusion.png",
         selected_exp,
-        columns[1],
+        heatmaps_column,
         caption="Training classes biconfusion",
     )
     plot_image(
         METRICS_DIR / "training_classes_sampled_together.png",
         selected_exp,
-        columns[1],
+        heatmaps_column,
         caption="Training classes cosampling",
     )
 
@@ -61,7 +61,7 @@ def st_dig():
         ax=ax,
         title="Accuracy depending on intra-task distance on test set",
     )
-    columns[2].pyplot(fig)
+    plots_column.pyplot(fig)
 
     fig, ax = plt.subplots()
     intra_training_task_distances = read_csv(
@@ -71,4 +71,4 @@ def st_dig():
     intra_training_task_distances.smooth.plot.line(
         ax=ax, title="Evolution of intra-task distances during training (smooth)"
     )
-    columns[2].pyplot(fig)
+    plots_column.pyplot(fig)

@@ -1,4 +1,14 @@
-from st_helpers import *
+import streamlit as st
+
+from st_helpers import (
+    get_all_exps,
+    get_metrics,
+    get_params,
+    DEFAULT_DISPLAYED_PARAMS,
+    display_fn,
+    bar_plot,
+    download_tensorboards,
+)
 
 
 def st_compare_experiments():
@@ -36,14 +46,14 @@ def st_compare_experiments():
     )
     st.write(metrics_df)
 
-    columns = st.columns(5)
+    bar_plots_columns = st.columns(5)
 
-    bar_plot(metrics_df.accuracy, columns[0], title="TOP 1 overall accuracy")
+    bar_plot(metrics_df.accuracy, bar_plots_columns[0], title="TOP 1 overall accuracy")
 
     for i, quartile in enumerate(["first", "second", "third", "fourth"]):
         bar_plot(
             metrics_df[f"{quartile}_quartile_acc"],
-            columns[i + 1],
+            bar_plots_columns[i + 1],
             title=f"TOP 1 accuracy on {quartile} quartile",
         )
 
