@@ -19,6 +19,14 @@ def st_compare_experiments():
         default=all_dvc_exps.index.to_list(),
         format_func=lambda x: display_fn(x, all_dvc_exps, all_params, selected_params),
     )
+
+    if st.checkbox("See params as JSON"):
+        st.write(
+            all_params[selected_params]
+            .loc[lambda df: df.index.isin(selected_exps)]
+            .to_dict(orient="index")
+        )
+
     st.title("Metrics")
 
     metrics_df = (
