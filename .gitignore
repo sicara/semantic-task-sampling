@@ -138,3 +138,6 @@ data/tiered_imagenet/tb_logs
 
 # streamlit
 streamlit_cache
+
+# ruche
+ruche_logs
