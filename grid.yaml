@@ -2,86 +2,86 @@ untracked_files:
   - data/tiered_imagenet/images
 
 grid:
-  - train.sampler: uniform
-    train.strategy: na
-    train.alpha: 0
-    train.seed: 1
-    device: cuda:0
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.0005
-    train.seed: 1
-    device: cuda:1
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.001
-    train.seed: 1
-    device: cuda:2
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.003
-    train.seed: 1
-    device: cuda:3
-  - train.sampler: uniform
-    train.strategy: na
-    train.alpha: 0
-    train.seed: 2
-    device: cuda:0
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.0005
-    train.seed: 2
-    device: cuda:1
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.001
-    train.seed: 2
-    device: cuda:2
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.003
-    train.seed: 2
-    device: cuda:3
-  - train.sampler: uniform
-    train.strategy: na
-    train.alpha: 0
-    train.seed: 3
-    device: cuda:0
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.0005
-    train.seed: 3
-    device: cuda:1
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.001
-    train.seed: 3
-    device: cuda:2
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.003
-    train.seed: 3
-    device: cuda:3
-  - train.sampler: uniform
-    train.strategy: na
-    train.alpha: 0
-    train.seed: 4
-    device: cuda:0
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.0005
-    train.seed: 1
-    device: cuda:4
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.001
-    train.seed: 4
-    device: cuda:2
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.003
-    train.seed: 4
-    device: cuda:3
+#  - train.sampler: uniform
+#    train.strategy: na
+#    train.alpha: 0
+#    train.seed: 1
+#    device: cuda:0
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.0005
+#    train.seed: 1
+#    device: cuda:1
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.001
+#    train.seed: 1
+#    device: cuda:2
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.003
+#    train.seed: 1
+#    device: cuda:3
+#  - train.sampler: uniform
+#    train.strategy: na
+#    train.alpha: 0
+#    train.seed: 2
+#    device: cuda:0
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.0005
+#    train.seed: 2
+#    device: cuda:1
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.001
+#    train.seed: 2
+#    device: cuda:2
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.003
+#    train.seed: 2
+#    device: cuda:3
+#  - train.sampler: uniform
+#    train.strategy: na
+#    train.alpha: 0
+#    train.seed: 3
+#    device: cuda:0
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.0005
+#    train.seed: 3
+#    device: cuda:1
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.001
+#    train.seed: 3
+#    device: cuda:2
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.003
+#    train.seed: 3
+#    device: cuda:3
+#  - train.sampler: uniform
+#    train.strategy: na
+#    train.alpha: 0
+#    train.seed: 4
+#    device: cuda:0
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.0005
+#    train.seed: 1
+#    device: cuda:4
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.001
+#    train.seed: 4
+#    device: cuda:2
+#  - train.sampler: semantic
+#    train.strategy: exponential
+#    train.alpha: 0.003
+#    train.seed: 4
+#    device: cuda:3
   - train.sampler: uniform
     train.strategy: na
     train.alpha: 0
