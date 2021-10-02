@@ -24,4 +24,4 @@ train:
   sampler: semantic
   alpha: 0.001
   strategy: exponential
-  seed: 2
+  seed: 3
