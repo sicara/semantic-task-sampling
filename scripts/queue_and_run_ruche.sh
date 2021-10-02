@@ -11,6 +11,6 @@
 
 source venv/bin/activate
 
-python -m scripts.queue_experiments -f grid.yaml
+python -m scripts.queue_experiments -f grid4.yaml
 
 dvc exp run --run-all --jobs 4
