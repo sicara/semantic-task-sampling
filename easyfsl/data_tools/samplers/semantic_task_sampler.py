@@ -16,6 +16,7 @@ STRATEGIES = {
     "constant": lambda alpha, epoch: alpha,
     "exponential": lambda alpha, epoch: alpha * epoch,
     "linear": lambda alpha, epoch: alpha * np.log(epoch + 1),
+    "weibull": lambda alpha, epoch: alpha * (1 - np.exp(-np.power(epoch * 0.01, 5))),
 }
 
 

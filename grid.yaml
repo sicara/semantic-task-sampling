@@ -2,23 +2,19 @@ untracked_files:
   - data/tiered_imagenet/images
 
 grid:
-  - train.sampler: uniform
-    train.strategy: na
-    train.alpha: 0
-    train.seed: 1
+  - train.strategy: weibull
+    train.alpha: 0.2
     device: cuda:0
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.0005
     train.seed: 1
+  - train.strategy: weibull
+    train.alpha: 0.5
     device: cuda:1
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.001
     train.seed: 1
+  - train.strategy: weibull
+    train.alpha: 0.8
     device: cuda:2
-  - train.sampler: semantic
-    train.strategy: exponential
-    train.alpha: 0.003
     train.seed: 1
+  - train.strategy: weibull
+    train.alpha: 1.0
     device: cuda:3
+    train.seed: 1

@@ -23,5 +23,5 @@ train:
   n_tasks_per_epoch: 500
   sampler: semantic
   alpha: 0.001
-  strategy: exponential
+  strategy: weibull
   seed: 2
