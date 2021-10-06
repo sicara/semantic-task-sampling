@@ -3,6 +3,8 @@ import json
 from hashlib import sha1
 from typing import List
 
+import streamlit as st
+
 
 def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
     return (
@@ -18,6 +20,19 @@ def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
             }
         )
         .rename(columns={seed_column_name: "n_seeds"})
+    )
+
+
+@st.cache
+def condense_results(results):
+    return (
+        results.sort_values("score", ascending=False)
+        .drop_duplicates(["task_id", "image_id"])
+        .sort_values(["task_id", "image_id"])
+        .reset_index(drop=True)
+        .assign(accuracy=lambda df: df.true_label == df.predicted_label)
+        .groupby(["task_id", "true_label"])
+        .accuracy.mean()
     )
 
 

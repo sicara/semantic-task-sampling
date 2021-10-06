@@ -15,6 +15,7 @@ from dvc_getters import (
     METRICS_DIR,
     DEFAULT_DISPLAYED_PARAMS,
 )
+from st_utils import condense_results
 
 
 def st_dig():
@@ -127,12 +128,4 @@ def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
 
     results = read_csv(METRICS_DIR / "raw_results.csv", selected_exp)
 
-    return (
-        results.sort_values("score", ascending=False)
-        .drop_duplicates(["task_id", "image_id"])
-        .sort_values(["task_id", "image_id"])
-        .reset_index(drop=True)
-        .assign(accuracy=lambda df: df.true_label == df.predicted_label)
-        .groupby(["task_id", "true_label"])
-        .accuracy.mean()
-    )
+    return condense_results(results)

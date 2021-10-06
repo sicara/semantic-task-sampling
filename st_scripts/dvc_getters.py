@@ -94,12 +94,14 @@ def download_tensorboards(exps: Dict[str, str]):
     return tb.launch()
 
 
+@st.cache
 def read_csv(path: Path, exp: str) -> pd.DataFrame:
     with dvc.api.open(path, rev=exp, mode="r") as file:
         df = pd.read_csv(file, index_col=0)
     return df
 
 
+@st.cache
 def get_image(path: Path, exp: str):
     with dvc.api.open(path, rev=exp, mode="rb") as file:
         image = plt.imread(file)
