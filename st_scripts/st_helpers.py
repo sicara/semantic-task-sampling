@@ -70,6 +70,37 @@ def get_all_exps():
     ).set_index("exp_name")
 
 
+def plot_all_bars(metrics_df):
+    bar_plots_columns = st.columns(5)
+
+    with bar_plots_columns[0]:
+        bar_plot(metrics_df.accuracy, title="TOP 1 overall accuracy")
+
+    for i, quartile in enumerate(["first", "second", "third", "fourth"]):
+        with bar_plots_columns[i + 1]:
+            bar_plot(
+                metrics_df[f"{quartile}_quartile_acc"],
+                title=f"TOP 1 accuracy on {quartile} quartile",
+            )
+
+
+def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
+    return (
+        metrics_df.groupby([param for param in params if param != seed_column_name])
+        .aggregate(
+            {
+                **{
+                    metric: "mean"
+                    for metric in metrics_df.columns
+                    if metric not in params
+                },
+                seed_column_name: "count",
+            }
+        )
+        .rename(columns={seed_column_name: "n_seeds"})
+    )
+
+
 def get_hash_from_list(list_to_hash: List) -> str:
     return sha1(json.dumps(sorted(list_to_hash)).encode()).hexdigest()
 
@@ -89,7 +120,7 @@ def download_tensorboards(exps: Dict[str, str]):
     if not cache_dir.exists():
         for exp, git_rev in exps.items():
             download_dir(
-                path=TENSORBOARD_LOGS_DIR,
+                path=str(TENSORBOARD_LOGS_DIR),
                 git_rev=git_rev,
                 out=str(cache_dir / exp),
             )
@@ -99,23 +130,25 @@ def download_tensorboards(exps: Dict[str, str]):
     return tb.launch()
 
 
-def bar_plot(accuracy: pd.Series, st_column: DeltaGenerator, title: str):
+def bar_plot(accuracy: pd.Series, title: str):
+    bottom = 0.9 * accuracy.min()
 
     fig, ax = plt.subplots()
-    accuracy.plot.bar(
+    (accuracy - bottom).plot.bar(
         ax=ax,
         title=title,
         fontsize=15,
         alpha=0.5,
         grid=True,
+        bottom=bottom,
     )
     # plt.legend(loc="lower left")
-    st_column.pyplot(fig)
+    st.pyplot(fig)
 
 
-def plot_image(path: Path, exp: str, column: DeltaGenerator, caption: str = None):
+def plot_image(path: Path, exp: str, caption: str = None):
     with dvc.api.open(path, rev=exp, mode="rb") as file:
-        column.image(Image.open(file), caption=caption)
+        st.image(Image.open(file), caption=caption)
 
 
 def read_csv(path: Path, exp: str) -> pd.DataFrame:
