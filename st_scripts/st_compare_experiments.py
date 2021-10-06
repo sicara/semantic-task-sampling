@@ -1,15 +1,17 @@
 import streamlit as st
 
-from st_helpers import (
-    get_all_exps,
-    get_metrics,
-    get_params,
-    DEFAULT_DISPLAYED_PARAMS,
+from st_displayers import (
     display_fn,
-    download_tensorboards,
-    aggregate_over_seeds,
     plot_all_bars,
 )
+from dvc_getters import (
+    get_params,
+    get_metrics,
+    get_all_exps,
+    download_tensorboards,
+    DEFAULT_DISPLAYED_PARAMS,
+)
+from st_utils import aggregate_over_seeds
 
 
 def st_compare_experiments():

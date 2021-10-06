@@ -1,20 +1,19 @@
 import pandas as pd
-import json
 
 import matplotlib.pyplot as plt
 
 import streamlit as st
 
-from st_helpers import (
-    get_all_exps,
-    read_metrics,
+from st_displayers import display_fn
+from dvc_getters import (
     read_params,
-    METRICS_DIR,
-    plot_image,
-    read_csv,
+    read_metrics,
     get_params,
+    get_all_exps,
+    read_csv,
+    get_image,
+    METRICS_DIR,
     DEFAULT_DISPLAYED_PARAMS,
-    display_fn,
 )
 
 
@@ -48,30 +47,30 @@ def st_dig():
                 2, all_dvc_exps, selected_commits, selected_params, all_params
             )
 
-    st.title("Compare performances")
+        st.title("Compare performances")
 
-    accuracies_compared = pd.DataFrame(
-        {"right_acc": accuracies_left, "left_acc": accuracies_right}
-    )
-
-    class_column, task_column = st.columns(2)
-    with class_column:
-        st.header("On classes")
-        st.write(
-            accuracies_compared.groupby("true_label")
-            .mean()
-            .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
-            .sort_values("diff", ascending=False)
+        accuracies_compared = pd.DataFrame(
+            {"right_acc": accuracies_left, "left_acc": accuracies_right}
         )
 
-    with task_column:
-        st.header("On tasks")
-        st.write(
-            accuracies_compared.groupby("task_id")
-            .mean()
-            .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
-            .sort_values("diff", ascending=False)
-        )
+        class_column, task_column = st.columns(2)
+        with class_column:
+            st.header("On classes")
+            st.write(
+                accuracies_compared.groupby("true_label")
+                .mean()
+                .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
+                .sort_values("diff", ascending=False)
+            )
+
+        with task_column:
+            st.header("On tasks")
+            st.write(
+                accuracies_compared.groupby("task_id")
+                .mean()
+                .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
+                .sort_values("diff", ascending=False)
+            )
 
 
 def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
@@ -89,14 +88,18 @@ def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
     st.expander("Params").write(read_params(selected_exp))
 
     with st.expander("Heatmaps"):
-        plot_image(
-            METRICS_DIR / "training_classes_biconfusion.png",
-            selected_exp,
+        st.image(
+            get_image(
+                METRICS_DIR / "training_classes_biconfusion.png",
+                selected_exp,
+            ),
             caption="Training classes biconfusion",
         )
-        plot_image(
-            METRICS_DIR / "training_classes_sampled_together.png",
-            selected_exp,
+        st.image(
+            get_image(
+                METRICS_DIR / "training_classes_sampled_together.png",
+                selected_exp,
+            ),
             caption="Training classes cosampling",
         )
 

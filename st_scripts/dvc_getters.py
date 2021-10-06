@@ -1,19 +1,18 @@
+import matplotlib.pyplot as plt
 import json
-
-import yaml
-from PIL import Image
-from dvc.repo.get import get
-from hashlib import sha1
 from pathlib import Path
 from typing import Dict, List
 
 import dvc.api
 import pandas as pd
 import streamlit as st
+import yaml
+from PIL import Image
 from dvc.repo import Repo
-from matplotlib import pyplot as plt
-from streamlit.delta_generator import DeltaGenerator
+from dvc.repo.get import get
 from tensorboard import program
+
+from st_utils import get_hash_from_list
 
 DVC_REPO = Repo("")
 PARAMS_FILE = "params.yaml"
@@ -70,41 +69,6 @@ def get_all_exps():
     ).set_index("exp_name")
 
 
-def plot_all_bars(metrics_df):
-    bar_plots_columns = st.columns(5)
-
-    with bar_plots_columns[0]:
-        bar_plot(metrics_df.accuracy, title="TOP 1 overall accuracy")
-
-    for i, quartile in enumerate(["first", "second", "third", "fourth"]):
-        with bar_plots_columns[i + 1]:
-            bar_plot(
-                metrics_df[f"{quartile}_quartile_acc"],
-                title=f"TOP 1 accuracy on {quartile} quartile",
-            )
-
-
-def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
-    return (
-        metrics_df.groupby([param for param in params if param != seed_column_name])
-        .aggregate(
-            {
-                **{
-                    metric: "mean"
-                    for metric in metrics_df.columns
-                    if metric not in params
-                },
-                seed_column_name: "count",
-            }
-        )
-        .rename(columns={seed_column_name: "n_seeds"})
-    )
-
-
-def get_hash_from_list(list_to_hash: List) -> str:
-    return sha1(json.dumps(sorted(list_to_hash)).encode()).hexdigest()
-
-
 def download_dir(path, git_rev, out):
     get(
         url=".",
@@ -130,35 +94,13 @@ def download_tensorboards(exps: Dict[str, str]):
     return tb.launch()
 
 
-def bar_plot(accuracy: pd.Series, title: str):
-    bottom = 0.9 * accuracy.min()
-
-    fig, ax = plt.subplots()
-    (accuracy - bottom).plot.bar(
-        ax=ax,
-        title=title,
-        fontsize=15,
-        alpha=0.5,
-        grid=True,
-        bottom=bottom,
-    )
-    # plt.legend(loc="lower left")
-    st.pyplot(fig)
-
-
-def plot_image(path: Path, exp: str, caption: str = None):
-    with dvc.api.open(path, rev=exp, mode="rb") as file:
-        st.image(Image.open(file), caption=caption)
-
-
 def read_csv(path: Path, exp: str) -> pd.DataFrame:
     with dvc.api.open(path, rev=exp, mode="r") as file:
         df = pd.read_csv(file, index_col=0)
     return df
 
 
-def display_fn(x, exps_df, all_params, selected_params):
-    to_display = f"{exps_df.parent_hash[x][:7]} - {x}"
-    for param in selected_params:
-        to_display += f" - {param} {all_params[param][x]}"
-    return to_display
+def get_image(path: Path, exp: str):
+    with dvc.api.open(path, rev=exp, mode="rb") as file:
+        image = plt.imread(file)
+    return image
