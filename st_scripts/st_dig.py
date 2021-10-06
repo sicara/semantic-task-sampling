@@ -1,3 +1,6 @@
+import pandas as pd
+import json
+
 import matplotlib.pyplot as plt
 
 import streamlit as st
@@ -16,10 +19,10 @@ from st_helpers import (
 
 
 def st_dig():
-    st.title("Dig an experiment")
 
     all_dvc_exps = get_all_exps()
     all_params = get_params(all_dvc_exps.index.to_list())
+    st.title("Dig an experiment")
 
     selected_params = st.multiselect(
         label="Select displayed params",
@@ -27,48 +30,106 @@ def st_dig():
         default=all_params.filter(regex=DEFAULT_DISPLAYED_PARAMS).columns.to_list(),
     )
 
+    selected_commits = st.multiselect(
+        "Filter pickable experiments by commit",
+        options=all_dvc_exps.parent_hash.unique(),
+        format_func=lambda x: x[:7]
+        + f" ({all_dvc_exps.parent_hash.value_counts().loc[x]} experiments)",
+    )
+
+    column_left, column_right = st.columns(2)
+    if len(selected_commits) > 0:
+        with column_left:
+            accuracies_left = dig_one(
+                1, all_dvc_exps, selected_commits, selected_params, all_params
+            )
+        with column_right:
+            accuracies_right = dig_one(
+                2, all_dvc_exps, selected_commits, selected_params, all_params
+            )
+
+    st.title("Compare performances")
+
+    accuracies_compared = pd.DataFrame(
+        {"right_acc": accuracies_left, "left_acc": accuracies_right}
+    )
+
+    class_column, task_column = st.columns(2)
+    with class_column:
+        st.header("On classes")
+        st.write(
+            accuracies_compared.groupby("true_label")
+            .mean()
+            .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
+            .sort_values("diff", ascending=False)
+        )
+
+    with task_column:
+        st.header("On tasks")
+        st.write(
+            accuracies_compared.groupby("task_id")
+            .mean()
+            .assign(diff=lambda df: abs(df.left_acc - df.right_acc))
+            .sort_values("diff", ascending=False)
+        )
+
+
+def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
+    # TODO: ce serait cool de pouvoir cacher ça, j'ai l'impression que ça reloade quand je clique sur un expander
     selected_exp = st.selectbox(
         label="Select an experiment",
-        options=all_dvc_exps.index,
+        options=all_dvc_exps.loc[
+            lambda df: df.parent_hash.isin(selected_commits)
+        ].index.to_list(),
         format_func=lambda x: display_fn(x, all_dvc_exps, all_params, selected_params),
+        key=-key,
     )
 
-    metrics = read_metrics(selected_exp)
-    params = read_params(selected_exp)
+    st.expander("Metrics").write(read_metrics(selected_exp))
+    st.expander("Params").write(read_params(selected_exp))
 
-    json_column, heatmaps_column, plots_column = st.columns(3)
+    with st.expander("Heatmaps"):
+        plot_image(
+            METRICS_DIR / "training_classes_biconfusion.png",
+            selected_exp,
+            caption="Training classes biconfusion",
+        )
+        plot_image(
+            METRICS_DIR / "training_classes_sampled_together.png",
+            selected_exp,
+            caption="Training classes cosampling",
+        )
 
-    json_column.write(metrics)
-    json_column.write(params)
+    with st.expander(
+        "Other plots"
+    ):  # TODO: ces plots sont trop larges, comment les reduire ?
+        fig, ax = plt.subplots()
+        read_csv(METRICS_DIR / "task_performances.csv", selected_exp).plot.scatter(
+            x="variance",
+            y="accuracy",
+            ax=ax,
+            title="Accuracy depending on intra-task distance on test set",
+        )
+        st.pyplot(fig)
 
-    plot_image(
-        METRICS_DIR / "training_classes_biconfusion.png",
-        selected_exp,
-        heatmaps_column,
-        caption="Training classes biconfusion",
+        fig, ax = plt.subplots()
+        intra_training_task_distances = read_csv(
+            METRICS_DIR / "intra_training_task_distances.csv", selected_exp
+        ).assign(smooth=lambda df: df.median_distance.rolling(500).mean())
+
+        intra_training_task_distances.smooth.plot.line(
+            ax=ax, title="Evolution of intra-task distances during training (smooth)"
+        )
+        st.pyplot(fig)
+
+    results = read_csv(METRICS_DIR / "raw_results.csv", selected_exp)
+
+    return (
+        results.sort_values("score", ascending=False)
+        .drop_duplicates(["task_id", "image_id"])
+        .sort_values(["task_id", "image_id"])
+        .reset_index(drop=True)
+        .assign(accuracy=lambda df: df.true_label == df.predicted_label)
+        .groupby(["task_id", "true_label"])
+        .accuracy.mean()
     )
-    plot_image(
-        METRICS_DIR / "training_classes_sampled_together.png",
-        selected_exp,
-        heatmaps_column,
-        caption="Training classes cosampling",
-    )
-
-    fig, ax = plt.subplots()
-    read_csv(METRICS_DIR / "task_performances.csv", selected_exp).plot.scatter(
-        x="variance",
-        y="accuracy",
-        ax=ax,
-        title="Accuracy depending on intra-task distance on test set",
-    )
-    plots_column.pyplot(fig)
-
-    fig, ax = plt.subplots()
-    intra_training_task_distances = read_csv(
-        METRICS_DIR / "intra_training_task_distances.csv", selected_exp
-    ).assign(smooth=lambda df: df.median_distance.rolling(500).mean())
-
-    intra_training_task_distances.smooth.plot.line(
-        ax=ax, title="Evolution of intra-task distances during training (smooth)"
-    )
-    plots_column.pyplot(fig)
