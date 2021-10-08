@@ -9,9 +9,8 @@ from dvc_getters import (
     get_metrics,
     get_all_exps,
     download_tensorboards,
-    DEFAULT_DISPLAYED_PARAMS,
 )
-from st_utils import aggregate_over_seeds
+from st_utils import aggregate_over_seeds, st_params_selector, st_commits_selector
 
 
 def st_compare_experiments():
@@ -22,18 +21,9 @@ def st_compare_experiments():
 
     st.title("Selection")
 
-    selected_params = st.multiselect(
-        label="Select displayed params",
-        options=all_params.columns.to_list(),
-        default=all_params.filter(regex=DEFAULT_DISPLAYED_PARAMS).columns.to_list(),
-    )
+    selected_params = st_params_selector(all_params)
 
-    selected_commits = st.multiselect(
-        "Select groups of experiments by commits",
-        options=all_dvc_exps.parent_hash.unique(),
-        format_func=lambda x: x[:7]
-        + f" ({all_dvc_exps.parent_hash.value_counts().loc[x]} experiments)",
-    )
+    selected_commits = st_commits_selector(all_dvc_exps)
 
     selected_exps = st.multiselect(
         label="Select experiments",

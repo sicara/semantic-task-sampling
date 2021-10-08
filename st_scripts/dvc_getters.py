@@ -7,20 +7,17 @@ import dvc.api
 import pandas as pd
 import streamlit as st
 import yaml
-from PIL import Image
-from dvc.repo import Repo
 from dvc.repo.get import get
 from tensorboard import program
 
+from st_constants import (
+    DVC_REPO,
+    PARAMS_FILE,
+    METRICS_FILE,
+    TENSORBOARD_LOGS_DIR,
+    TENSORBOARD_CACHE_DIR,
+)
 from st_utils import get_hash_from_list
-
-DVC_REPO = Repo("")
-PARAMS_FILE = "params.yaml"
-METRICS_DIR = Path("data/tiered_imagenet/metrics")
-METRICS_FILE = METRICS_DIR / "evaluation_metrics.json"
-TENSORBOARD_LOGS_DIR = Path("data/tiered_imagenet/tb_logs")
-TENSORBOARD_CACHE_DIR = Path("streamlit_cache") / "tensorboard"
-DEFAULT_DISPLAYED_PARAMS = "train.*"
 
 
 @st.cache

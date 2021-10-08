@@ -12,10 +12,9 @@ from dvc_getters import (
     get_all_exps,
     read_csv,
     get_image,
-    METRICS_DIR,
-    DEFAULT_DISPLAYED_PARAMS,
 )
-from st_utils import condense_results
+from st_constants import METRICS_DIR
+from st_utils import condense_results, st_params_selector, st_commits_selector
 
 
 def st_dig():
@@ -24,18 +23,9 @@ def st_dig():
     all_params = get_params(all_dvc_exps.index.to_list())
     st.title("Dig an experiment")
 
-    selected_params = st.multiselect(
-        label="Select displayed params",
-        options=all_params.columns.to_list(),
-        default=all_params.filter(regex=DEFAULT_DISPLAYED_PARAMS).columns.to_list(),
-    )
+    selected_params = st_params_selector(all_params)
 
-    selected_commits = st.multiselect(
-        "Filter pickable experiments by commit",
-        options=all_dvc_exps.parent_hash.unique(),
-        format_func=lambda x: x[:7]
-        + f" ({all_dvc_exps.parent_hash.value_counts().loc[x]} experiments)",
-    )
+    selected_commits = st_commits_selector(all_dvc_exps)
 
     column_left, column_right = st.columns(2)
     if len(selected_commits) > 0:
@@ -117,11 +107,11 @@ def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
         st.pyplot(fig)
 
         fig, ax = plt.subplots()
-        intra_training_task_distances = read_csv(
+        read_csv(
             METRICS_DIR / "intra_training_task_distances.csv", selected_exp
-        ).assign(smooth=lambda df: df.median_distance.rolling(500).mean())
-
-        intra_training_task_distances.smooth.plot.line(
+        ).assign(
+            smooth=lambda df: df.median_distance.rolling(500).mean()
+        ).smooth.plot.line(
             ax=ax, title="Evolution of intra-task distances during training (smooth)"
         )
         st.pyplot(fig)

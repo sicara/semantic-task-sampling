@@ -5,6 +5,9 @@ from typing import List
 
 import streamlit as st
 
+from st_constants import DEFAULT_DISPLAYED_PARAMS
+from git_helpers import get_commit_message
+
 
 def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
     return (
@@ -38,3 +41,21 @@ def condense_results(results):
 
 def get_hash_from_list(list_to_hash: List) -> str:
     return sha1(json.dumps(sorted(list_to_hash)).encode()).hexdigest()
+
+
+def st_params_selector(all_params):
+    return st.multiselect(
+        label="Select displayed params",
+        options=all_params.columns.to_list(),
+        default=all_params.filter(regex=DEFAULT_DISPLAYED_PARAMS).columns.to_list(),
+    )
+
+
+def st_commits_selector(all_dvc_exps):
+    selected_commits = st.multiselect(
+        "Filter pickable experiments by commit",
+        options=all_dvc_exps.parent_hash.unique(),
+        format_func=lambda x: x[:7]
+        + f": {get_commit_message(x)} ({all_dvc_exps.parent_hash.value_counts().loc[x]} experiments)",
+    )
+    return selected_commits
