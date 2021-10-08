@@ -77,6 +77,10 @@ def download_dir(path, git_rev, out):
 
 @st.cache
 def download_tensorboards(exps: Dict[str, str]):
+    # TODO ici ça va chercher la donnée sur le remote à chaque fois. Ca fait beaucoup de download de donnée, et beaucoup de duplication car chaque combinaison de commits donne un nouveau cache custom.
+    # TODO je pense qu'il faut faire en 2 étapes (si on considère qu'on peut que aller les chercher sur le remote et pas dans le cache local) :
+    # TODO 1) download toutes les expériences manquantes dans streamlit_cache/tensorboard/all_exps
+    # TODO 2) créer un dossier streamlit_cache/tensorboard/hash(selected_exps) avec dedans des symlinks vers les exps qu'on veut
     cache_dir = TENSORBOARD_CACHE_DIR / get_hash_from_list(list(exps.keys()))
     if not cache_dir.exists():
         for exp, git_rev in exps.items():

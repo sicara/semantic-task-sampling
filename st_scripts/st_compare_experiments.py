@@ -61,13 +61,15 @@ def st_compare_experiments():
 
             plot_all_bars(metrics_over_seeds_df)
 
-    st.title("Tensorboard")
+        st.title("Tensorboard")
 
-    url = download_tensorboards(
-        exps={
-            exp: all_dvc_exps.commit_hash.loc[exp]
-            for exp in all_dvc_exps.index.to_list()
-        }
-    )
-    # st.sidebar.write(url)
-    st.components.v1.iframe(url, height=900)
+        url = download_tensorboards(
+            exps={
+                exp: all_dvc_exps.commit_hash.loc[exp]
+                for exp in all_dvc_exps.loc[
+                    lambda df: df.parent_hash.isin(selected_commits)
+                ].index.to_list()
+            }
+        )
+        # st.sidebar.write(url)
+        st.components.v1.iframe(url, height=900)
