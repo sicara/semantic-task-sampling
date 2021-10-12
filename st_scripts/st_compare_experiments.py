@@ -1,14 +1,16 @@
 import streamlit as st
 
-from st_helpers import (
-    get_all_exps,
-    get_metrics,
-    get_params,
-    DEFAULT_DISPLAYED_PARAMS,
+from st_displayers import (
     display_fn,
-    bar_plot,
+    plot_all_bars,
+)
+from dvc_getters import (
+    get_params,
+    get_metrics,
+    get_all_exps,
     download_tensorboards,
 )
+from st_utils import aggregate_over_seeds, st_params_selector, st_commits_selector
 
 
 def st_compare_experiments():
@@ -17,53 +19,56 @@ def st_compare_experiments():
     all_metrics = get_metrics(all_dvc_exps.index.to_list())
     all_params = get_params(all_dvc_exps.index.to_list())
 
-    selected_params = st.multiselect(
-        label="Select displayed params",
-        options=all_params.columns.to_list(),
-        default=all_params.filter(regex=DEFAULT_DISPLAYED_PARAMS).columns.to_list(),
-    )
+    st.title("Selection")
+
+    selected_params = st_params_selector(all_params)
+
+    selected_commits = st_commits_selector(all_dvc_exps)
 
     selected_exps = st.multiselect(
         label="Select experiments",
         options=all_dvc_exps.index,
-        default=all_dvc_exps.index.to_list(),
+        default=all_dvc_exps.loc[
+            lambda df: df.parent_hash.isin(selected_commits)
+        ].index.to_list(),
         format_func=lambda x: display_fn(x, all_dvc_exps, all_params, selected_params),
     )
 
-    if st.checkbox("See params as JSON"):
-        st.write(
+    if len(selected_exps) > 0:
+
+        with st.expander("See params as JSON"):
+            st.write(
+                all_params[selected_params]
+                .loc[lambda df: df.index.isin(selected_exps)]
+                .to_dict(orient="index")
+            )
+
+        st.title("Metrics")
+
+        metrics_df = (
             all_params[selected_params]
+            .join(all_metrics)
             .loc[lambda df: df.index.isin(selected_exps)]
-            .to_dict(orient="index")
         )
+        st.write(metrics_df)
 
-    st.title("Metrics")
+        plot_all_bars(metrics_df)
 
-    metrics_df = (
-        all_params[selected_params]
-        .join(all_metrics)
-        .loc[lambda df: df.index.isin(selected_exps)]
-    )
-    st.write(metrics_df)
+        with st.expander("Aggregate over seeds"):
+            metrics_over_seeds_df = aggregate_over_seeds(metrics_df, selected_params)
 
-    bar_plots_columns = st.columns(5)
+            st.write(metrics_over_seeds_df)
 
-    bar_plot(metrics_df.accuracy, bar_plots_columns[0], title="TOP 1 overall accuracy")
+            plot_all_bars(metrics_over_seeds_df)
 
-    for i, quartile in enumerate(["first", "second", "third", "fourth"]):
-        bar_plot(
-            metrics_df[f"{quartile}_quartile_acc"],
-            bar_plots_columns[i + 1],
-            title=f"TOP 1 accuracy on {quartile} quartile",
+        st.title("Tensorboard")
+
+        url = download_tensorboards(
+            exps={
+                exp: all_dvc_exps.commit_hash.loc[exp]
+                for exp in all_dvc_exps.loc[
+                    lambda df: df.parent_hash.isin(selected_commits)
+                ].index.to_list()
+            }
         )
-
-    st.title("Tensorboard")
-
-    url = download_tensorboards(
-        exps={
-            exp: all_dvc_exps.commit_hash.loc[exp]
-            for exp in all_dvc_exps.index.to_list()
-        }
-    )
-    # st.sidebar.write(url)
-    st.components.v1.iframe(url, height=900)
+        st.components.v1.iframe(url, height=900)
