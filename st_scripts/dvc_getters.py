@@ -54,7 +54,7 @@ def get_metrics(exp_list: List[str]) -> pd.DataFrame:
 
 
 @st.cache
-def get_all_exps():
+def get_all_exps() -> pd.DataFrame:
     all_dvc_exps_dict = DVC_REPO.experiments.ls(all_=True)
     return pd.DataFrame(
         [
@@ -76,7 +76,7 @@ def download_dir(path, git_rev, out):
 
 
 @st.cache
-def download_tensorboards(exps: Dict[str, str]):
+def download_tensorboards(exps: Dict[str, str]) -> str:
     # TODO ici ça va chercher la donnée sur le remote à chaque fois. Ca fait beaucoup de download de donnée, et beaucoup de duplication car chaque combinaison de commits donne un nouveau cache custom.
     # TODO je pense qu'il faut faire en 2 étapes (si on considère qu'on peut que aller les chercher sur le remote et pas dans le cache local) :
     # TODO 1) download toutes les expériences manquantes dans streamlit_cache/tensorboard/all_exps

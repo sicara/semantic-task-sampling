@@ -71,5 +71,4 @@ def st_compare_experiments():
                 ].index.to_list()
             }
         )
-        # st.sidebar.write(url)
         st.components.v1.iframe(url, height=900)

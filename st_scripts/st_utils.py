@@ -1,3 +1,4 @@
+import pandas as pd
 import json
 
 from hashlib import sha1
@@ -9,7 +10,9 @@ from st_constants import DEFAULT_DISPLAYED_PARAMS
 from git_helpers import get_commit_message
 
 
-def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
+def aggregate_over_seeds(
+    metrics_df: pd.DataFrame, params: List[str], seed_column_name: str = "train.seed"
+) -> pd.DataFrame:
     return (
         metrics_df.groupby([param for param in params if param != seed_column_name])
         .aggregate(
@@ -27,7 +30,7 @@ def aggregate_over_seeds(metrics_df, params, seed_column_name="train.seed"):
 
 
 @st.cache
-def condense_results(results):
+def condense_results(results: pd.DataFrame) -> pd.Series:
     return (
         results.sort_values("score", ascending=False)
         .drop_duplicates(["task_id", "image_id"])
@@ -43,7 +46,7 @@ def get_hash_from_list(list_to_hash: List) -> str:
     return sha1(json.dumps(sorted(list_to_hash)).encode()).hexdigest()
 
 
-def st_params_selector(all_params):
+def st_params_selector(all_params: pd.DataFrame) -> List[str]:
     return st.multiselect(
         label="Select displayed params",
         options=all_params.columns.to_list(),
@@ -51,7 +54,7 @@ def st_params_selector(all_params):
     )
 
 
-def st_commits_selector(all_dvc_exps):
+def st_commits_selector(all_dvc_exps: pd.DataFrame) -> List[str]:
     selected_commits = st.multiselect(
         "Filter pickable experiments by commit",
         options=all_dvc_exps.parent_hash.unique(),

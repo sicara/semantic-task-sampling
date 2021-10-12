@@ -1,9 +1,11 @@
+from typing import List
+
 import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
 
 
-def plot_all_bars(metrics_df):
+def plot_all_bars(metrics_df: pd.DataFrame):
     bar_plots_columns = st.columns(5)
 
     with bar_plots_columns[0]:
@@ -33,7 +35,9 @@ def bar_plot(accuracy: pd.Series, title: str):
     st.pyplot(fig)
 
 
-def display_fn(x, exps_df, all_params, selected_params):
+def display_fn(
+    x: str, exps_df: pd.DataFrame, all_params: pd.DataFrame, selected_params: List[str]
+) -> str:
     to_display = f"{exps_df.parent_hash[x][:7]} - {x}"
     for param in selected_params:
         to_display += f" - {param} {all_params[param][x]}"

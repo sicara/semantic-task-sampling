@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd
 
 import matplotlib.pyplot as plt
@@ -64,7 +66,13 @@ def st_dig():
             )
 
 
-def dig_one(key, all_dvc_exps, selected_commits, selected_params, all_params):
+def dig_one(
+    key: int,
+    all_dvc_exps: pd.DataFrame,
+    selected_commits: List[str],
+    selected_params: List[str],
+    all_params: pd.DataFrame,
+) -> pd.Series:
     # TODO: ce serait cool de pouvoir cacher ça, j'ai l'impression que ça reloade quand je clique sur un expander
     selected_exp = st.selectbox(
         label="Select an experiment",
