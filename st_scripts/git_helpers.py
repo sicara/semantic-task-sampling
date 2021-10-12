@@ -1,5 +1,5 @@
-from git import Repo
+from st_constants import GIT_REPO
 
 
 def get_commit_message(rev: str) -> str:
-    return Repo(".").commit(rev).summary
+    return GIT_REPO.commit(rev).summary

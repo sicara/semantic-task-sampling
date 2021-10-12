@@ -1,8 +1,10 @@
+from git import Repo as GitRepo
 from pathlib import Path
 
-from dvc.repo import Repo
+from dvc.repo import Repo as DVCRepo
 
-DVC_REPO = Repo("")
+GIT_REPO = GitRepo(".")
+DVC_REPO = DVCRepo("")
 PARAMS_FILE = "params.yaml"
 METRICS_DIR = Path("data/tiered_imagenet/metrics")
 METRICS_FILE = METRICS_DIR / "evaluation_metrics.json"
