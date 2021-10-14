@@ -101,6 +101,18 @@ class SemanticTaskSampler(AbstractTaskSampler):
 
     @staticmethod
     def _get_alpha_fn(strategy: str) -> Callable[[float, int], float]:
+        # This is a quick and dirty way to parameterize the Weibull curriculum without passing
+        # additional parameters in the pipeline.
+        # Strategy "weibull-0.02-8" now parameterizes with gamma = 0.02 and beta = 8.
+        # To make the "weibull" strategy still work, we keep the previous behaviour in this case.
+        if strategy.startswith("weibull") & (strategy != "weibull"):
+            _, gamma_str, beta_str = strategy.split("-")
+            gamma = float(gamma_str)
+            beta = float(beta_str)
+            return lambda alpha, epoch: alpha * (
+                1 - np.exp(-np.power(epoch * gamma, beta))
+            )
+
         if strategy not in STRATEGIES.keys():
             raise ValueError(
                 f"{strategy} is not a valid strategy. Valid strategies are: {', '.join(STRATEGIES.keys())}."
