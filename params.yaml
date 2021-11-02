@@ -19,9 +19,9 @@ testbed:
   - 5
 
 train:
-  n_epoch: 150
+  n_epoch: 300
   n_tasks_per_epoch: 500
   sampler: semantic
-  alpha: 0.001
+  alpha: 0.
   strategy: weibull
   seed: 2

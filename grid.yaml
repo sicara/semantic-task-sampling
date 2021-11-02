@@ -2,19 +2,15 @@ untracked_files:
   - data/tiered_imagenet/images
 
 grid:
-  - train.strategy: weibull-0.008-8
-    train.alpha: 0.4
+  - train.strategy: stepwise-0:300
     device: cuda:0
     train.seed: 1
-  - train.strategy: weibull-0.012-5
-    train.alpha: 0.2
+  - train.strategy: stepwise-0:150-0.2:80-0.6:70
     device: cuda:1
     train.seed: 1
-  - train.strategy: weibull-0.009-10
-    train.alpha: 0.2
+  - train.strategy: stepwise-0:150-0.4:80-0.8:70
     device: cuda:2
     train.seed: 1
-  - train.strategy: weibull-0.010-10
-    train.alpha: 0.15
+  - train.strategy: stepwise-0:200-0.4:100
     device: cuda:3
     train.seed: 1

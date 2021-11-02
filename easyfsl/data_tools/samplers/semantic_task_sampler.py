@@ -112,6 +112,13 @@ class SemanticTaskSampler(AbstractTaskSampler):
             return lambda alpha, epoch: alpha * (
                 1 - np.exp(-np.power(epoch * gamma, beta))
             )
+        if strategy.startswith("stepwise"):
+            step_strings = strategy.split("-")
+            alpha_for_every_epoch = []
+            for step_string in step_strings[1:]:
+                step_alpha_str, step_epoch_str = step_string.split(":")
+                alpha_for_every_epoch += int(step_epoch_str) * [float(step_alpha_str)]
+            return lambda alpha, epoch: alpha_for_every_epoch[epoch]
 
         if strategy not in STRATEGIES.keys():
             raise ValueError(
