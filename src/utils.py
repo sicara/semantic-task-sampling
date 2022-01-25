@@ -1,4 +1,6 @@
 import itertools
+from pydoc import locate
+
 import random
 from functools import partial
 from pathlib import Path
@@ -241,6 +243,7 @@ def create_dataloader(dataset: EasySet, sampler: AbstractTaskSampler, n_workers:
 
 
 def build_model(
+    method: str,
     device: str,
     tb_writer: Optional[SummaryWriter] = None,
     pretrained_weights: Optional[Path] = None,
@@ -258,7 +261,8 @@ def build_model(
     convolutional_network = resnet18(pretrained=False)
     convolutional_network.fc = nn.Flatten()
 
-    model = PrototypicalNetworks(
+    method_class = locate(f"easyfsl.methods.{method}")
+    model = method_class(
         backbone=convolutional_network,
         tensorboard_writer=tb_writer,
         device=device,
