@@ -7,9 +7,9 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pandas as pd
 import torch
+from torch import nn
 import torchvision
 from matplotlib import pyplot as plt
-from torch import nn
 
 
 def plot_images(images: torch.Tensor, title: str, images_per_row: int):
@@ -192,3 +192,17 @@ def get_accuracies(results: pd.DataFrame) -> pd.Series:
         .groupby("task_id")
         .accuracy.mean()
     )
+
+
+def entropy(logits: torch.Tensor) -> torch.Tensor:
+    """
+    Compute entropy of prediction.
+    WARNING: takes logit as input, not probability.
+    Args:
+        logits: shape (, n_way)
+    Returns:
+        torch.Tensor: shape(), Mean entropy.
+    """
+    p = logits.softmax(dim=1)
+    entropy = -(p * (p + 1e-6).log()).sum(dim=1)
+    return entropy.mean()

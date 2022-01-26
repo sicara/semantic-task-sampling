@@ -59,8 +59,9 @@ class BDCSPN(AbstractMetaLearner):
 
     def forward(
         self,
-        query_features: Tensor,
+        query_images: Tensor,
     ) -> Tuple[Tensor, Tensor]:
+        query_features = self.backbone.forward(query_images)
 
         self.rectify_prototypes(
             query_features=query_features,

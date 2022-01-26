@@ -6,13 +6,13 @@ from torch import Tensor, nn
 
 
 from easyfsl.methods import AbstractMetaLearner
-from easyfsl.utils import compute_prototypes
+from easyfsl.utils import compute_prototypes, entropy
 
 
-class Finetune(AbstractMetaLearner):
+class TransductiveFinetuning(AbstractMetaLearner):
     """
-    Implementation of Finetune (or Baseline method) (ICLR 2019) https://arxiv.org/abs/1904.04232
-    This is an inductive method.
+    Implementation of Transductive Finetuning (ICLR 2020) https://arxiv.org/abs/1909.02729
+    This is a transductive method.
     """
 
     def __init__(
@@ -46,23 +46,27 @@ class Finetune(AbstractMetaLearner):
         self,
         query_images: Tensor,
     ) -> Tuple[Tensor, Tensor]:
-
         query_features = self.backbone.forward(query_images)
-
         # Run adaptation
         self.prototypes.requires_grad_()
         optimizer = torch.optim.Adam([self.prototypes], lr=self.lr)
         for i in range(self.inference_steps):
 
-            logits_s = self.get_logits_from_cosine_distances_to_prototypes(
-                self.support_features
+            ce_loss = nn.functional.cross_entropy(
+                self.get_logits_from_euclidean_distances_to_prototypes(
+                    self.support_features
+                ),
+                self.support_labels,
             )
-            ce = nn.functional.cross_entropy(logits_s, self.support_labels)
+            entropy_loss = entropy(
+                self.get_logits_from_euclidean_distances_to_prototypes(query_features)
+            )
+            loss = ce_loss + entropy_loss
             optimizer.zero_grad()
-            ce.backward()
+            loss.backward()
             optimizer.step()
 
-        probs_q = self.get_logits_from_cosine_distances_to_prototypes(
+        probs_q = self.get_logits_from_euclidean_distances_to_prototypes(
             query_features
         ).softmax(-1)
 
