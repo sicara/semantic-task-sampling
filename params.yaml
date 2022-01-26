@@ -8,20 +8,21 @@ testbeds_dir: data/tiered_imagenet/testbeds
 
 device: cuda:2
 
-n_way: 5
-n_query: 10
-n_shot: 5
 
 testbed:
   n_tasks: 5000
+  n_way: 5
+  n_query: 10
   n_shot:
   - 1
   - 5
 
-train:
-  n_epoch: 300
-  n_tasks_per_epoch: 500
-  sampler: semantic
-  alpha: 0.
-  strategy: weibull
-  seed: 2
+testbeds_grid:
+  - 1_shot
+  - 5_shot
+  - uniform_1_shot
+  - uniform_5_shot
+
+model:
+  weights: data/tiered_imagenet/models/trained_model.tar
+  method: PrototypicalNetworks
