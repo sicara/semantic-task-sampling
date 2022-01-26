@@ -2,21 +2,19 @@ from pathlib import Path
 from typing import Dict, List
 
 import click
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 from loguru import logger
-from matplotlib import pyplot as plt
 from tqdm import tqdm
 
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers.utils import sample_label_from_potential
 from easyfsl.utils import fill_diagonal, sort_items_per_label
-from src.utils import get_pseudo_variance
+from src.utils import get_pseudo_variance, save_tasks_plots
 
-distances_dir = Path("data/tiered_imagenet/distances")
-specs_file = Path("data/tiered_imagenet/specs/test.json")
+DISTANCES_DIR = Path("data/tiered_imagenet/distances")
+SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
 N_TASKS = 8000
 N_WAY = 5
 N_SHOT = 5
@@ -36,45 +34,45 @@ BETA_PENALTY = 100.0
     "--n-way",
     help="Number of classes in each task",
     type=int,
-    default=5,
+    default=N_WAY,
 )
 @click.option(
     "--n-shot",
     help="Number of support images per class",
     type=int,
-    default=5,
+    default=N_SHOT,
 )
 @click.option(
     "--n-query",
     help="Number of query images per class",
     type=int,
-    default=10,
+    default=N_QUERY,
 )
 @click.option(
     "--distances-csv",
     help="Path to the csv containing the distance matrix",
     type=Path,
-    default=Path("data/tiered_imagenet/distances/test.csv"),
+    default=DISTANCES_DIR / "test.csv",
 )
 @click.option(
     "--specs-json",
     help="Path to the JSON containing the specs of the test set",
     type=Path,
-    default=Path("data/tiered_imagenet/specs/test.json"),
+    default=SPECS_FILE,
 )
 @click.option(
     "--alpha",
     help="Weights the importance of the distance in the task sampling."
     "Bigger alpha means more fine-grained tasks.",
     type=float,
-    default=0.3830,
+    default=ALPHA,
 )
 @click.option(
     "--beta-penalty",
     help="Weights the importance of the frequence-based penalty in the task sampling."
     "Bigger beta means forces the balance between classes in the testbed.",
     type=float,
-    default=100.0,
+    default=BETA_PENALTY,
 )
 @click.option(
     "--seed",
@@ -179,32 +177,6 @@ def sample_tasks(
         .reset_index()
         .rename(columns={"index": "task"})
     )
-
-
-def save_tasks_plots(tasks: pd.DataFrame, out_file: Path):
-    """
-    Plot two histograms:
-        - label occurrences: to evaluate the balance between classes in the testbed.
-        - pseudo-variances: to evaluate that the testbed covers quasi-evenly a wide range of
-            pseudo-variances
-    Args:
-        tasks: dataframe of tasks, output of sample_tasks
-        out_file: where the testbed will be dumped. We will save the plots next to it.
-    """
-
-    tasks.groupby("task").variance.mean().hist().set_title(
-        "histogram of pseudo-variances"
-    )
-    pseudo_variances_file = out_file.parent / f"{out_file.stem}_pv.png"
-    plt.savefig(pseudo_variances_file)
-
-    plt.clf()
-    tasks.labels.value_counts().hist().set_title("histogram of label occurrences")
-    occurrences_file = out_file.parent / f"{out_file.stem}_occ.png"
-    plt.savefig(occurrences_file)
-
-    logger.info(f"Histogram of pseudo-variances dumped to {pseudo_variances_file}")
-    logger.info(f"Histogram of label occurrences dumped to {occurrences_file}")
 
 
 class ItemsSampler:
