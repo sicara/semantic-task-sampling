@@ -88,11 +88,11 @@ stages:
         - ${metrics_dir}/raw_results_${item}.csv
         - src/compute_metrics.py
       outs:
-        - ${logs_dir}/compute_metrics.out
+        - ${logs_dir}/compute_metrics_${item}.out
       metrics:
-        - ${metrics_dir}/evaluation_metrics_{item}.json
+        - ${metrics_dir}/evaluation_metrics_${item}.json
       plots:
-        - ${metrics_dir}/task_performances_{item}.csv:
+        - ${metrics_dir}/task_performances_${item}.csv:
             x: variance
             y: accuracy
             title: accuracy depending on task's pseudo-variance
