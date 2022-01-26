@@ -45,7 +45,7 @@ class Finetune(AbstractMetaLearner):
     def forward(
         self,
         query_images: Tensor,
-    ) -> Tuple[Tensor, Tensor]:
+    ) -> Tensor:
 
         query_features = self.backbone.forward(query_images)
 
