@@ -1,4 +1,6 @@
 import itertools
+from pydoc import locate
+
 import random
 from functools import partial
 from pathlib import Path
@@ -241,6 +243,7 @@ def create_dataloader(dataset: EasySet, sampler: AbstractTaskSampler, n_workers:
 
 
 def build_model(
+    method: str,
     device: str,
     tb_writer: Optional[SummaryWriter] = None,
     pretrained_weights: Optional[Path] = None,
@@ -258,7 +261,8 @@ def build_model(
     convolutional_network = resnet18(pretrained=False)
     convolutional_network.fc = nn.Flatten()
 
-    model = PrototypicalNetworks(
+    method_class = locate(f"easyfsl.methods.{method}")
+    model = method_class(
         backbone=convolutional_network,
         tensorboard_writer=tb_writer,
         device=device,
@@ -268,3 +272,29 @@ def build_model(
         model.load_state_dict(torch.load(pretrained_weights))
 
     return model
+
+
+def save_tasks_plots(tasks: pd.DataFrame, out_file: Path):
+    """
+    Plot two histograms:
+        - label occurrences: to evaluate the balance between classes in the testbed.
+        - pseudo-variances: to evaluate that the testbed covers quasi-evenly a wide range of
+            pseudo-variances
+    Args:
+        tasks: dataframe of tasks with columns "task", "variance", "labels"
+        out_file: where the testbed will be dumped. We will save the plots next to it.
+    """
+
+    tasks.groupby("task").variance.mean().hist().set_title(
+        "histogram of pseudo-variances"
+    )
+    pseudo_variances_file = out_file.parent / f"{out_file.stem}_pv.png"
+    plt.savefig(pseudo_variances_file)
+
+    plt.clf()
+    tasks.labels.value_counts().hist().set_title("histogram of label occurrences")
+    occurrences_file = out_file.parent / f"{out_file.stem}_occ.png"
+    plt.savefig(occurrences_file)
+
+    logger.info(f"Histogram of pseudo-variances dumped to {pseudo_variances_file}")
+    logger.info(f"Histogram of label occurrences dumped to {occurrences_file}")

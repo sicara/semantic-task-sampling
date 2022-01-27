@@ -9,6 +9,7 @@ import torch
 from loguru import logger
 from sklearn import metrics
 from torch import nn, optim
+from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
@@ -18,6 +19,7 @@ from easyfsl.utils import (
     get_accuracies,
     get_task_perf,
     sliding_average,
+    compute_prototypes,
 )
 
 
@@ -457,3 +459,28 @@ class AbstractMetaLearner(nn.Module):
                 self.training_confusion_matrix[
                     true_label1, true_label2
                 ] += task_confusion_matrix[local_label1, local_label2]
+
+    def get_logits_from_euclidean_distances_to_prototypes(self, samples):
+        return -self.softmax_temperature * torch.cdist(samples, self.prototypes)
+
+    def get_logits_from_cosine_distances_to_prototypes(self, samples):
+        return (
+            self.softmax_temperature
+            * F.normalize(samples, dim=1)
+            @ F.normalize(self.prototypes, dim=1).T
+        )
+
+    def store_features_labels_and_prototypes(
+        self,
+        support_images: torch.Tensor,
+        support_labels: torch.Tensor,
+    ):
+        """
+        Overrides process_support_set of AbstractMetaLearner.
+        Args:
+            support_images: images of the support set
+            support_labels: labels of support set images
+        """
+        self.support_labels = support_labels
+        self.support_features = self.backbone.forward(support_images)
+        self.prototypes = compute_prototypes(self.support_features, support_labels)

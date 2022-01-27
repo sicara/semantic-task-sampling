@@ -193,6 +193,7 @@ def main(
     model = build_model(
         device=device,
         tb_writer=SummaryWriter(log_dir=tb_log_dir),
+        method="PrototypicalNetworks",
         pretrained_weights=pretrained_weights,
     )
 

@@ -118,7 +118,7 @@ class SemanticTaskSampler(AbstractTaskSampler):
             for step_string in step_strings[1:]:
                 step_alpha_str, step_epoch_str = step_string.split(":")
                 alpha_for_every_epoch += int(step_epoch_str) * [float(step_alpha_str)]
-            return lambda alpha, epoch: alpha_for_every_epoch[epoch-1]
+            return lambda alpha, epoch: alpha_for_every_epoch[epoch - 1]
 
         if strategy not in STRATEGIES.keys():
             raise ValueError(

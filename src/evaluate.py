@@ -26,6 +26,12 @@ from src.utils import build_model, create_dataloader
     required=True,
 )
 @click.option(
+    "--method",
+    help="Few-Shot Method",
+    type=str,
+    default="PrototypicalNetworks",
+)
+@click.option(
     "--trained-model",
     help="Path to an archive containing trained model weights",
     type=Path,
@@ -42,7 +48,12 @@ from src.utils import build_model, create_dataloader
 )
 @click.command()
 def main(
-    specs_dir: Path, testbed: Path, trained_model: Path, output_dir: Path, device: str
+    specs_dir: Path,
+    testbed: Path,
+    method: str,
+    trained_model: Path,
+    output_dir: Path,
+    device: str,
 ):
     n_workers = 8
 
@@ -55,12 +66,12 @@ def main(
     test_loader = create_dataloader(test_set, test_sampler, n_workers)
 
     logger.info("Retrieving model...")
-    model = build_model(device=device, pretrained_weights=trained_model)
+    model = build_model(device=device, pretrained_weights=trained_model, method=method)
 
     logger.info("Starting evaluation...")
     results = model.evaluate(test_loader)
 
-    output_file = output_dir / "raw_results.csv"
+    output_file = output_dir / f"raw_results{testbed.stem.lstrip('testbed')}.csv"
     results.to_csv(output_file)
     logger.info(f"Raw results dumped at {output_file}")
 
