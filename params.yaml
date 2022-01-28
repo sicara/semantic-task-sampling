@@ -18,11 +18,11 @@ testbed:
   - 5
 
 testbeds_grid:
-  - 1_shot
-  - 5_shot
-  - uniform_1_shot
-  - uniform_5_shot
+- 1_shot
+- 5_shot
+- uniform_1_shot
+- uniform_5_shot
 
 model:
   weights: data/tiered_imagenet/models/resnet12_tiered_imagenet_classic.tar
-  method: PrototypicalNetworks
+  method: BDCSPN
