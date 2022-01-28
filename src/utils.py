@@ -27,6 +27,7 @@ from easyfsl.data_tools.samplers import (
     UniformTaskSampler,
 )
 from easyfsl.methods import PrototypicalNetworks
+from easyfsl.resnet import resnet12
 
 
 def plot_dag(dag: nx.DiGraph):
@@ -258,8 +259,9 @@ def build_model(
     Returns:
         a few-shot learning model
     """
-    convolutional_network = resnet18(pretrained=False)
-    convolutional_network.fc = nn.Flatten()
+    convolutional_network = resnet12()
+    if pretrained_weights is not None:
+        convolutional_network.load_state_dict(torch.load(pretrained_weights))
 
     method_class = locate(f"easyfsl.methods.{method}")
     model = method_class(
@@ -267,9 +269,6 @@ def build_model(
         tensorboard_writer=tb_writer,
         device=device,
     ).to(device)
-
-    if pretrained_weights is not None:
-        model.load_state_dict(torch.load(pretrained_weights))
 
     return model
 
