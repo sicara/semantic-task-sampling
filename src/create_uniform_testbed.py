@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 import click
@@ -77,6 +78,7 @@ def main(
     seed: int,
     out_file: Path,
 ):
+    random.seed(seed)
     np.random.seed(seed)
     torch.random.manual_seed(seed)
 
