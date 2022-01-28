@@ -2,9 +2,9 @@ untracked_files:
   - data/tiered_imagenet/images
 
 grid:
-  - method: PrototypicalNetworks
-  - method: BDCSPN
-  - method: TIM
-  - method: Finetune
-  - method: TransductiveFinetuning
-  - method: PT_MAP
+  - model.method: PrototypicalNetworks
+  - model.method: BDCSPN
+  - model.method: TIM
+  - model.method: Finetune
+  - model.method: TransductiveFinetuning
+  - model.method: PT_MAP
