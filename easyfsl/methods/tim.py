@@ -16,7 +16,7 @@ class TIM(AbstractMetaLearner):
 
     def __init__(
         self,
-        inference_steps: int = 10,
+        inference_steps: int = 100,
         inference_lr: float = 1e-3,
         loss_weights: List[float] = None,
         **kwargs,
