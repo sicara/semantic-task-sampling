@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import List
 
@@ -19,6 +20,25 @@ def build_wordnet_dag(path_to_wordnet: Path) -> nx.DiGraph:
         for line in file:
             parent, child = line.rstrip().split(" ")
             whole_dag.add_edge(parent, child)
+
+    return whole_dag
+
+
+def build_fungi_tree(path_to_json: Path) -> nx.DiGraph:
+    """
+    Build the Fungi hierarchy in the shape of a Direct Acyclic Graph (DAG).
+    Args:
+        path_to_json: path to a json file mapping each child to its parent
+
+    Returns:
+        a tree
+    """
+    whole_dag = nx.DiGraph()
+    with open(path_to_json, "r") as file:
+        mapping = json.load(file)
+
+    for child, parent in mapping.items():
+        whole_dag.add_edge(parent, child)
 
     return whole_dag
 

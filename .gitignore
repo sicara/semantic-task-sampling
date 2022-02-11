@@ -136,6 +136,8 @@ data/CUB/images
 data/tiered_imagenet/images
 data/tiered_imagenet/tb_logs
 
+data/fungi/images
+
 # streamlit
 streamlit_cache
 
