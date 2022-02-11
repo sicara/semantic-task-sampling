@@ -1,0 +1,4 @@
+outs:
+- md5: b5bd56db53db9e8ec51462f92b63006a
+  size: 38673827
+  path: resnet12_tiered_imagenet_classic.tar

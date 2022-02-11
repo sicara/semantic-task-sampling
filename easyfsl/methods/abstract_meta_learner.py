@@ -150,29 +150,29 @@ class AbstractMetaLearner(nn.Module):
         # eval mode affects the behaviour of some layers (such as batch normalization or dropout)
         # no_grad() tells torch not to keep in memory the whole computational graph
         self.eval()
-        with torch.no_grad():
-            with tqdm(
-                enumerate(data_loader), total=len(data_loader), desc="Evaluation"
-            ) as tqdm_eval:
-                for task_id, (
-                    support_images,
-                    support_labels,
-                    query_images,
-                    query_labels,
-                    true_class_ids,
-                ) in tqdm_eval:
-                    predicted_scores = self.infer_on_one_task(
-                        support_images, support_labels, query_images
+        # with torch.no_grad():
+        with tqdm(
+            enumerate(data_loader), total=len(data_loader), desc="Evaluation"
+        ) as tqdm_eval:
+            for task_id, (
+                support_images,
+                support_labels,
+                query_images,
+                query_labels,
+                true_class_ids,
+            ) in tqdm_eval:
+                predicted_scores = self.infer_on_one_task(
+                    support_images, support_labels, query_images
+                )
+                list_of_task_perfs.append(
+                    get_task_perf(
+                        task_id, predicted_scores, query_labels, true_class_ids
+                    ).assign(
+                        task_loss=self.compute_loss(
+                            predicted_scores, query_labels.to(self.device)
+                        ).item()
                     )
-                    list_of_task_perfs.append(
-                        get_task_perf(
-                            task_id, predicted_scores, query_labels, true_class_ids
-                        ).assign(
-                            task_loss=self.compute_loss(
-                                predicted_scores, query_labels.to(self.device)
-                            ).item()
-                        )
-                    )
+                )
 
         return pd.concat(list_of_task_perfs, ignore_index=True)
 
@@ -461,14 +461,10 @@ class AbstractMetaLearner(nn.Module):
                 ] += task_confusion_matrix[local_label1, local_label2]
 
     def get_logits_from_euclidean_distances_to_prototypes(self, samples):
-        return -self.softmax_temperature * torch.cdist(samples, self.prototypes)
+        return -torch.cdist(samples, self.prototypes)
 
     def get_logits_from_cosine_distances_to_prototypes(self, samples):
-        return (
-            self.softmax_temperature
-            * F.normalize(samples, dim=1)
-            @ F.normalize(self.prototypes, dim=1).T
-        )
+        return F.normalize(samples, dim=1) @ F.normalize(self.prototypes, dim=1).T
 
     def store_features_labels_and_prototypes(
         self,

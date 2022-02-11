@@ -27,6 +27,7 @@ from easyfsl.data_tools.samplers import (
     UniformTaskSampler,
 )
 from easyfsl.methods import PrototypicalNetworks
+from easyfsl.resnet import resnet12
 
 
 def plot_dag(dag: nx.DiGraph):
@@ -247,6 +248,7 @@ def build_model(
     device: str,
     tb_writer: Optional[SummaryWriter] = None,
     pretrained_weights: Optional[Path] = None,
+    trainable_backbone: bool = False,
 ):
     """
     Build a model and cast it on the appropriate device
@@ -258,8 +260,10 @@ def build_model(
     Returns:
         a few-shot learning model
     """
-    convolutional_network = resnet18(pretrained=False)
-    convolutional_network.fc = nn.Flatten()
+    convolutional_network = resnet12(num_classes=351)
+    if not trainable_backbone:
+        convolutional_network.requires_grad_(False)
+    # 351 so that the shape of the FC layer fits the trained model. It's a dirty fix.
 
     method_class = locate(f"easyfsl.methods.{method}")
     model = method_class(
@@ -269,7 +273,7 @@ def build_model(
     ).to(device)
 
     if pretrained_weights is not None:
-        model.load_state_dict(torch.load(pretrained_weights))
+        model.load_state_dict(torch.load(pretrained_weights), strict=False)
 
     return model
 

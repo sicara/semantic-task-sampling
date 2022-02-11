@@ -17,8 +17,8 @@ class TransductiveFinetuning(AbstractMetaLearner):
 
     def __init__(
         self,
-        inference_steps: int = 10,
-        inference_lr: float = 1e-3,
+        inference_steps: int = 25,
+        inference_lr: float = 5e-5,
         **kwargs,
     ):
         super().__init__(**kwargs)

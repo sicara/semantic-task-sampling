@@ -24,5 +24,5 @@ testbeds_grid:
   - uniform_5_shot
 
 model:
-  weights: data/tiered_imagenet/models/trained_model.tar
+  weights: data/tiered_imagenet/models/resnet12_tiered_imagenet_classic.tar
   method: PrototypicalNetworks

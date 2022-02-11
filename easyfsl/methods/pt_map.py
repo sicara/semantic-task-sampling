@@ -121,8 +121,8 @@ class GaussianModel:
 
 
 class PT_MAP(AbstractMetaLearner):
-    def __init__(self, model_func, power_transform=True):
-        super().__init__(model_func)
+    def __init__(self, power_transform=True, **kwargs):
+        super().__init__(**kwargs)
         self.loss_fn = nn.NLLLoss()
         self.power_transform = power_transform
 

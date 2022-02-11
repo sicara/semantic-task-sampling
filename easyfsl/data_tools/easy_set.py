@@ -26,7 +26,7 @@ class EasySet(Dataset):
         }
     """
 
-    def __init__(self, specs_file: Union[Path, str], image_size=224, training=False):
+    def __init__(self, specs_file: Union[Path, str], image_size=84, training=False):
         """
         Args:
             specs_file: path to the JSON file
