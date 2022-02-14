@@ -4,7 +4,7 @@ metrics_dir: data/fungi/metrics
 logs_dir: data/fungi/logs
 testbeds_dir: data/fungi/testbeds
 
-device: cuda:2
+device: cuda:0
 
 
 testbed:
