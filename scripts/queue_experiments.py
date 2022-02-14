@@ -9,9 +9,9 @@ import yaml
 @click.option(
     "-p",
     "--pipeline",
-    help="Path to a dvc.yaml file",
+    help="Root directory of the pipeline we want to launch.",
     type=Path,
-    default=Path("dvc.yaml"),
+    default=Path("."),
 )
 @click.option(
     "-g",
@@ -55,9 +55,7 @@ def index_files(untracked_files: List[str]):
     Args:
         untracked_files: list of untracked files
     """
-    subprocess.run(
-        ["git", "add", "-f"] + [filepath for filepath in untracked_files]
-    )
+    subprocess.run(["git", "add", "-f"] + [filepath for filepath in untracked_files])
 
 
 def queue(experiment: Dict, pipeline: Path):
@@ -68,11 +66,11 @@ def queue(experiment: Dict, pipeline: Path):
             and the values are the value with which to update the parameter.
         pipeline: path to the dvc.yaml pipeline
     """
-    command_line = ["dvc", "exp", "run", str(pipeline), "--queue"]
+    command_line = ["dvc", "exp", "run", str(pipeline / "dvc.yaml"), "--queue"]
     for param, value in experiment.items():
         command_line += [
             "--set-param",
-            f"{param}={value}",
+            f"{pipeline}/params.yaml:{param}={value}",
         ]
 
     subprocess.run(command_line)
