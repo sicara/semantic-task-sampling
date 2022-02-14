@@ -1,0 +1,82 @@
+schema: '2.0'
+stages:
+  compute_distances:
+    cmd: python -m src.compute_semantic_distances --specs-dir data/fungi/specs --output-dir
+      data/fungi --dataset fungi &> data/fungi/logs/compute_distances.out
+    deps:
+    - path: data/fungi/specs/DF20_metadata.csv
+      md5: 27418931dad9162dcedb69cc91ea5799
+      size: 86434321
+    - path: data/fungi/specs/fungi_dag.json
+      md5: 2b35cd031f41ec4e8bf7db5abbaa9807
+      size: 195213
+    - path: src/compute_semantic_distances.py
+      md5: 0ad5e916429fc4634029f78a422d8579
+      size: 1654
+    outs:
+    - path: data/fungi/distances.csv
+      md5: 647c2014ae7325fb58a2eff5ccb78ffa
+      size: 10291264
+    - path: data/fungi/logs/compute_distances.out
+      md5: 9f944158bdd88a6f996a87f43953d114
+      size: 164
+  create_uniform_testbed@5:
+    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
+      --n-shot 5 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_5_shot.csv
+      --dataset fungi &> data/fungi/logs/create_uniform_testbed_5.out
+    deps:
+    - path: data/fungi/distances.csv
+      md5: 647c2014ae7325fb58a2eff5ccb78ffa
+      size: 10291264
+    - path: data/fungi/specs/DF20_metadata.csv
+      md5: 27418931dad9162dcedb69cc91ea5799
+      size: 86434321
+    - path: data/fungi/specs/fungi_dag.json
+      md5: 2b35cd031f41ec4e8bf7db5abbaa9807
+      size: 195213
+    - path: src/create_uniform_testbed.py
+      md5: bc648b5dfa14144d9506d9dc2701bbcc
+      size: 3125
+    outs:
+    - path: data/fungi/logs/create_uniform_testbed_5.out
+      md5: 85d079919d94e495ae7adf088b3e0d4e
+      size: 613
+    - path: data/fungi/testbeds/testbed_uniform_5_shot.csv
+      md5: d397f525960362896dd5367a43c8fa97
+      size: 10589741
+    - path: data/fungi/testbeds/testbed_uniform_5_shot_occ.png
+      md5: b024f609b6952662446c37172b7ab394
+      size: 13655
+    - path: data/fungi/testbeds/testbed_uniform_5_shot_pv.png
+      md5: 8b5532eca8804ebcdfd8b62b147ea5bb
+      size: 15359
+  create_uniform_testbed@1:
+    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
+      --n-shot 1 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_1_shot.csv
+      --dataset fungi &> data/fungi/logs/create_uniform_testbed_1.out
+    deps:
+    - path: data/fungi/distances.csv
+      md5: 647c2014ae7325fb58a2eff5ccb78ffa
+      size: 10291264
+    - path: data/fungi/specs/DF20_metadata.csv
+      md5: 27418931dad9162dcedb69cc91ea5799
+      size: 86434321
+    - path: data/fungi/specs/fungi_dag.json
+      md5: 2b35cd031f41ec4e8bf7db5abbaa9807
+      size: 195213
+    - path: src/create_uniform_testbed.py
+      md5: bc648b5dfa14144d9506d9dc2701bbcc
+      size: 3125
+    outs:
+    - path: data/fungi/logs/create_uniform_testbed_1.out
+      md5: 7ab15abbd61a196f4f47a2a3f7a04b82
+      size: 613
+    - path: data/fungi/testbeds/testbed_uniform_1_shot.csv
+      md5: 2e66e43d3bcbb63d02046176cdecd86b
+      size: 7819886
+    - path: data/fungi/testbeds/testbed_uniform_1_shot_occ.png
+      md5: 5f75c51befe3e6407802c5cbb0f66253
+      size: 13643
+    - path: data/fungi/testbeds/testbed_uniform_1_shot_pv.png
+      md5: 8b5532eca8804ebcdfd8b62b147ea5bb
+      size: 15359

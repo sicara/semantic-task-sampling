@@ -278,6 +278,36 @@ def build_model(
     return model
 
 
+def build_model_trained_on_imagenet(
+    method: str,
+    device: str,
+    tb_writer: Optional[SummaryWriter] = None,
+    trainable_backbone: bool = False,
+):
+    """
+    Build a model with a ResNet18 backbone pretrained on ImageNet and cast it on the appropriate device
+    Args:
+        device: device on which to put the model
+        tb_writer: a tensorboard writer to log training events
+
+    Returns:
+        a few-shot learning model
+    """
+    convolutional_network = resnet18(pretrained=True)
+    convolutional_network.fc = nn.Flatten()
+    if not trainable_backbone:
+        convolutional_network.requires_grad_(False)
+
+    method_class = locate(f"easyfsl.methods.{method}")
+    model = method_class(
+        backbone=convolutional_network,
+        tensorboard_writer=tb_writer,
+        device=device,
+    ).to(device)
+
+    return model
+
+
 def save_tasks_plots(tasks: pd.DataFrame, out_file: Path):
     """
     Plot two histograms:

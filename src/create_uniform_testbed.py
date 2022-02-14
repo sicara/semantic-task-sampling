@@ -8,6 +8,7 @@ import torch
 from loguru import logger
 
 from easyfsl.data_tools import EasySet
+from easyfsl.data_tools.danish_fungi import DanishFungi
 from easyfsl.data_tools.samplers import UniformTaskSampler
 from src.utils import get_pseudo_variance, save_tasks_plots
 
@@ -67,6 +68,9 @@ N_QUERY = 10
     type=Path,
     required=True,
 )
+@click.option(
+    "--dataset", help="tiered_imagenet or fungi", type=str, default="tiered_imagenet"
+)
 @click.command()
 def main(
     n_tasks: int,
@@ -77,6 +81,7 @@ def main(
     specs_json: Path,
     seed: int,
     out_file: Path,
+    dataset: str,
 ):
     random.seed(seed)
     np.random.seed(seed)
@@ -85,7 +90,10 @@ def main(
     distances = pd.read_csv(distances_csv, header=None).values
 
     logger.info(f"Sampling classes for {n_tasks} tasks...")
-    test_set = EasySet(specs_json)
+    if dataset == "fungi":
+        test_set = DanishFungi()
+    else:
+        test_set = EasySet(specs_json)
     test_sampler = UniformTaskSampler(
         test_set, n_way=n_way, n_shot=n_shot, n_query=n_query, n_tasks=n_tasks
     )

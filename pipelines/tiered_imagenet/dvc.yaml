@@ -4,6 +4,7 @@ stages:
       - train
       - test
     do:
+      wdir: ../..
       cmd: python -m src.compute_semantic_distances
         --split ${item}
         --specs-dir ${specs_dir}
@@ -20,6 +21,7 @@ stages:
   create_testbed:
     foreach: ${testbed.n_shot}
     do:
+      wdir: ../..
       cmd: python -m src.create_testbed
         --n-tasks ${testbed.n_tasks}
         --n-way ${testbed.n_way}
@@ -40,6 +42,7 @@ stages:
   create_uniform_testbed:
     foreach: ${testbed.n_shot}
     do:
+      wdir: ../..
       cmd: python -m src.create_uniform_testbed
         --n-tasks ${testbed.n_tasks}
         --n-way ${testbed.n_way}
@@ -60,6 +63,7 @@ stages:
   evaluate:
     foreach: ${testbeds_grid}
     do:
+      wdir: ../..
       cmd: python -m src.evaluate
         --specs-dir ${specs_dir}
         --testbed ${testbeds_dir}/testbed_${item}.csv
@@ -80,6 +84,7 @@ stages:
   compute_metrics:
     foreach: ${testbeds_grid}
     do:
+      wdir: ../..
       cmd: python -m src.compute_metrics
         --testbed-spec ${item}
         &> ${logs_dir}/compute_metrics_${item}.out

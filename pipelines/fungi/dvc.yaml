@@ -1,0 +1,130 @@
+stages:
+  compute_distances:
+    wdir: ../..
+    cmd: python -m src.compute_semantic_distances
+      --specs-dir ${specs_dir}
+      --output-dir ${distances_dir}
+      --dataset fungi
+      &> ${logs_dir}/compute_distances.out
+    params:
+      - pipelines/fungi/params.yaml:
+          - specs_dir
+          - distances_dir
+          - logs_dir
+    deps:
+      - ${specs_dir}/DF20_metadata.csv
+      - ${specs_dir}/fungi_dag.json
+      - src/compute_semantic_distances.py
+    outs:
+      - ${logs_dir}/compute_distances.out
+      - ${distances_dir}/distances.csv
+
+#  create_testbed:
+#    foreach: ${testbed.n_shot}
+#    do:
+#  wdir: ../..
+#      cmd: python -m src.create_testbed
+#        --n-tasks ${testbed.n_tasks}
+#        --n-way ${testbed.n_way}
+#        --n-query ${testbed.n_query}
+#        --n-shot ${item}
+#        --out-file ${testbeds_dir}/testbed_${item}_shot.csv
+#        &> ${logs_dir}/create_testbed_${item}.out
+#      deps:
+#        - ${distances_dir}/test.csv
+#        - ${specs_dir}/test.json
+#        - src/create_testbed.py
+#      outs:
+#        - ${testbeds_dir}/testbed_${item}_shot.csv
+#        - ${testbeds_dir}/testbed_${item}_shot_pv.png
+#        - ${testbeds_dir}/testbed_${item}_shot_occ.png
+#        - ${logs_dir}/create_testbed_${item}.out
+
+  create_uniform_testbed:
+    foreach: ${testbed.n_shot}
+    do:
+      wdir: ../..
+      cmd: python -m src.create_uniform_testbed
+        --n-tasks ${testbed.n_tasks}
+        --n-way ${testbed.n_way}
+        --n-query ${testbed.n_query}
+        --n-shot ${item}
+        --distances-csv ${distances_dir}/distances.csv
+        --out-file ${testbeds_dir}/testbed_uniform_${item}_shot.csv
+        --dataset fungi
+        &> ${logs_dir}/create_uniform_testbed_${item}.out
+      params:
+        - pipelines/fungi/params.yaml:
+            - specs_dir
+            - distances_dir
+            - testbeds_dir
+            - logs_dir
+            - testbed
+      deps:
+        - ${distances_dir}/distances.csv
+        - ${specs_dir}/fungi_dag.json
+        - ${specs_dir}/DF20_metadata.csv
+        - src/create_uniform_testbed.py
+      outs:
+        - ${testbeds_dir}/testbed_uniform_${item}_shot.csv
+        - ${testbeds_dir}/testbed_uniform_${item}_shot_pv.png
+        - ${testbeds_dir}/testbed_uniform_${item}_shot_occ.png
+        - ${logs_dir}/create_uniform_testbed_${item}.out
+
+  evaluate:
+    foreach: ${testbeds_grid}
+    do:
+      wdir: ../..
+      cmd: python -m src.evaluate
+        --specs-dir ${specs_dir}
+        --testbed ${testbeds_dir}/testbed_${item}.csv
+        --method ${model.method}
+        --output-dir ${metrics_dir}
+        --device ${device}
+        &> ${logs_dir}/evaluate_${item}.out
+      params:
+        - pipelines/fungi/params.yaml:
+            - specs_dir
+            - testbeds_dir
+            - logs_dir
+            - metrics_dir
+            - testbeds_grid
+            - model
+            - device
+      deps:
+        - ${testbeds_dir}/testbed_${item}.csv
+        - ${specs_dir}/DF20_metadata.csv
+        - src/evaluate.py
+      outs:
+        - ${metrics_dir}/raw_results_${item}.csv
+        - ${logs_dir}/evaluate_${item}.out
+
+  compute_metrics:
+    foreach: ${testbeds_grid}
+    do:
+      wdir: ../..
+      cmd: python -m src.compute_metrics
+        --testbed-spec ${item}
+        --testbeds-dir ${testbeds_dir}
+        --metrics-dir ${metrics_dir}
+        &> ${logs_dir}/compute_metrics_${item}.out
+      params:
+        - pipelines/fungi/params.yaml:
+            - metrics_dir
+            - testbeds_dir
+            - logs_dir
+            - testbeds_grid
+      deps:
+        - ${testbeds_dir}/testbed_${item}.csv
+        - ${metrics_dir}/raw_results_${item}.csv
+        - src/compute_metrics.py
+      outs:
+        - ${logs_dir}/compute_metrics_${item}.out
+      metrics:
+        - ${metrics_dir}/evaluation_metrics_${item}.json
+      plots:
+        - ${metrics_dir}/task_performances_${item}.csv:
+            x: variance
+            y: accuracy
+            title: accuracy depending on task's pseudo-variance
+            template: smooth

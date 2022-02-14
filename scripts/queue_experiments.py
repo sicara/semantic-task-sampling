@@ -7,14 +7,21 @@ import yaml
 
 
 @click.option(
-    "-f",
-    "--file",
+    "-p",
+    "--pipeline",
+    help="Path to a dvc.yaml file",
+    type=Path,
+    default=Path("dvc.yaml"),
+)
+@click.option(
+    "-g",
+    "--grid",
     help="YAML file containing grid search params.",
     type=Path,
     default=Path("grid.yaml"),
 )
 @click.command()
-def main(file):
+def main(pipeline, grid):
     """
     Queue DVC experiments parameterized with a YAML file using this template:
 
@@ -33,13 +40,13 @@ def main(file):
     accessible during the experiment.
     The untracked_files key is optional.
     """
-    with open(file, "r") as stream:
+    with open(grid, "r") as stream:
         grid_params = yaml.safe_load(stream)
 
     for experiment in grid_params["grid"]:
         if "untracked_files" in grid_params:
             index_files(grid_params["untracked_files"])
-        queue(experiment)
+        queue(experiment, pipeline)
 
 
 def index_files(untracked_files: List[str]):
@@ -53,14 +60,15 @@ def index_files(untracked_files: List[str]):
     )
 
 
-def queue(experiment: Dict):
+def queue(experiment: Dict, pipeline: Path):
     """
     Queue an experiment with DVC.
     Args:
         experiment: dictionary where the keys are the parameters to be updated
             and the values are the value with which to update the parameter.
+        pipeline: path to the dvc.yaml pipeline
     """
-    command_line = ["dvc", "exp", "run", "--queue"]
+    command_line = ["dvc", "exp", "run", str(pipeline), "--queue"]
     for param, value in experiment.items():
         command_line += [
             "--set-param",
