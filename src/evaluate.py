@@ -56,7 +56,7 @@ def main(
     output_dir: Path,
     device: str,
 ):
-    n_workers = 8
+    n_workers = 20
 
     logger.info("Fetching test data...")
     # We use trained_model as a marker of whether we're using Fungi.
