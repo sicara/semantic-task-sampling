@@ -1,0 +1,25 @@
+specs_dir: data/fungi/specs
+distances_dir: data/fungi
+metrics_dir: data/fungi/metrics
+logs_dir: data/fungi/logs
+testbeds_dir: data/fungi/testbeds
+
+device: cuda:0
+
+
+testbed:
+  n_tasks: 5000
+  n_way: 5
+  n_query: 10
+  n_shot:
+  - 1
+  - 5
+
+testbeds_grid:
+#  - 1_shot
+#  - 5_shot
+  - uniform_1_shot
+  - uniform_5_shot
+
+model:
+  method: PrototypicalNetworks

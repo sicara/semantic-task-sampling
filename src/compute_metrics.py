@@ -15,12 +15,22 @@ from easyfsl.utils import get_accuracies
     type=str,
     required=True,
 )
+@click.option(
+    "--testbeds-dir",
+    help="Which testbed directory",
+    type=Path,
+    default=Path("data/tiered_imagenet/testbeds"),
+)
+@click.option(
+    "--metrics-dir",
+    help="Which testbed directory",
+    type=Path,
+    default=Path("data/tiered_imagenet/metrics"),
+)
 @click.command()
-def main(testbed_spec: str):
-    testbed_path = Path("data/tiered_imagenet/testbeds") / f"testbed_{testbed_spec}.csv"
-    results_path = (
-        Path("data/tiered_imagenet/metrics") / f"raw_results_{testbed_spec}.csv"
-    )
+def main(testbed_spec: str, testbeds_dir: Path, metrics_dir: Path):
+    testbed_path = testbeds_dir / f"testbed_{testbed_spec}.csv"
+    results_path = metrics_dir / f"raw_results_{testbed_spec}.csv"
     metrics_dir = results_path.parent
 
     results = pd.read_csv(results_path, index_col=0)

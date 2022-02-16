@@ -1,3 +1,4 @@
+import itertools
 from pathlib import Path
 
 import networkx as nx
@@ -5,11 +6,15 @@ import numpy as np
 from tqdm import tqdm
 
 from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.dag_utils import build_wordnet_dag, reduce_to_leaves
+from easyfsl.data_tools.dag_utils import (
+    build_wordnet_dag,
+    reduce_to_leaves,
+    build_fungi_tree,
+)
 
 
 class EasySemantics:
-    def __init__(self, dataset: EasySet, path_to_wordnet: Path):
+    def __init__(self, dataset: EasySet, path_to_wordnet: Path, is_fungi: bool = False):
         """
         Get the Directed Acyclic Graph where the leafs are the classes of the dataset, and that
         defines the semantic hierarchy of classes following the Wordnet hierarchy.
@@ -23,9 +28,22 @@ class EasySemantics:
             class_name: dataset.labels.count(class_id)
             for class_id, class_name in enumerate(dataset.class_names)
         }
+        self.is_fungi = is_fungi
 
-        self.wordnet_dag = build_wordnet_dag(path_to_wordnet)
-        self.dataset_dag = reduce_to_leaves(self.wordnet_dag, self.class_names)
+        if self.is_fungi:
+            self.dataset_dag = build_fungi_tree(path_to_wordnet)
+            self.lowest_common_ancestor_dict = {
+                x[0]: x[1]
+                for x in nx.tree_all_pairs_lowest_common_ancestor(
+                    self.dataset_dag,
+                    pairs=itertools.combinations(self.class_names, r=2),
+                )
+            }
+
+        else:
+            self.dataset_dag = reduce_to_leaves(
+                build_wordnet_dag(path_to_wordnet), self.class_names
+            )
 
     def get_semantic_distance(self, class_a: str, class_b: str) -> float:
         """
@@ -42,10 +60,21 @@ class EasySemantics:
         """
         if class_a == class_b:
             return 0.0
+        if self.is_fungi:
+            try:
+                lowest_common_ancestor = self.lowest_common_ancestor_dict[
+                    (class_a, class_b)
+                ]
+            except KeyError:
+                lowest_common_ancestor = self.lowest_common_ancestor_dict[
+                    (class_b, class_a)
+                ]
 
-        lowest_common_ancestor = nx.lowest_common_ancestor(
-            self.dataset_dag, class_a, class_b
-        )
+        else:
+            lowest_common_ancestor = nx.lowest_common_ancestor(
+                self.dataset_dag, class_a, class_b
+            )
+
         spanned = [
             node
             for node in nx.algorithms.dag.descendants(
