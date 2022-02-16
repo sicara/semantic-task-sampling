@@ -105,6 +105,7 @@ stages:
       wdir: ../..
       cmd: python -m src.compute_metrics
         --testbed-spec ${item}
+        --top-k 1,5
         --testbeds-dir ${testbeds_dir}
         --metrics-dir ${metrics_dir}
         &> ${logs_dir}/compute_metrics_${item}.out

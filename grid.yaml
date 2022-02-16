@@ -1,5 +1,5 @@
-#untracked_files:
-#  - data/tiered_imagenet/images
+untracked_files:
+  - data/fungi/images
 
 grid:
   - model.method: PrototypicalNetworks

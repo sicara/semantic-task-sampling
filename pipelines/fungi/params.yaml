@@ -9,7 +9,7 @@ device: cuda:0
 
 testbed:
   n_tasks: 5000
-  n_way: 5
+  n_way: 100
   n_query: 10
   n_shot:
   - 1

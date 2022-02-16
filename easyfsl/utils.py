@@ -1,3 +1,5 @@
+import pandas as pd
+
 """
 General utilities
 """
@@ -191,6 +193,27 @@ def get_accuracies(results: pd.DataFrame) -> pd.Series:
         .assign(accuracy=lambda df: df.true_label == df.predicted_label)
         .groupby("task_id")
         .accuracy.mean()
+    )
+
+
+def top_k_accuracies(results: pd.DataFrame, k: List[int]) -> pd.DataFrame:
+    results = results.sort_values(
+        ["task_id", "image_id", "score"], ascending=[True, True, False]
+    ).assign(is_ok=lambda df: df.true_label == df.predicted_label)
+
+    return pd.DataFrame(
+        {
+            f"top_{k_instance}": (
+                results.groupby(["task_id", "image_id"])
+                .head(k_instance)
+                .groupby(["task_id", "image_id"])
+                .is_ok.any()
+                .reset_index()
+                .groupby("task_id")
+                .is_ok.mean()
+            )
+            for k_instance in k
+        }
     )
 
 
