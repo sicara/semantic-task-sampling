@@ -169,7 +169,7 @@ class PT_MAP(AbstractMetaLearner):
         labels = (
             torch.arange(n_way)
             .view(1, 1, n_way)
-            .expand(n_runs, n_shot + n_query, 5)
+            .expand(n_runs, n_shot + n_query, n_way)
             .clone()
             .view(n_runs, n_samples)
         )

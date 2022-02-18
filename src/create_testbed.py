@@ -15,7 +15,6 @@ from src.utils import get_pseudo_variance, save_tasks_plots
 
 DISTANCES_DIR = Path("data/tiered_imagenet/distances")
 SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
-N_TASKS = 8000
 N_WAY = 5
 N_SHOT = 5
 N_QUERY = 10
