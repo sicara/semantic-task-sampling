@@ -22,4 +22,4 @@ testbeds_grid:
   - uniform_5_shot
 
 model:
-  method: PrototypicalNetworks
+  method: PT_MAP

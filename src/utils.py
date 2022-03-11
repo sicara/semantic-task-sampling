@@ -22,11 +22,7 @@ from torchvision.models import resnet18
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers import (
     AbstractTaskSampler,
-    AdaptiveTaskSampler,
-    SemanticTaskSampler,
-    UniformTaskSampler,
 )
-from easyfsl.methods import PrototypicalNetworks
 from easyfsl.resnet import resnet12
 
 
@@ -97,115 +93,6 @@ def get_pseudo_variance(labels: List[int], distances: np.ndarray) -> float:
             for label_a, label_b in itertools.combinations(labels, 2)
         ]
     )
-
-
-def get_sampler(
-    sampler: str,
-    dataset: EasySet,
-    n_way: int,
-    n_shot: int,
-    n_query: int,
-    n_tasks: int,
-    distances_csv: Path = None,
-    semantic_alpha: float = None,
-    semantic_strategy: str = None,
-    adaptive_forgetting: float = None,
-    adaptive_hardness: float = None,
-):
-    common_args = {
-        "dataset": dataset,
-        "n_way": n_way,
-        "n_shot": n_shot,
-        "n_query": n_query,
-        "n_tasks": n_tasks,
-    }
-    if sampler == "semantic":
-        if semantic_alpha is None or distances_csv is None or semantic_strategy is None:
-            raise ValueError("Missing arguments for semantic sampler")
-        return SemanticTaskSampler(
-            alpha=semantic_alpha,
-            strategy=semantic_strategy,
-            semantic_distances_csv=distances_csv,
-            **common_args,
-        )
-    if sampler == "adaptive":
-        if adaptive_forgetting is None or adaptive_hardness is None:
-            raise ValueError("Missing arguments for adaptive sampler")
-        return AdaptiveTaskSampler(
-            forgetting=adaptive_forgetting, hardness=adaptive_hardness, **common_args
-        )
-    if sampler == "uniform":
-        return UniformTaskSampler(**common_args)
-    else:
-        raise ValueError(f"Unknown sampler : {sampler}")
-
-
-def get_intra_class_distances(training_tasks_record: List, distances: np.ndarray):
-    df = pd.DataFrame(training_tasks_record)
-    return df.join(
-        df.true_class_ids.apply(
-            [
-                partial(get_median_distance, distances=distances),
-                partial(get_distance_std, distances=distances),
-            ]
-        ).rename(
-            columns={
-                "get_median_distance": "median_distance",
-                "get_distance_std": "std_distance",
-            }
-        )
-    )
-
-
-def get_training_confusion_for_single_task(row, n_classes):
-    indices = []
-    values = []
-
-    for (local_label1, true_label1) in enumerate(row["true_class_ids"]):
-        for (local_label2, true_label2) in enumerate(row["true_class_ids"]):
-            indices.append([true_label1, true_label2])
-            values.append(row["task_confusion_matrix"][local_label1, local_label2])
-
-    return torch.sparse_coo_tensor(
-        torch.tensor(indices).T, values, (n_classes, n_classes)
-    )
-
-
-def get_training_confusion(df, n_classes):
-    return torch.sparse.sum(
-        torch.stack(
-            [
-                get_training_confusion_for_single_task(row, n_classes)
-                for _, row in df.iterrows()
-            ]
-        ),
-        dim=0,
-    ).to_dense()
-
-
-def get_sampled_together_for_single_task(row, n_classes):
-    indices = []
-    values = []
-
-    for label1, label2 in itertools.combinations(row["true_class_ids"], 2):
-        indices.append([min(label1, label2), max(label1, label2)])
-        values.append(1)
-
-    return torch.sparse_coo_tensor(
-        torch.tensor(indices).T, values, (n_classes, n_classes)
-    )
-
-
-def get_sampled_together(df, n_classes):
-    return torch.sparse.sum(
-        torch.stack(
-            [
-                get_sampled_together_for_single_task(row, n_classes)
-                for _, row in df.iterrows()
-            ]
-        ),
-        dim=0,
-    ).to_dense()
 
 
 def set_random_seed(seed: int):
