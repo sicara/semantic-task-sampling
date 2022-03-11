@@ -15,7 +15,7 @@ Research code for experiments on semantic task sampling.
 
 1. Create a virtualenv with Python 3.8
 2. `pip install -r dev_requirements.txt`
-3. Init DVC : `dvc init`
+3. Init git and DVC : `git init` and `dvc init`
 
 ### Paths to datasets
 Paths to images are defined in specification files such as [this one](data/tiered_imagenet/specs/train.json).
