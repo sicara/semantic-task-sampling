@@ -53,3 +53,11 @@ It's there that you can select your method (_eg_ `PT_MAP`) and the shape of the 
 
 For tieredImageNet you need the pretrained weights (added in supplementary materials). 
 For Fungi we use the pretrained weights on ImageNet that are directly downloadable with PyTorch.
+
+## Visualize testbeds
+
+We use Streamlit to visualize testbeds.
+
+```
+ PYTHONPATH=. streamlit run st_scripts/st_explore_testbed.py 
+```
