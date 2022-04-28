@@ -205,3 +205,57 @@ stages:
     - path: data/tiered_imagenet/testbeds/testbed_1_shot_pv.png
       md5: 1f955edce5067da0838e3bc7d47ad2d6
       size: 17303
+  create_uniform_testbed@5:
+    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
+      --n-shot 5 --out-file data/tiered_imagenet/testbeds/testbed_uniform_5_shot.csv
+      &> data/tiered_imagenet/logs/create_uniform_testbed_5.out
+    deps:
+    - path: data/tiered_imagenet/distances/test.csv
+      md5: 84de996abe3b91d74ae9599578a9fc90
+      size: 467358
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 5eae905f4cd9e59bc0f138d5e84e485a
+      size: 11256
+    - path: src/create_uniform_testbed.py
+      md5: ba6f9d9d79c9213b425c332785ef75ea
+      size: 3113
+    outs:
+    - path: data/tiered_imagenet/logs/create_uniform_testbed_5.out
+      md5: 4b23688be75b4326ef3170bc7cddd785
+      size: 643
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_5_shot.csv
+      md5: 2d0a2de9509fea741a91202b10dbcef5
+      size: 15351922
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_5_shot_occ.png
+      md5: 59736b1ef7e52a9558438360a39c12d9
+      size: 13946
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_5_shot_pv.png
+      md5: 0ca08de2e187b6034a6d816215be1239
+      size: 18755
+  create_uniform_testbed@1:
+    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
+      --n-shot 1 --out-file data/tiered_imagenet/testbeds/testbed_uniform_1_shot.csv
+      &> data/tiered_imagenet/logs/create_uniform_testbed_1.out
+    deps:
+    - path: data/tiered_imagenet/distances/test.csv
+      md5: 84de996abe3b91d74ae9599578a9fc90
+      size: 467358
+    - path: data/tiered_imagenet/specs/test.json
+      md5: 5eae905f4cd9e59bc0f138d5e84e485a
+      size: 11256
+    - path: src/create_uniform_testbed.py
+      md5: ba6f9d9d79c9213b425c332785ef75ea
+      size: 3113
+    outs:
+    - path: data/tiered_imagenet/logs/create_uniform_testbed_1.out
+      md5: 5c8056eed54d33fb684268deb79445c3
+      size: 643
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_1_shot.csv
+      md5: 19d00456e5cec96d514f123411788e72
+      size: 11313247
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_1_shot_occ.png
+      md5: bd9510fe06c463479ea3b7b0898ed0b3
+      size: 13522
+    - path: data/tiered_imagenet/testbeds/testbed_uniform_1_shot_pv.png
+      md5: fd165ba20f4729997207e5bb046c4382
+      size: 19068
