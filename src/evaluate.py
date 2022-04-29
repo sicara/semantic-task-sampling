@@ -85,6 +85,7 @@ def main(
     logger.info("Starting evaluation...")
     results = model.evaluate(test_loader)
 
+    output_dir.mkdir(exist_ok=True, parents=True)
     output_file = output_dir / f"raw_results{testbed.stem.lstrip('testbed')}.csv"
     results.to_csv(output_file)
     logger.info(f"Raw results dumped at {output_file}")
