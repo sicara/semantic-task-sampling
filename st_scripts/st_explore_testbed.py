@@ -6,7 +6,7 @@ from pathlib import Path
 
 from torchvision import transforms
 
-from src.easyfsl import EasySet
+from src.easyfsl.data_tools import EasySet
 from src.easyfsl.data_tools.danish_fungi import DanishFungi
 
 st.set_page_config(page_title="Analyse testbeds", layout="wide")
@@ -109,24 +109,38 @@ def st_tiered():
     with column_right:
         class_right = st_explore_testbed(1)
 
-    df = pd.DataFrame({
-        "better-tieredImageNet": class_right.labels.value_counts(),
-        "uniform sampling": classes_left.labels.value_counts(),
-    }) / 50
+    df = (
+        pd.DataFrame(
+            {
+                "better-tieredImageNet": class_right.labels.value_counts(),
+                "uniform sampling": classes_left.labels.value_counts(),
+            }
+        )
+        / 50
+    )
     st.write(df)
     fig, ax = plt.subplots()
-    df.plot.area(ax=ax, stacked=False, color=[ "tomato", "deepskyblue",])
+    df.plot.area(
+        ax=ax,
+        stacked=False,
+        color=[
+            "tomato",
+            "deepskyblue",
+        ],
+    )
     ax.set_ylim([0, 4])
     ax.set_xlim([0, 159])
     ax.set_xlabel("classes")
     ax.set_ylabel("occurrence (%)")
     plt.tick_params(
-        axis='x',  # changes apply to the x-axis
-        which='both',  # both major and minor ticks are affected
+        axis="x",  # changes apply to the x-axis
+        which="both",  # both major and minor ticks are affected
         bottom=False,  # ticks along the bottom edge are off
         top=False,  # ticks along the top edge are off
-        labelbottom=False)  # labels along the bottom edge are off
+        labelbottom=False,
+    )  # labels along the bottom edge are off
     st.pyplot(fig)
+
 
 def st_fungi():
     column_left, column_right = st.columns(2)
@@ -165,11 +179,14 @@ def st_fungi():
         st.pyplot(fig)
 
         st.write(testbed_classes[["task", "variance"]].drop_duplicates())
-        st.write(testbed_classes[["task", "variance"]].drop_duplicates().variance.median())
+        st.write(
+            testbed_classes[["task", "variance"]].drop_duplicates().variance.median()
+        )
         task = st.number_input(
             "Task", key=(5, "Task"), value=0, min_value=0, max_value=testbed.task.max()
         )
 
         plot_task(dataset, testbed, task, None)
+
 
 st_tiered()

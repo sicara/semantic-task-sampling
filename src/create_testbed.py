@@ -8,9 +8,9 @@ import torch
 from loguru import logger
 from tqdm import tqdm
 
-from src.easyfsl import EasySet
+from src.easyfsl.data_tools import EasySet
 from src.easyfsl.data_tools.samplers.utils import sample_label_from_potential
-from src.easyfsl import fill_diagonal, sort_items_per_label
+from src.easyfsl.utils import fill_diagonal, sort_items_per_label
 from src.config import DEFAULT_ALPHA, DEFAULT_BETA_PENALTY
 from src.utils import get_pseudo_variance, save_tasks_plots
 

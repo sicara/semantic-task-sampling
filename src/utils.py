@@ -16,7 +16,7 @@ from networkx.drawing.nx_agraph import graphviz_layout
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from src.easyfsl import EasySet
+from src.easyfsl.data_tools import EasySet
 from src.easyfsl.data_tools.samplers import (
     AbstractTaskSampler,
 )
