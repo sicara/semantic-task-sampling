@@ -1,7 +1,7 @@
 import torch.nn.functional as F
 from torch import Tensor
 
-from easyfsl.methods import AbstractClassifier
+from src.easyfsl.methods import AbstractClassifier
 
 
 class BDCSPN(AbstractClassifier):

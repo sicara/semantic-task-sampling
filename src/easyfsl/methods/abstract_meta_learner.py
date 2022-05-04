@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from easyfsl.utils import (
+from src.easyfsl.utils import (
     compute_backbone_output_shape,
     get_task_perf,
     compute_prototypes,

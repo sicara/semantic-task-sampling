@@ -5,8 +5,8 @@ import networkx as nx
 import numpy as np
 from tqdm import tqdm
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.dag_utils import (
+from src.easyfsl.data_tools import EasySet
+from src.easyfsl.data_tools.dag_utils import (
     build_wordnet_dag,
     reduce_to_leaves,
     build_fungi_tree,

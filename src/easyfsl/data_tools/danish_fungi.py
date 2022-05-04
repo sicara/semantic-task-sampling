@@ -1,15 +1,12 @@
 import pandas as pd
-import json
 from pathlib import Path
-from typing import List, Union, Tuple
+from typing import Union, Tuple
 
 from PIL import Image
 from pandas import DataFrame
 from torch import Tensor
-from torch.utils.data import Dataset
-from torchvision import transforms
 
-from easyfsl.data_tools import EasySet
+from src.easyfsl.data_tools import EasySet
 
 NORMALIZE_DEFAULT = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 

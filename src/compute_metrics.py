@@ -5,7 +5,7 @@ import click
 import pandas as pd
 from loguru import logger
 
-from easyfsl.utils import top_k_accuracies
+from src.easyfsl import top_k_accuracies
 
 
 @click.option(

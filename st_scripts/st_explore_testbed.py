@@ -6,8 +6,8 @@ from pathlib import Path
 
 from torchvision import transforms
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.danish_fungi import DanishFungi
+from src.easyfsl import EasySet
+from src.easyfsl.data_tools.danish_fungi import DanishFungi
 
 st.set_page_config(page_title="Analyse testbeds", layout="wide")
 

@@ -1,7 +1,7 @@
 from torch import nn
 from torchvision.models import resnet18
 
-from easyfsl.resnet import resnet12
+from src.easyfsl.resnet import resnet12
 
 # Backbones configuration
 

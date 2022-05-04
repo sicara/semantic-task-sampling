@@ -4,8 +4,8 @@ import click
 import pandas as pd
 from loguru import logger
 
-from easyfsl.data_tools import EasySemantics, EasySet
-from easyfsl.data_tools.danish_fungi import DanishFungi
+from src.easyfsl import EasySemantics, EasySet
+from src.easyfsl.data_tools.danish_fungi import DanishFungi
 
 
 @click.option(

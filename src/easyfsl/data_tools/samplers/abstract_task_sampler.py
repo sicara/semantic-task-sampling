@@ -5,7 +5,7 @@ from typing import List, Tuple
 import torch
 from torch.utils.data import Dataset, Sampler
 
-from easyfsl.utils import sort_items_per_label
+from src.easyfsl.utils import sort_items_per_label
 
 
 class AbstractTaskSampler(Sampler):

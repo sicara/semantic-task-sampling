@@ -3,8 +3,8 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-from easyfsl.methods import AbstractClassifier
-from easyfsl.utils import entropy
+from src.easyfsl.methods import AbstractClassifier
+from src.easyfsl.utils import entropy
 
 
 class TransductiveFinetuning(AbstractClassifier):

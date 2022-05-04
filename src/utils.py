@@ -2,7 +2,6 @@ import itertools
 from pydoc import locate
 
 import random
-from functools import partial
 from pathlib import Path
 from statistics import mean, median, stdev
 from typing import List, Optional
@@ -14,16 +13,13 @@ import torch
 from loguru import logger
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
-from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from torchvision.models import resnet18
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import (
+from src.easyfsl import EasySet
+from src.easyfsl.data_tools.samplers import (
     AbstractTaskSampler,
 )
-from easyfsl.resnet import resnet12
 from src.config import BACKBONES_PER_DATASET
 
 

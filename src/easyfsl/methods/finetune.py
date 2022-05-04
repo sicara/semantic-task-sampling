@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-from easyfsl.methods import AbstractClassifier
+from src.easyfsl.methods import AbstractClassifier
 
 
 class Finetune(AbstractClassifier):

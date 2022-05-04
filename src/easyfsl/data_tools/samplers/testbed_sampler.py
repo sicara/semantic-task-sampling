@@ -3,8 +3,8 @@ from typing import Iterator, List
 
 import pandas as pd
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import AbstractTaskSampler
+from src.easyfsl.data_tools import EasySet
+from src.easyfsl.data_tools.samplers import AbstractTaskSampler
 
 
 class TestbedSampler(AbstractTaskSampler):

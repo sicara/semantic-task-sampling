@@ -5,8 +5,8 @@ at https://github.com/jakesnell/prototypical-networks
 
 import torch
 
-from easyfsl.methods import AbstractClassifier
-from easyfsl.utils import compute_prototypes
+from src.easyfsl.methods import AbstractClassifier
+from src.easyfsl.utils import compute_prototypes
 
 
 class PrototypicalNetworks(AbstractClassifier):

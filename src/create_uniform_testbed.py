@@ -7,9 +7,9 @@ import pandas as pd
 import torch
 from loguru import logger
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.danish_fungi import DanishFungi
-from easyfsl.data_tools.samplers import UniformTaskSampler
+from src.easyfsl import EasySet
+from src.easyfsl.data_tools.danish_fungi import DanishFungi
+from src.easyfsl.data_tools.samplers import UniformTaskSampler
 from src.utils import get_pseudo_variance, save_tasks_plots
 
 

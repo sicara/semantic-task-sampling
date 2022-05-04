@@ -3,9 +3,9 @@ from pathlib import Path
 import click
 from loguru import logger
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.danish_fungi import DanishFungi
-from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
+from src.easyfsl import EasySet
+from src.easyfsl.data_tools.danish_fungi import DanishFungi
+from src.easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
 from src.utils import build_model, create_dataloader
 
 

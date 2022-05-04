@@ -2,7 +2,7 @@ import random
 
 import torch
 
-from easyfsl.data_tools.samplers import AbstractTaskSampler
+from src.easyfsl.data_tools.samplers import AbstractTaskSampler
 
 
 class UniformTaskSampler(AbstractTaskSampler):

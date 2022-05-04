@@ -6,8 +6,8 @@ https://github.com/floodsung/LearningToCompare_FSL
 import torch
 import torch.nn as nn
 
-from easyfsl.methods import AbstractClassifier
-from easyfsl.utils import compute_prototypes
+from src.easyfsl.methods import AbstractClassifier
+from src.easyfsl.utils import compute_prototypes
 
 
 class RelationNetworks(AbstractClassifier):

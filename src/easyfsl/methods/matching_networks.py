@@ -6,7 +6,7 @@ https://github.com/facebookresearch/low-shot-shrink-hallucinate
 import torch
 import torch.nn as nn
 
-from easyfsl.methods import AbstractClassifier
+from src.easyfsl.methods import AbstractClassifier
 
 
 class MatchingNetworks(AbstractClassifier):

@@ -10,7 +10,7 @@ from torch import nn, Tensor
 
 # ========================================
 #      loading datas
-from easyfsl.methods import AbstractClassifier
+from src.easyfsl.methods import AbstractClassifier
 
 
 def centerDatas(datas, n_lsamples):
