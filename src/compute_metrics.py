@@ -4,9 +4,8 @@ from pathlib import Path
 import click
 import pandas as pd
 from loguru import logger
-from matplotlib import pyplot as plt
 
-from easyfsl.utils import get_accuracies, top_k_accuracies
+from easyfsl.utils import top_k_accuracies
 
 
 @click.option(
@@ -57,28 +56,6 @@ def main(testbed_spec: str, top_k: str, testbeds_dir: Path, metrics_dir: Path):
     metrics_json = metrics_dir / f"evaluation_metrics_{testbed_spec}.json"
     with open(metrics_json, "w") as file:
         json.dump(
-            # {
-            #     "accuracy": statistics.accuracy.mean(),
-            #     "std": statistics.accuracy.std(),
-            #     "first_quartile_acc": statistics.loc[
-            #         statistics.variance < statistics.variance.quantile(0.25)
-            #     ].accuracy.mean(),
-            #     "second_quartile_acc": statistics.loc[
-            #         statistics.variance.between(
-            #             statistics.variance.quantile(0.25),
-            #             statistics.variance.quantile(0.50),
-            #         )
-            #     ].accuracy.mean(),
-            #     "third_quartile_acc": statistics.loc[
-            #         statistics.variance.between(
-            #             statistics.variance.quantile(0.50),
-            #             statistics.variance.quantile(0.75),
-            #         )
-            #     ].accuracy.mean(),
-            #     "fourth_quartile_acc": statistics.loc[
-            #         statistics.variance.quantile(0.75) <= statistics.variance
-            #     ].accuracy.mean(),
-            # },
             dict(
                 {
                     f"top_{k_instance}_acc": statistics[f"top_{k_instance}"].mean()
@@ -86,6 +63,40 @@ def main(testbed_spec: str, top_k: str, testbeds_dir: Path, metrics_dir: Path):
                 },
                 **{
                     f"top_{k_instance}_std": statistics[f"top_{k_instance}"].std()
+                    for k_instance in top_k_list
+                },
+                **{
+                    f"top_{k_instance}_qrtl_1": statistics[f"top_{k_instance}"]
+                    .loc[statistics.variance < statistics.variance.quantile(0.25)]
+                    .mean()
+                    for k_instance in top_k_list
+                },
+                **{
+                    f"top_{k_instance}_qrtl_2": statistics[f"top_{k_instance}"]
+                    .loc[
+                        statistics.variance.between(
+                            statistics.variance.quantile(0.25),
+                            statistics.variance.quantile(0.50),
+                        )
+                    ]
+                    .mean()
+                    for k_instance in top_k_list
+                },
+                **{
+                    f"top_{k_instance}_qrtl_3": statistics[f"top_{k_instance}"]
+                    .loc[
+                        statistics.variance.between(
+                            statistics.variance.quantile(0.50),
+                            statistics.variance.quantile(0.75),
+                        )
+                    ]
+                    .mean()
+                    for k_instance in top_k_list
+                },
+                **{
+                    f"top_{k_instance}_qrtl_4": statistics[f"top_{k_instance}"]
+                    .loc[statistics.variance.quantile(0.75) <= statistics.variance]
+                    .mean()
                     for k_instance in top_k_list
                 },
             ),
