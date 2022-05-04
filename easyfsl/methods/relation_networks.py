@@ -6,11 +6,11 @@ https://github.com/floodsung/LearningToCompare_FSL
 import torch
 import torch.nn as nn
 
-from easyfsl.methods import AbstractMetaLearner
+from easyfsl.methods import AbstractClassifier
 from easyfsl.utils import compute_prototypes
 
 
-class RelationNetworks(AbstractMetaLearner):
+class RelationNetworks(AbstractClassifier):
     """
     Sung, Flood, Yongxin Yang, Li Zhang, Tao Xiang, Philip HS Torr, and Timothy M. Hospedales.
     "Learning to compare: Relation network for few-shot learning." (2018)

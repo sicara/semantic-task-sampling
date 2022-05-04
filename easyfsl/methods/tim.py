@@ -1,14 +1,13 @@
-from typing import Tuple, List
+from typing import List
 
 import torch
 import torch.nn.functional as F
 from torch import Tensor
 
-from easyfsl.methods import AbstractMetaLearner
-from easyfsl.utils import compute_prototypes
+from easyfsl.methods import AbstractClassifier
 
 
-class TIM(AbstractMetaLearner):
+class TIM(AbstractClassifier):
     """
     Implementation of TIM method (NeurIPS 2020) https://arxiv.org/abs/2008.11297
     TIM is a transductive method.

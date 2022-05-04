@@ -11,16 +11,8 @@ from tqdm import tqdm
 from easyfsl.data_tools import EasySet
 from easyfsl.data_tools.samplers.utils import sample_label_from_potential
 from easyfsl.utils import fill_diagonal, sort_items_per_label
+from src.config import DEFAULT_ALPHA, DEFAULT_BETA_PENALTY
 from src.utils import get_pseudo_variance, save_tasks_plots
-
-DISTANCES_DIR = Path("data/tiered_imagenet/distances")
-SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
-N_WAY = 5
-N_SHOT = 5
-N_QUERY = 10
-
-ALPHA = 0.3830
-BETA_PENALTY = 100.0
 
 
 @click.option(
@@ -33,45 +25,45 @@ BETA_PENALTY = 100.0
     "--n-way",
     help="Number of classes in each task",
     type=int,
-    default=N_WAY,
+    default=5,
 )
 @click.option(
     "--n-shot",
     help="Number of support images per class",
     type=int,
-    default=N_SHOT,
+    default=5,
 )
 @click.option(
     "--n-query",
     help="Number of query images per class",
     type=int,
-    default=N_QUERY,
+    default=10,
 )
 @click.option(
     "--distances-csv",
     help="Path to the csv containing the distance matrix",
     type=Path,
-    default=DISTANCES_DIR / "test.csv",
+    default=Path("data/tiered_imagenet/distances") / "test.csv",
 )
 @click.option(
     "--specs-json",
     help="Path to the JSON containing the specs of the test set",
     type=Path,
-    default=SPECS_FILE,
+    default=Path("data/tiered_imagenet/specs/test.json"),
 )
 @click.option(
     "--alpha",
     help="Weights the importance of the distance in the task sampling."
     "Bigger alpha means more fine-grained tasks.",
     type=float,
-    default=ALPHA,
+    default=DEFAULT_ALPHA,
 )
 @click.option(
     "--beta-penalty",
     help="Weights the importance of the frequence-based penalty in the task sampling."
     "Bigger beta means forces the balance between classes in the testbed.",
     type=float,
-    default=BETA_PENALTY,
+    default=DEFAULT_BETA_PENALTY,
 )
 @click.option(
     "--seed",
@@ -166,7 +158,7 @@ def sample_tasks(
     return (
         pd.DataFrame(list_of_task_classes)
         .assign(variance=variance)
-        .drop_duplicates(set(range(N_WAY)))
+        .drop_duplicates()
         .sort_values("variance")
         .sample(n_tasks)
         .reset_index(drop=True)

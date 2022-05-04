@@ -1,15 +1,12 @@
-from typing import Tuple
-
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-from easyfsl.methods import AbstractMetaLearner
-from easyfsl.utils import compute_prototypes
+from easyfsl.methods import AbstractClassifier
 
 
-class Finetune(AbstractMetaLearner):
+class Finetune(AbstractClassifier):
     """
     Implementation of Finetune (or Baseline method) (ICLR 2019) https://arxiv.org/abs/1904.04232
     This is an inductive method.

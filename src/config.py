@@ -18,3 +18,8 @@ BACKBONES_PER_DATASET = {
     "tiered_imagenet": resnet12(num_classes=TIERED_IMAGENET_NUM_TRAIN_CLASSES),
     "fungi": get_pretrained_backbone_without_fc(),
 }
+
+# Semantic Testbed Sampling
+
+DEFAULT_ALPHA = 0.3830
+DEFAULT_BETA_PENALTY = 100.0

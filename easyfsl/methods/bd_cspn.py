@@ -1,13 +1,10 @@
-from typing import Tuple
-
 import torch.nn.functional as F
 from torch import Tensor
 
-from easyfsl.methods import AbstractMetaLearner
-from easyfsl.utils import compute_prototypes
+from easyfsl.methods import AbstractClassifier
 
 
-class BDCSPN(AbstractMetaLearner):
+class BDCSPN(AbstractClassifier):
 
     """
     Implementation of BD-CSPN (ECCV 2020) https://arxiv.org/abs/1911.10713

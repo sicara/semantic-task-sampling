@@ -1,7 +1,6 @@
 """
 This code is extracted from https://github.com/yhu01/PT-MAP/blob/master/test_standard.py
 We only added minimal fixes to make it work in our code base.
-We can't promise anything about the quality of the code in this file.
 """
 
 
@@ -11,7 +10,7 @@ from torch import nn, Tensor
 
 # ========================================
 #      loading datas
-from easyfsl.methods import AbstractMetaLearner
+from easyfsl.methods import AbstractClassifier
 
 
 def centerDatas(datas, n_lsamples):
@@ -120,7 +119,7 @@ class GaussianModel:
         return emus
 
 
-class PT_MAP(AbstractMetaLearner):
+class PT_MAP(AbstractClassifier):
     def __init__(self, power_transform=True, **kwargs):
         super().__init__(**kwargs)
         self.loss_fn = nn.NLLLoss()

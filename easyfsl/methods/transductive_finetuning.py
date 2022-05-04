@@ -1,15 +1,13 @@
-from typing import Tuple
-
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
 
-from easyfsl.methods import AbstractMetaLearner
-from easyfsl.utils import compute_prototypes, entropy
+from easyfsl.methods import AbstractClassifier
+from easyfsl.utils import entropy
 
 
-class TransductiveFinetuning(AbstractMetaLearner):
+class TransductiveFinetuning(AbstractClassifier):
     """
     Implementation of Transductive Finetuning (ICLR 2020) https://arxiv.org/abs/1909.02729
     This is a transductive method.

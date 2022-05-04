@@ -12,13 +12,6 @@ from easyfsl.data_tools.danish_fungi import DanishFungi
 from easyfsl.data_tools.samplers import UniformTaskSampler
 from src.utils import get_pseudo_variance, save_tasks_plots
 
-DISTANCES_DIR = Path("data/tiered_imagenet/distances")
-SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
-N_TASKS = 8000
-N_WAY = 5
-N_SHOT = 5
-N_QUERY = 10
-
 
 @click.option(
     "--n-tasks",
@@ -30,31 +23,31 @@ N_QUERY = 10
     "--n-way",
     help="Number of classes in each task",
     type=int,
-    default=N_WAY,
+    default=5,
 )
 @click.option(
     "--n-shot",
     help="Number of support images per class",
     type=int,
-    default=N_SHOT,
+    default=5,
 )
 @click.option(
     "--n-query",
     help="Number of query images per class",
     type=int,
-    default=N_QUERY,
+    default=10,
 )
 @click.option(
     "--distances-csv",
     help="Path to the csv containing the distance matrix",
     type=Path,
-    default=DISTANCES_DIR / "test.csv",
+    default=Path("data/tiered_imagenet/distances") / "test.csv",
 )
 @click.option(
     "--specs-json",
     help="Path to the JSON containing the specs of the test set",
     type=Path,
-    default=SPECS_FILE,
+    default=Path("data/tiered_imagenet/specs/test.json"),
 )
 @click.option(
     "--seed",
