@@ -24,6 +24,7 @@ from easyfsl.data_tools.samplers import (
     AbstractTaskSampler,
 )
 from easyfsl.resnet import resnet12
+from src.config import BACKBONES_PER_DATASET
 
 
 def plot_dag(dag: nx.DiGraph):
@@ -131,6 +132,7 @@ def create_dataloader(dataset: EasySet, sampler: AbstractTaskSampler, n_workers:
 
 
 def build_model(
+    dataset: str,
     method: str,
     device: str,
     tb_writer: Optional[SummaryWriter] = None,
@@ -140,17 +142,20 @@ def build_model(
     """
     Build a model and cast it on the appropriate device
     Args:
+        dataset: dataset name: for our experiments we have selected one model for each dataset
+        method: few-shot classification method
         device: device on which to put the model
         tb_writer: a tensorboard writer to log training events
         pretrained_weights: if you want to use pretrained_weights for the backbone
+        trainable_backbone: whether to allow gradients through the backbone
 
     Returns:
         a few-shot learning model
     """
-    convolutional_network = resnet12(num_classes=351)
+    convolutional_network = BACKBONES_PER_DATASET[dataset]
+
     if not trainable_backbone:
         convolutional_network.requires_grad_(False)
-    # 351 so that the shape of the FC layer fits the trained model. It's a dirty fix.
 
     method_class = locate(f"easyfsl.methods.{method}")
     model = method_class(
@@ -161,36 +166,6 @@ def build_model(
 
     if pretrained_weights is not None:
         model.load_state_dict(torch.load(pretrained_weights), strict=False)
-
-    return model
-
-
-def build_model_trained_on_imagenet(
-    method: str,
-    device: str,
-    tb_writer: Optional[SummaryWriter] = None,
-    trainable_backbone: bool = False,
-):
-    """
-    Build a model with a ResNet18 backbone pretrained on ImageNet and cast it on the appropriate device
-    Args:
-        device: device on which to put the model
-        tb_writer: a tensorboard writer to log training events
-
-    Returns:
-        a few-shot learning model
-    """
-    convolutional_network = resnet18(pretrained=True)
-    convolutional_network.fc = nn.Flatten()
-    if not trainable_backbone:
-        convolutional_network.requires_grad_(False)
-
-    method_class = locate(f"easyfsl.methods.{method}")
-    model = method_class(
-        backbone=convolutional_network,
-        tensorboard_writer=tb_writer,
-        device=device,
-    ).to(device)
 
     return model
 
