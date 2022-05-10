@@ -1,6 +1,13 @@
 # Semantic Task Sampling
 
-Research code for experiments on semantic task sampling.
+Code for **Few-Shot Image Classification Benchmarks are Too Far From Reality: Build Back Better with Semantic Task Sampling**,
+published in CVPR 2022 Workshop on Vision Datasets Understanding.
+
+Implementations of few-shot datasets, loading tools and methods are mostly derived from the
+open-source library for Few-Shot Learning research [EasyFSL](https://github.com/sicara/easy-few-shot-learning).
+
+If you're having any issue while retrieving the data or checkpoints, or running the experiments, 
+please raise an issue.
 
 ## Installation
 
@@ -15,12 +22,9 @@ Research code for experiments on semantic task sampling.
 
 1. Create a virtualenv with Python 3.8
 2. `pip install -r dev_requirements.txt`
-3. Init git and DVC : `git init` and `dvc init`
 
-### Paths to datasets
-Paths to images are defined in specification files such as [this one](data/tiered_imagenet/specs/train.json).
-All images are expected to be found in `data/{dataset_name}/images`. For instance,
-for tieredImageNet we expect a structure like this one:
+### Data
+We expect images for tieredImageNet to be stored like this:
 ```
 data
 |
@@ -38,6 +42,12 @@ ln -s path/to/where/your/data/really/is data/tiered_imagenet/images
 ```
 
 For Fungi: we expect all images to be directly in `data/fungi/images`, with no further file structure.
+
+To retrieve the weights for ResNet12 trained on _tiered_ImageNet's base set:
+
+```bash
+dvc data/tiered_imagenet/models/resnet12_tiered_imagenet_classic.tar
+```
 
 ## Run
 
