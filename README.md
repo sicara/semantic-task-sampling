@@ -1,7 +1,4 @@
 # Semantic Task Sampling
-![Python Versions](https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8-%23EBBD68.svg)
-![CircleCI](https://img.shields.io/circleci/build/github/sicara/easy-few-shot-learning)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
 Research code for experiments on semantic task sampling.
 
@@ -18,6 +15,7 @@ Research code for experiments on semantic task sampling.
 
 1. Create a virtualenv with Python 3.8
 2. `pip install -r dev_requirements.txt`
+3. Init git and DVC : `git init` and `dvc init`
 
 ### Paths to datasets
 Paths to images are defined in specification files such as [this one](data/tiered_imagenet/specs/train.json).
@@ -37,4 +35,30 @@ data
 If you can't host the data there for any reason, you can create a symlink:
 ```bash
 ln -s path/to/where/your/data/really/is data/tiered_imagenet/images
+```
+
+For Fungi: we expect all images to be directly in `data/fungi/images`, with no further file structure.
+
+## Run
+
+We run our pipelines with DVC:
+
+```
+dvc repro pipelines/fungi/dvc.yaml
+```
+
+(and same with tieredImageNet)
+
+You can update the parameters of the experiment in the `params.yaml` file next to your `dvc.yaml` pipeline.
+It's there that you can select your method (_eg_ `PT_MAP`) and the shape of the testbed.
+
+For tieredImageNet you need the pretrained weights (added in supplementary materials). 
+For Fungi we use the pretrained weights on ImageNet that are directly downloadable with PyTorch.
+
+## Visualize testbeds
+
+We use Streamlit to visualize testbeds.
+
+```
+ PYTHONPATH=. streamlit run st_scripts/st_explore_testbed.py 
 ```

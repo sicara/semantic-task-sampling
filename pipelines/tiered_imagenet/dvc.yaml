@@ -68,6 +68,7 @@ stages:
         --specs-dir ${specs_dir}
         --testbed ${testbeds_dir}/testbed_${item}.csv
         --method ${model.method}
+        --dataset tiered_imagenet
         --trained-model ${model.weights}
         --output-dir ${metrics_dir}
         --device ${device}

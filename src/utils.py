@@ -2,7 +2,6 @@ import itertools
 from pydoc import locate
 
 import random
-from functools import partial
 from pathlib import Path
 from statistics import mean, median, stdev
 from typing import List, Optional
@@ -14,20 +13,14 @@ import torch
 from loguru import logger
 from matplotlib import pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
-from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from torchvision.models import resnet18
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.samplers import (
+from src.easyfsl.data_tools import EasySet
+from src.easyfsl.data_tools.samplers import (
     AbstractTaskSampler,
-    AdaptiveTaskSampler,
-    SemanticTaskSampler,
-    UniformTaskSampler,
 )
-from easyfsl.methods import PrototypicalNetworks
-from easyfsl.resnet import resnet12
+from src.config import BACKBONES_PER_DATASET
 
 
 def plot_dag(dag: nx.DiGraph):
@@ -99,115 +92,6 @@ def get_pseudo_variance(labels: List[int], distances: np.ndarray) -> float:
     )
 
 
-def get_sampler(
-    sampler: str,
-    dataset: EasySet,
-    n_way: int,
-    n_shot: int,
-    n_query: int,
-    n_tasks: int,
-    distances_csv: Path = None,
-    semantic_alpha: float = None,
-    semantic_strategy: str = None,
-    adaptive_forgetting: float = None,
-    adaptive_hardness: float = None,
-):
-    common_args = {
-        "dataset": dataset,
-        "n_way": n_way,
-        "n_shot": n_shot,
-        "n_query": n_query,
-        "n_tasks": n_tasks,
-    }
-    if sampler == "semantic":
-        if semantic_alpha is None or distances_csv is None or semantic_strategy is None:
-            raise ValueError("Missing arguments for semantic sampler")
-        return SemanticTaskSampler(
-            alpha=semantic_alpha,
-            strategy=semantic_strategy,
-            semantic_distances_csv=distances_csv,
-            **common_args,
-        )
-    if sampler == "adaptive":
-        if adaptive_forgetting is None or adaptive_hardness is None:
-            raise ValueError("Missing arguments for adaptive sampler")
-        return AdaptiveTaskSampler(
-            forgetting=adaptive_forgetting, hardness=adaptive_hardness, **common_args
-        )
-    if sampler == "uniform":
-        return UniformTaskSampler(**common_args)
-    else:
-        raise ValueError(f"Unknown sampler : {sampler}")
-
-
-def get_intra_class_distances(training_tasks_record: List, distances: np.ndarray):
-    df = pd.DataFrame(training_tasks_record)
-    return df.join(
-        df.true_class_ids.apply(
-            [
-                partial(get_median_distance, distances=distances),
-                partial(get_distance_std, distances=distances),
-            ]
-        ).rename(
-            columns={
-                "get_median_distance": "median_distance",
-                "get_distance_std": "std_distance",
-            }
-        )
-    )
-
-
-def get_training_confusion_for_single_task(row, n_classes):
-    indices = []
-    values = []
-
-    for (local_label1, true_label1) in enumerate(row["true_class_ids"]):
-        for (local_label2, true_label2) in enumerate(row["true_class_ids"]):
-            indices.append([true_label1, true_label2])
-            values.append(row["task_confusion_matrix"][local_label1, local_label2])
-
-    return torch.sparse_coo_tensor(
-        torch.tensor(indices).T, values, (n_classes, n_classes)
-    )
-
-
-def get_training_confusion(df, n_classes):
-    return torch.sparse.sum(
-        torch.stack(
-            [
-                get_training_confusion_for_single_task(row, n_classes)
-                for _, row in df.iterrows()
-            ]
-        ),
-        dim=0,
-    ).to_dense()
-
-
-def get_sampled_together_for_single_task(row, n_classes):
-    indices = []
-    values = []
-
-    for label1, label2 in itertools.combinations(row["true_class_ids"], 2):
-        indices.append([min(label1, label2), max(label1, label2)])
-        values.append(1)
-
-    return torch.sparse_coo_tensor(
-        torch.tensor(indices).T, values, (n_classes, n_classes)
-    )
-
-
-def get_sampled_together(df, n_classes):
-    return torch.sparse.sum(
-        torch.stack(
-            [
-                get_sampled_together_for_single_task(row, n_classes)
-                for _, row in df.iterrows()
-            ]
-        ),
-        dim=0,
-    ).to_dense()
-
-
 def set_random_seed(seed: int):
     """
     Set random, numpy and torch random seed, for reproducibility of the training
@@ -244,6 +128,7 @@ def create_dataloader(dataset: EasySet, sampler: AbstractTaskSampler, n_workers:
 
 
 def build_model(
+    dataset: str,
     method: str,
     device: str,
     tb_writer: Optional[SummaryWriter] = None,
@@ -253,17 +138,20 @@ def build_model(
     """
     Build a model and cast it on the appropriate device
     Args:
+        dataset: dataset name: for our experiments we have selected one model for each dataset
+        method: few-shot classification method
         device: device on which to put the model
         tb_writer: a tensorboard writer to log training events
         pretrained_weights: if you want to use pretrained_weights for the backbone
+        trainable_backbone: whether to allow gradients through the backbone
 
     Returns:
         a few-shot learning model
     """
-    convolutional_network = resnet12(num_classes=351)
+    convolutional_network = BACKBONES_PER_DATASET[dataset]
+
     if not trainable_backbone:
         convolutional_network.requires_grad_(False)
-    # 351 so that the shape of the FC layer fits the trained model. It's a dirty fix.
 
     method_class = locate(f"easyfsl.methods.{method}")
     model = method_class(
@@ -274,36 +162,6 @@ def build_model(
 
     if pretrained_weights is not None:
         model.load_state_dict(torch.load(pretrained_weights), strict=False)
-
-    return model
-
-
-def build_model_trained_on_imagenet(
-    method: str,
-    device: str,
-    tb_writer: Optional[SummaryWriter] = None,
-    trainable_backbone: bool = False,
-):
-    """
-    Build a model with a ResNet18 backbone pretrained on ImageNet and cast it on the appropriate device
-    Args:
-        device: device on which to put the model
-        tb_writer: a tensorboard writer to log training events
-
-    Returns:
-        a few-shot learning model
-    """
-    convolutional_network = resnet18(pretrained=True)
-    convolutional_network.fc = nn.Flatten()
-    if not trainable_backbone:
-        convolutional_network.requires_grad_(False)
-
-    method_class = locate(f"easyfsl.methods.{method}")
-    model = method_class(
-        backbone=convolutional_network,
-        tensorboard_writer=tb_writer,
-        device=device,
-    ).to(device)
 
     return model
 

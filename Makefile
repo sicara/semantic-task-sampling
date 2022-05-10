@@ -1,8 +1,5 @@
-lint:
-		pylint easyfsl
-
-test:
-		pytest easyfsl
+black:
+		black src st_scripts
 
 dev-install:
 		pip install -r dev_requirements.txt

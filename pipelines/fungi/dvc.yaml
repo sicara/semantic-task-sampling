@@ -19,27 +19,6 @@ stages:
       - ${logs_dir}/compute_distances.out
       - ${distances_dir}/distances.csv
 
-#  create_testbed:
-#    foreach: ${testbed.n_shot}
-#    do:
-#  wdir: ../..
-#      cmd: python -m src.create_testbed
-#        --n-tasks ${testbed.n_tasks}
-#        --n-way ${testbed.n_way}
-#        --n-query ${testbed.n_query}
-#        --n-shot ${item}
-#        --out-file ${testbeds_dir}/testbed_${item}_shot.csv
-#        &> ${logs_dir}/create_testbed_${item}.out
-#      deps:
-#        - ${distances_dir}/test.csv
-#        - ${specs_dir}/test.json
-#        - src/create_testbed.py
-#      outs:
-#        - ${testbeds_dir}/testbed_${item}_shot.csv
-#        - ${testbeds_dir}/testbed_${item}_shot_pv.png
-#        - ${testbeds_dir}/testbed_${item}_shot_occ.png
-#        - ${logs_dir}/create_testbed_${item}.out
-
   create_uniform_testbed:
     foreach: ${testbed.n_shot}
     do:
@@ -79,6 +58,7 @@ stages:
         --specs-dir ${specs_dir}
         --testbed ${testbeds_dir}/testbed_${item}.csv
         --method ${model.method}
+        --dataset fungi
         --output-dir ${metrics_dir}
         --device ${device}
         &> ${logs_dir}/evaluate_${item}.out
@@ -105,6 +85,7 @@ stages:
       wdir: ../..
       cmd: python -m src.compute_metrics
         --testbed-spec ${item}
+        --top-k 1,5
         --testbeds-dir ${testbeds_dir}
         --metrics-dir ${metrics_dir}
         &> ${logs_dir}/compute_metrics_${item}.out

@@ -1,17 +1,11 @@
 from pathlib import Path
 
 import click
-import torch
 from loguru import logger
-from torch import nn
-from torch.utils.data import DataLoader
-from torchvision.models import resnet18
 
-from easyfsl.data_tools import EasySet
-from easyfsl.data_tools.danish_fungi import DanishFungi
-from easyfsl.data_tools.samplers.testbed_sampler import TestbedSampler
-from easyfsl.methods import PrototypicalNetworks
-from src.utils import build_model, create_dataloader, build_model_trained_on_imagenet
+from src.easyfsl.data_tools import EasySet, DanishFungi
+from src.easyfsl.data_tools.samplers import TestbedSampler
+from src.utils import build_model, create_dataloader
 
 
 @click.option(
@@ -33,6 +27,12 @@ from src.utils import build_model, create_dataloader, build_model_trained_on_ima
     default="PrototypicalNetworks",
 )
 @click.option(
+    "--dataset",
+    help="Dataset (fungi or tiered_imagenet)",
+    type=str,
+    default="tiered_imagenet",
+)
+@click.option(
     "--trained-model",
     help="Path to an archive containing trained model weights",
     type=Path,
@@ -52,6 +52,7 @@ def main(
     specs_dir: Path,
     testbed: Path,
     method: str,
+    dataset: str,
     trained_model: Path,
     output_dir: Path,
     device: str,
@@ -59,12 +60,13 @@ def main(
     n_workers = 20
 
     logger.info("Fetching test data...")
-    # We use trained_model as a marker of whether we're using Fungi.
-    # TODO: fix this, will cause issues
-    if trained_model:
+    if dataset == "tiered_imagenet":
         test_set = EasySet(specs_file=specs_dir / "test.json", training=False)
-    else:
+    elif dataset == "fungi":
         test_set = DanishFungi()
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}")
+
     test_sampler = TestbedSampler(
         test_set,
         testbed,
@@ -72,15 +74,9 @@ def main(
     test_loader = create_dataloader(test_set, test_sampler, n_workers)
 
     logger.info("Retrieving model...")
-    # If we specify trained weights, we build a ResNet12 with those weights.
-    if trained_model:
-        model = build_model(
-            device=device, pretrained_weights=trained_model, method=method
-        )
-    # Otherwise, we build a ResNet18 with torch's weights pretrained on ImageNet
-    # Sorry about this hidden parameter, TODO: fix it.
-    else:
-        model = build_model_trained_on_imagenet(device=device, method=method)
+    model = build_model(
+        dataset=dataset, device=device, pretrained_weights=trained_model, method=method
+    )
 
     logger.info("Starting evaluation...")
     results = model.evaluate(test_loader)
