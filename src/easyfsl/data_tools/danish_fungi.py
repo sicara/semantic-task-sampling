@@ -64,7 +64,7 @@ class DanishFungi(EasySet):
             then the output image will be of type PIL.Image.Image.
         """
         img = self.transform(
-            Image.open(self.root / self.data.image_path[item]).convert("RGB")
+            Image.open(self.root / self.data.image_path[item].lower()).convert("RGB")
         )
         label = self.data.label[item]
 

@@ -6,7 +6,7 @@ tb_logs_dir: data/tiered_imagenet/tb_logs
 logs_dir: data/tiered_imagenet/logs
 testbeds_dir: data/tiered_imagenet/testbeds
 
-device: cuda:2
+device: cuda:0
 
 
 testbed:

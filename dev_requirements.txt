@@ -11,4 +11,5 @@ PyYAML==5.4.1
 streamlit==0.88.0
 tensorboard==2.5.0
 seaborn==0.11.1
+cufflinks>=0.17.3
 -r easyfsl_requirements.txt

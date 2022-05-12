@@ -46,7 +46,7 @@ For Fungi: we expect all images to be directly in `data/fungi/images`, with no f
 To retrieve the weights for ResNet12 trained on _tiered_ImageNet's base set:
 
 ```bash
-dvc data/tiered_imagenet/models/resnet12_tiered_imagenet_classic.tar
+dvc pull data/tiered_imagenet/models/resnet12_tiered_imagenet_classic.tar
 ```
 
 ## Run

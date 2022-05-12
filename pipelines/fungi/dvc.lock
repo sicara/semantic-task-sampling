@@ -11,8 +11,8 @@ stages:
       md5: 2b35cd031f41ec4e8bf7db5abbaa9807
       size: 195213
     - path: src/compute_semantic_distances.py
-      md5: 192b71fbba6776f4e6bde2089d1e8d8c
-      size: 1550
+      md5: d4f23ce4654ff1cf9d0b30428f918001
+      size: 1492
     params:
       pipelines/fungi/params.yaml:
         distances_dir: data/fungi
@@ -23,11 +23,11 @@ stages:
       md5: 78b49d4b3e7e720c3daad11b2e9831cc
       size: 48132974
     - path: data/fungi/logs/compute_distances.out
-      md5: ca47bc1fdc840b4c4cd4e4c2f0751a95
-      size: 109983
+      md5: d0653eca86ba251b54a5e500bd46e664
+      size: 110051
   create_uniform_testbed@5:
-    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
-      --n-shot 5 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_5_shot.csv
+    cmd: python -m src.create_uniform_testbed --n-tasks 1000 --n-way 100 --n-query
+      5 --n-shot 5 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_5_shot.csv
       --dataset fungi &> data/fungi/logs/create_uniform_testbed_5.out
     deps:
     - path: data/fungi/distances.csv
@@ -40,37 +40,37 @@ stages:
       md5: 2b35cd031f41ec4e8bf7db5abbaa9807
       size: 195213
     - path: src/create_uniform_testbed.py
-      md5: ba6f9d9d79c9213b425c332785ef75ea
-      size: 3113
+      md5: 1df046bd9157d3e749988fb2001d8d8a
+      size: 2960
     params:
       pipelines/fungi/params.yaml:
         distances_dir: data/fungi
         logs_dir: data/fungi/logs
         specs_dir: data/fungi/specs
         testbed:
-          n_tasks: 5000
-          n_way: 5
-          n_query: 10
+          n_tasks: 1000
+          n_way: 100
+          n_query: 5
           n_shot:
           - 1
           - 5
         testbeds_dir: data/fungi/testbeds
     outs:
     - path: data/fungi/logs/create_uniform_testbed_5.out
-      md5: 88e592c6f020b2b90ba4291758d8306c
-      size: 613
+      md5: ea57a83e344be38a626eb68d7f8caf57
+      size: 612
     - path: data/fungi/testbeds/testbed_uniform_5_shot.csv
-      md5: 35e1d6f03f1e2d4dfd9eefeb0a2c3c0c
-      size: 16081016
+      md5: d41acd2c55483ae227248a5b6383a0a8
+      size: 42896280
     - path: data/fungi/testbeds/testbed_uniform_5_shot_occ.png
-      md5: 2303f7f996df69d21a0077b1db27702f
-      size: 13655
+      md5: 36b6f86c6d35bda7e68cc2bbae7bd123
+      size: 14691
     - path: data/fungi/testbeds/testbed_uniform_5_shot_pv.png
-      md5: f06ba1893fea751910bd68fd47fa3cee
-      size: 17535
+      md5: 28bf15275367a075ef3c23e8d1123cb6
+      size: 14058
   create_uniform_testbed@1:
-    cmd: python -m src.create_uniform_testbed --n-tasks 5000 --n-way 5 --n-query 10
-      --n-shot 1 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_1_shot.csv
+    cmd: python -m src.create_uniform_testbed --n-tasks 1000 --n-way 100 --n-query
+      5 --n-shot 1 --distances-csv data/fungi/distances.csv --out-file data/fungi/testbeds/testbed_uniform_1_shot.csv
       --dataset fungi &> data/fungi/logs/create_uniform_testbed_1.out
     deps:
     - path: data/fungi/distances.csv
@@ -83,48 +83,48 @@ stages:
       md5: 2b35cd031f41ec4e8bf7db5abbaa9807
       size: 195213
     - path: src/create_uniform_testbed.py
-      md5: ba6f9d9d79c9213b425c332785ef75ea
-      size: 3113
+      md5: 1df046bd9157d3e749988fb2001d8d8a
+      size: 2960
     params:
       pipelines/fungi/params.yaml:
         distances_dir: data/fungi
         logs_dir: data/fungi/logs
         specs_dir: data/fungi/specs
         testbed:
-          n_tasks: 5000
-          n_way: 5
-          n_query: 10
+          n_tasks: 1000
+          n_way: 100
+          n_query: 5
           n_shot:
           - 1
           - 5
         testbeds_dir: data/fungi/testbeds
     outs:
     - path: data/fungi/logs/create_uniform_testbed_1.out
-      md5: bea14a48f9118e4116e028e6c122b412
-      size: 613
+      md5: 6069d564de2f757647d038e9541921d3
+      size: 612
     - path: data/fungi/testbeds/testbed_uniform_1_shot.csv
-      md5: 3d1c1d236ceee66b37d4a6b08f7d7abd
-      size: 11847371
+      md5: 2d4a98fd588111f753c63d6e725c5a13
+      size: 25892620
     - path: data/fungi/testbeds/testbed_uniform_1_shot_occ.png
-      md5: b006b48dfef72f857060cf7ef6c54025
-      size: 13643
+      md5: 2266e41067e4fe4b49780b2507557521
+      size: 13454
     - path: data/fungi/testbeds/testbed_uniform_1_shot_pv.png
-      md5: f0533fb15f0af1e4fa9933a4e6ec16b3
-      size: 18574
+      md5: d1ba5e7ecad44f149164f5978381eef8
+      size: 15182
   evaluate@uniform_5_shot:
     cmd: python -m src.evaluate --specs-dir data/fungi/specs --testbed data/fungi/testbeds/testbed_uniform_5_shot.csv
-      --method PrototypicalNetworks --output-dir data/fungi/metrics --device cuda:0
-      &> data/fungi/logs/evaluate_uniform_5_shot.out
+      --method PrototypicalNetworks --dataset fungi --output-dir data/fungi/metrics
+      --device cuda:0 &> data/fungi/logs/evaluate_uniform_5_shot.out
     deps:
     - path: data/fungi/specs/DF20_metadata.csv
       md5: 27418931dad9162dcedb69cc91ea5799
       size: 86434321
     - path: data/fungi/testbeds/testbed_uniform_5_shot.csv
-      md5: 35e1d6f03f1e2d4dfd9eefeb0a2c3c0c
-      size: 16081016
+      md5: d41acd2c55483ae227248a5b6383a0a8
+      size: 42896280
     - path: src/evaluate.py
-      md5: 2fd02000957a59cf15e3b0a3d695f0b9
-      size: 2568
+      md5: 525dbfa7c47caf8941e5909469370387
+      size: 2140
     params:
       pipelines/fungi/params.yaml:
         device: cuda:0
@@ -139,24 +139,24 @@ stages:
         - uniform_5_shot
     outs:
     - path: data/fungi/logs/evaluate_uniform_5_shot.out
-      md5: 1c7701080106bc121a68de3bd0306bf3
-      size: 192916
+      md5: a857076699346caf6a899208b08fea11
+      size: 74820
     - path: data/fungi/metrics/raw_results_uniform_5_shot.csv
-      md5: 4cb5c9575d360e4c8bbc0da03813ae4c
-      size: 65785150
+      md5: 19e6c547921e8d762627e7227f68ee04
+      size: 2684107670
   compute_metrics@uniform_5_shot:
-    cmd: python -m src.compute_metrics --testbed-spec uniform_5_shot --testbeds-dir
+    cmd: python -m src.compute_metrics --testbed-spec uniform_5_shot --top-k 1,5 --testbeds-dir
       data/fungi/testbeds --metrics-dir data/fungi/metrics &> data/fungi/logs/compute_metrics_uniform_5_shot.out
     deps:
     - path: data/fungi/metrics/raw_results_uniform_5_shot.csv
-      md5: 4cb5c9575d360e4c8bbc0da03813ae4c
-      size: 65785150
+      md5: 19e6c547921e8d762627e7227f68ee04
+      size: 2684107670
     - path: data/fungi/testbeds/testbed_uniform_5_shot.csv
-      md5: 35e1d6f03f1e2d4dfd9eefeb0a2c3c0c
-      size: 16081016
+      md5: d41acd2c55483ae227248a5b6383a0a8
+      size: 42896280
     - path: src/compute_metrics.py
-      md5: 3b50aff2c97e67284a5504e7263d4026
-      size: 2532
+      md5: b0cd3b3ff3fdda32f6e386203fda2094
+      size: 3526
     params:
       pipelines/fungi/params.yaml:
         logs_dir: data/fungi/logs
@@ -167,28 +167,28 @@ stages:
         - uniform_5_shot
     outs:
     - path: data/fungi/logs/compute_metrics_uniform_5_shot.out
-      md5: a572b3dc34ad11d03bd085ceb87fa83d
-      size: 524
+      md5: f6164c598f4d768ffc2c892ade8922d4
+      size: 271
     - path: data/fungi/metrics/evaluation_metrics_uniform_5_shot.json
-      md5: a6912b2ff3f7b0f6bfc2cd8c504bf19c
-      size: 214
+      md5: 1571b249aa353fcb89a630d03e3294af
+      size: 427
     - path: data/fungi/metrics/task_performances_uniform_5_shot.csv
-      md5: 7f8397ddf2bc286c104df3b40632e0b6
-      size: 141057
+      md5: 176000b044efa382d190bcefb133f336
+      size: 33961
   evaluate@uniform_1_shot:
     cmd: python -m src.evaluate --specs-dir data/fungi/specs --testbed data/fungi/testbeds/testbed_uniform_1_shot.csv
-      --method PrototypicalNetworks --output-dir data/fungi/metrics --device cuda:0
-      &> data/fungi/logs/evaluate_uniform_1_shot.out
+      --method PrototypicalNetworks --dataset fungi --output-dir data/fungi/metrics
+      --device cuda:0 &> data/fungi/logs/evaluate_uniform_1_shot.out
     deps:
     - path: data/fungi/specs/DF20_metadata.csv
       md5: 27418931dad9162dcedb69cc91ea5799
       size: 86434321
     - path: data/fungi/testbeds/testbed_uniform_1_shot.csv
-      md5: 3d1c1d236ceee66b37d4a6b08f7d7abd
-      size: 11847371
+      md5: 2d4a98fd588111f753c63d6e725c5a13
+      size: 25892620
     - path: src/evaluate.py
-      md5: 2fd02000957a59cf15e3b0a3d695f0b9
-      size: 2568
+      md5: 525dbfa7c47caf8941e5909469370387
+      size: 2140
     params:
       pipelines/fungi/params.yaml:
         device: cuda:0
@@ -203,24 +203,24 @@ stages:
         - uniform_5_shot
     outs:
     - path: data/fungi/logs/evaluate_uniform_1_shot.out
-      md5: 596ce75dd4042f687f719d97f39ea701
-      size: 190619
+      md5: a2abc58a5335e6bb617b5c2d303552b4
+      size: 74820
     - path: data/fungi/metrics/raw_results_uniform_1_shot.csv
-      md5: 9ca21e21a7c0549945fb8c8594900a9d
-      size: 65021736
+      md5: 6473ad193f3f0b826185e9992bc2a1dd
+      size: 2717728971
   compute_metrics@uniform_1_shot:
-    cmd: python -m src.compute_metrics --testbed-spec uniform_1_shot --testbeds-dir
+    cmd: python -m src.compute_metrics --testbed-spec uniform_1_shot --top-k 1,5 --testbeds-dir
       data/fungi/testbeds --metrics-dir data/fungi/metrics &> data/fungi/logs/compute_metrics_uniform_1_shot.out
     deps:
     - path: data/fungi/metrics/raw_results_uniform_1_shot.csv
-      md5: 9ca21e21a7c0549945fb8c8594900a9d
-      size: 65021736
+      md5: 6473ad193f3f0b826185e9992bc2a1dd
+      size: 2717728971
     - path: data/fungi/testbeds/testbed_uniform_1_shot.csv
-      md5: 3d1c1d236ceee66b37d4a6b08f7d7abd
-      size: 11847371
+      md5: 2d4a98fd588111f753c63d6e725c5a13
+      size: 25892620
     - path: src/compute_metrics.py
-      md5: 3b50aff2c97e67284a5504e7263d4026
-      size: 2532
+      md5: b0cd3b3ff3fdda32f6e386203fda2094
+      size: 3526
     params:
       pipelines/fungi/params.yaml:
         logs_dir: data/fungi/logs
@@ -231,11 +231,11 @@ stages:
         - uniform_5_shot
     outs:
     - path: data/fungi/logs/compute_metrics_uniform_1_shot.out
-      md5: 255e8b780c0e0b255c40d8f63bf98816
-      size: 524
+      md5: d431c27b1dd11e00f2f327a7819b4f10
+      size: 271
     - path: data/fungi/metrics/evaluation_metrics_uniform_1_shot.json
-      md5: 0e8a4e67fb79373b4faf3507b43205d0
-      size: 228
+      md5: 2861aa7a5b147b462e03bbcac48ee12b
+      size: 459
     - path: data/fungi/metrics/task_performances_uniform_1_shot.csv
-      md5: f3002017887f849dadefee7a00d89aaf
-      size: 141066
+      md5: 094e33b66ae61b75c3ec0adfafb72722
+      size: 34071

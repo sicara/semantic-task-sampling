@@ -153,7 +153,7 @@ def build_model(
     if not trainable_backbone:
         convolutional_network.requires_grad_(False)
 
-    method_class = locate(f"easyfsl.methods.{method}")
+    method_class = locate(f"src.easyfsl.methods.{method}")
     model = method_class(
         backbone=convolutional_network,
         tensorboard_writer=tb_writer,
