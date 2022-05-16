@@ -7,7 +7,7 @@ from torchvision import transforms
 from src.easyfsl.data_tools import EasySet
 from st_scripts.st_utils import (
     TESTBEDS_ROOT_DIR,
-    SPECS_FILE,
+    TIERED_TEST_SPECS_FILE,
     get_class_names,
     plot_task,
 )
@@ -18,9 +18,9 @@ st.title(title)
 
 
 def st_explore_testbed(testbed_path):
-    class_names = get_class_names()
+    class_names = get_class_names(TIERED_TEST_SPECS_FILE)
     image_size = 224
-    dataset = EasySet(SPECS_FILE, image_size=image_size)
+    dataset = EasySet(TIERED_TEST_SPECS_FILE, image_size=image_size)
     dataset.transform = transforms.Compose(
         [
             transforms.Resize([image_size, image_size]),

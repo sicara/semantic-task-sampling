@@ -8,9 +8,6 @@ from torchvision import transforms
 from src.easyfsl.data_tools import EasySet
 from src.easyfsl.data_tools.danish_fungi import DanishFungi
 from st_scripts.st_utils import (
-    TESTBEDS_ROOT_DIR,
-    SPECS_FILE,
-    get_class_names,
     plot_task,
 )
 
