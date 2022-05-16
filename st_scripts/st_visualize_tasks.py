@@ -21,54 +21,80 @@ from st_scripts.st_utils import (
 
 # pd.options.plotting.backend = "plotly"
 
-st.set_page_config(page_title="Analyze Few-Shot-Learning benchmarks", layout="wide")
+
+@st.cache()
+def get_easyset(specs_file, image_size=224):
+    dataset = EasySet(specs_file, image_size=image_size)
+    dataset.transform = transforms.Compose(
+        [
+            transforms.Resize([image_size, image_size]),
+            # transforms.CenterCrop(image_size),
+        ]
+    )
+    return dataset
+
+
+@st.cache()
+def get_testbed(testbed_csv, class_names):
+    return pd.read_csv(testbed_csv, index_col=0).assign(
+        class_name=lambda df: [class_names[label] for label in df.labels]
+    )
+
+
+st.set_page_config(page_title="Analyze Few-Shot-Learning benchmarks", layout="centered")
 
 st.title("What do we talk about when we talk about tieredImageNet?")
 
 st.markdown(
-    "Since 2018, 98 papers have used miniImageNet as a benchmark. 205 papers have used tieredImageNet. "
-    "If you've done any research on Few-Shot Image Classification, it is likely that you have used them yourself. "
-    "You have probably tested some model on hundreds of randomly generated Few-Shot Classification tasks from miniImageNet or tieredImageNet. "
-    "But do you know what these tasks look like? "
-    "Have you ever wondered what kind of discrimination your model was asked to perform? "
-    "If you have not, tis not too late. "
-    "If you have, you're in the right place. "
+    """
+    Since 2018, 98 papers have used miniImageNet as a benchmark. 205 papers have used tieredImageNet.
+    If you've done any research on Few-Shot Image Classification, it is likely that you have used them yourself.
+    You have probably tested some model on hundreds of randomly generated Few-Shot Classification tasks from miniImageNet or tieredImageNet.
+    But do you know what these tasks look like?
+    Have you ever wondered what kind of discrimination your model was asked to perform?
+    If you have not, tis not too late.
+    If you have, you're in the right place.
+    """
 )
 
-class_names = get_class_names()
-image_size = 224
-dataset = EasySet(SPECS_FILE, image_size=image_size)
-dataset.transform = transforms.Compose(
-    [
-        transforms.Resize([image_size, image_size]),
-        # transforms.CenterCrop(image_size),
-    ]
+imagenet_class_names = get_class_names()
+dataset = get_easyset(SPECS_FILE)  # TODO: this seems to be runned each time, why?
+uniform_testbed = get_testbed(
+    TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot.csv", class_names=imagenet_class_names
+)
+semantic_testbed = get_testbed(
+    TESTBEDS_ROOT_DIR / "testbed_1_shot.csv", class_names=imagenet_class_names
 )
 
 st.header("What do uniformly sampled tasks look like?")
 
 st.markdown(
-    "Few-Shot Learning benchmarks such as miniImageNet or tieredImageNet evaluate methods on hundreds of Few-Shot Classification tasks. "
-    "These tasks are sampled uniformly at random from the set of all possible tasks. "
-    "This induces a huge bias towards tasks composed of classes that have nothing to do with one another. "
-    "Classes that you would probably never have to distinguish in any real use case. "
-    "See it for yourself. "
+    """
+    Few-Shot Learning benchmarks such as miniImageNet or tieredImageNet evaluate methods on hundreds of Few-Shot Classification tasks. 
+    These tasks are sampled uniformly at random from the set of all possible tasks. 
+    This induces a huge bias towards tasks composed of classes that have nothing to do with one another. 
+    Classes that you would probably never have to distinguish in any real use case. 
+    See it for yourself. 
+    """
 )
 
-uniform_testbed = pd.read_csv(
-    TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot.csv", index_col=0
-).assign(class_name=lambda df: [class_names[label] for label in df.labels])
 
 if st.button("Draw a task from tieredImageNet's test set"):
+    st.session_state.sampled_task = random.randint(0, uniform_testbed.task.max())
+
+if st.session_state.get("sampled_task") is not None:
     plot_task(
         dataset,
         uniform_testbed,
-        random.randint(0, uniform_testbed.task.max()),
-        class_names,
+        st.session_state.sampled_task,
+        imagenet_class_names,
     )
     st.markdown(
-        "If this task looks even remotely like a task you would need to solve ever, please [reach out to me](https://twitter.com/EBennequin). "
-        "Because of this shift between those academic benchmark and real life applications of Few-Shot Learning, the performance of a method on those benchmarks is only a distant proxy of its performance on real use cases. "
+        """
+        If this task looks even remotely like a task you would need to solve ever, please [reach out to me](https://twitter.com/EBennequin).
+        
+        Because of this shift between those academic benchmark and real life applications of Few-Shot Learning, the performance of a method on those benchmarks is only a distant proxy of its performance on real use cases.
+        """
     )
 # if st.button("Draw a task from miniImageNet's test set"):
 #     1 + 1
@@ -76,17 +102,7 @@ if st.button("Draw a task from tieredImageNet's test set"):
 st.markdown("---------")
 
 st.header("Can we do better?")
-st.markdown(
-    "The classes of tieredImageNet are part of the WordNet graph.  "
-    "We use this graph to define a semantic distance between classes.  "
-    "We use this semantic distance to define the coarsity of a task as the mean square distance between the classes constituting the task.  "
-    "We use this coarsity to sample tasks made of classes that are semantically close to each other.  "
-    "Play with the coarsity slider. See what kind of tasks we can sample.  "
-)
 
-semantic_testbed = pd.read_csv(
-    TESTBEDS_ROOT_DIR / "testbed_1_shot.csv", index_col=0
-).assign(class_name=lambda df: [class_names[label] for label in df.labels])
 
 # testbed_classes = semantic_testbed[["task", "variance", "labels"]].drop_duplicates()
 
@@ -122,8 +138,18 @@ task_coarsities = pd.DataFrame(
     }
 )
 
-cols = st.columns(2)
+cols = st.columns([2, 3])
 with cols[0]:
+    st.markdown(
+        """
+        The classes of tieredImageNet are part of the WordNet graph.
+        We use this graph to define a semantic distance between classes.
+        We use this semantic distance to define the coarsity of a task as the mean square distance between the classes constituting the task.
+        We use this coarsity to sample tasks made of classes that are semantically close to each other.
+        Play with the coarsity slider. See what kind of tasks we can sample.
+        """
+    )
+with cols[1]:
     fig, ax = plt.subplots()
     task_coarsities.plot.hist(
         ax=ax,
@@ -138,33 +164,33 @@ with cols[0]:
     ax.set_ylabel("number of tasks")
     ax.set_xlim([0, 100])
     st.pyplot(fig)
-with cols[1]:
-    step = 0.1
-    semantic_task_coarsities = task_coarsities["with semantic task sampling"]
 
-    selected_coarsity = st.slider(
-        "Coarsity",
-        min_value=float(semantic_task_coarsities.min()),
-        max_value=float(semantic_task_coarsities.max()),
-        value=float(semantic_task_coarsities.median()),
-        step=step,
-    )
+step = 0.1
+semantic_task_coarsities = task_coarsities["with semantic task sampling"]
 
-    sorted_task_coarsity = semantic_task_coarsities.sort_values()
-    index_in_sorted_series = sorted_task_coarsity.searchsorted(selected_coarsity)
-    task = random.sample(
-        set(
-            sorted_task_coarsity.loc[
-                (
-                    sorted_task_coarsity
-                    >= sorted_task_coarsity.iloc[index_in_sorted_series] - step
-                )
-                & (
-                    sorted_task_coarsity
-                    <= sorted_task_coarsity.iloc[index_in_sorted_series] + step
-                )
-            ].index
-        ),
-        k=1,
-    )[0]
-    plot_task(dataset, semantic_testbed, task, class_names)
+selected_coarsity = st.slider(
+    "Coarsity",
+    min_value=float(semantic_task_coarsities.min()),
+    max_value=float(semantic_task_coarsities.max()),
+    value=float(semantic_task_coarsities.median()),
+    step=step,
+)
+
+sorted_task_coarsity = semantic_task_coarsities.sort_values()
+index_in_sorted_series = sorted_task_coarsity.searchsorted(selected_coarsity)
+task = random.sample(
+    set(
+        sorted_task_coarsity.loc[
+            (
+                sorted_task_coarsity
+                >= sorted_task_coarsity.iloc[index_in_sorted_series] - step
+            )
+            & (
+                sorted_task_coarsity
+                <= sorted_task_coarsity.iloc[index_in_sorted_series] + step
+            )
+        ].index
+    ),
+    k=1,
+)[0]
+plot_task(dataset, semantic_testbed, task, imagenet_class_names)
