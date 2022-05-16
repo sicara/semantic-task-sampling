@@ -10,6 +10,8 @@ import streamlit as st
 from pathlib import Path
 
 from networkx.drawing.nx_pydot import graphviz_layout
+from pyvis.network import Network
+import streamlit.components.v1 as components
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet, EasySemantics
@@ -244,7 +246,8 @@ st.markdown(
     For instance, with the lowest coarsity (8.65), you get the task of discriminating between 5 breeds of dogs.
     On the other hand, when you increase the coarsity, the classes seem to get more distant from one another. \n
     An other way to see this distance is on the WordNet graph. Below you can see the subgraph of WordNet spanned by the classes of tieredImageNet.
-    The blue dots are the classes. Highligted in pink, you have the classes that constitute the task you selected. \n
+    The blue dots are the classes. Highligted in pink, you have the classes that constitute the task you selected.
+    Hover any node to see the associated words. \n
     The smaller the coarsity, the closer the classes in the graph.
     """
 )
@@ -261,32 +264,52 @@ pos["entity"] = [600.79, 489.48]
 colors = []
 sizes = []
 for node in tiered_graph:
+    tiered_graph.nodes[node]["label"] = " "
     if node == "entity":
         colors.append("black")
         sizes.append(22)
+        tiered_graph.nodes[node]["color"] = "black"
+        tiered_graph.nodes[node]["size"] = 5
     elif tiered_graph.out_degree(node) == 0:
         if node in task_classes:
             colors.append("#f56cd5")
+            tiered_graph.nodes[node]["color"] = "#f56cd5"
+            tiered_graph.nodes[node]["shape"] = "diamond"
+            tiered_graph.nodes[node]["label"] = node
         else:
             colors.append("#11aaff")
+            tiered_graph.nodes[node]["color"] = "#11aaff"
         sizes.append(14)
     else:
         colors.append("black")
         sizes.append(10)
+        tiered_graph.nodes[node]["color"] = "black"
+        tiered_graph.nodes[node]["size"] = 5
+    tiered_graph.nodes[node]["x"] = pos[node][0]
+    tiered_graph.nodes[node]["y"] = pos[node][1]
+    tiered_graph.nodes[node]["title"] = node
 
-nx.draw(
-    tiered_graph,
-    pos,
-    ax=ax,
-    with_labels=False,
-    node_size=sizes,
-    arrows=True,
-    arrowstyle="->",
-    arrowsize=5,
-    # arrows=False, width=0.05,
-    node_color=colors,
-)
-st.pyplot(fig)
+# nx.draw(
+#     tiered_graph,
+#     pos,
+#     ax=ax,
+#     with_labels=False,
+#     node_size=sizes,
+#     arrows=True,
+#     arrowstyle="->",
+#     arrowsize=5,
+#     # arrows=False, width=0.05,
+#     node_color=colors,
+# )
+# st.pyplot(fig)
+
+nt = Network(height="500px", width="670px")
+nt.from_nx(tiered_graph)
+nt.toggle_physics(False)
+nt.save_graph("tiered_graph.html")
+HtmlFile = open("tiered_graph.html", "r", encoding="utf-8")
+source_code = HtmlFile.read()
+components.html(source_code, height=550)
 
 st.markdown("---------")
 st.header("To go deeper...")

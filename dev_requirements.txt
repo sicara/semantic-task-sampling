@@ -7,6 +7,7 @@ numpy==1.20.3
 scikit-learn==0.24.2
 networkx==2.5.1
 pygraphviz==1.7
+pyvis>=0.2.1
 PyYAML==5.4.1
 streamlit==0.88.0
 tensorboard==2.5.0
