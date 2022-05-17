@@ -2,32 +2,28 @@ import pickle
 from pathlib import Path
 from typing import Union
 
-import numpy as np
-import torch
+import s3fs
+from PIL import Image
 from tqdm import tqdm
 
 from src.easyfsl.data_tools import EasySet
 
 
-class EasySetLight(EasySet):
-    """ """
+class EasySetExpo(EasySet):
+    """
+    EasySet but we fetch the data from S3 and we don't do any preprocessing of images.
+    """
 
-    def __init__(self, data_source: Union[Path, str]):
+    def __init__(self, specs_file: Union[Path, str], s3_root: str):
         """
         Args:
-            data_source: path to a pickle file with a dict where each key is an image_id and each
-                value is a tuple (label, class_name, image) and each image is a (width, height, 3) ndarray.
+            specs_file: path to the JSON file needed by EasySet
+            s3_root: s3://bucket/prefix/
         """
-        with open(data_source, "rb") as f:
-            self.data = pickle.load(f)
+        super().__init__(specs_file)
 
-        self.labels = [x[0] for x in self.data.values()]
-
-        label_to_class = {}
-        for label, class_name, _ in self.data.values():
-            label_to_class[label] = class_name
-
-        self.class_names = [label_to_class[x] for x in sorted(set(self.labels))]
+        self.fs = s3fs.S3FileSystem(anon=False)
+        self.s3_root = s3_root
 
     def __getitem__(self, item: int):
         """
@@ -38,7 +34,9 @@ class EasySetLight(EasySet):
         Returns:
             data sample in the form of a tuple (image, label), where label is an integer.
         """
-        img = torch.tensor(self.data[item][2])
+        with self.fs.open(f"{self.s3_root}{Path(self.images[item]).name}") as f:
+            img = Image.open(f).convert("RGB")
+
         label = self.labels[item]
 
         return img, label
@@ -50,20 +48,13 @@ class EasySetLight(EasySet):
         return len(self.class_names)
 
 
-def generate_light_easyset(dataset: EasySet, output_path: Path):
+def generate_light_easyset(dataset: EasySet, output_dir: Path):
     """
     Generate a light version of an EasySet dataset.
     Args:
         dataset: EasySet dataset
-
-    Returns:
-        data that was dumped to output_file as a pickle
     """
-    data = {}
-    for image_id, (image, label) in tqdm(enumerate(dataset)):
-        data[image_id] = (label, dataset.class_names[label], np.array(image))
-
-    with open(output_path, "wb") as f:
-        pickle.dump(data, f)
-
-    return data
+    output_dir.mkdir(exist_ok=False, parents=True)
+    for image_id, (image, _) in tqdm(enumerate(dataset)):
+        image_name = Path(dataset.images[image_id]).name
+        image.save(output_dir / image_name)

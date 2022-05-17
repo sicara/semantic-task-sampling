@@ -13,6 +13,7 @@ import streamlit.components.v1 as components
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet, EasySemantics
+from src.easyfsl.data_tools.easy_set_light import EasySetExpo
 from st_scripts.st_utils import (
     TESTBEDS_ROOT_DIR,
     TIERED_TEST_SPECS_FILE,
@@ -20,6 +21,10 @@ from st_scripts.st_utils import (
     plot_task,
     IMAGENET_WORDS_PATH,
     MINI_TEST_SPECS_FILE,
+    S3_ROOT_MINI,
+    PRIMARY_APP_COLOR,
+    SECONDARY_APP_COLOR,
+    S3_ROOT_TIERED,
 )
 
 matplotlib.rcParams["font.family"] = "serif"
@@ -61,13 +66,26 @@ def get_graph(easy_set: EasySet):
 
 st.set_page_config(page_title="Analyze Few-Shot-Learning benchmarks", layout="centered")
 
-st.markdown(  # TODO make this work
+st.markdown(
     f"""
 <style>
-    .reportview-container .main .block-container (min-width: 850px){{
-        min-width: 1050px;
+    .reportview-container .main .block-container {{
+        width: 1050px;
+        max-width: 90%;
     }}
-</style>
+    
+    .stButton {{
+        display: flex;
+        justify-content: space-around;
+    }}
+    
+    .css-2tp4zm a {{
+        color: {SECONDARY_APP_COLOR};
+    }}
+    
+    .css-2tp4zm a:hover {{
+        color: {PRIMARY_APP_COLOR};
+    }}
 """,
     unsafe_allow_html=True,
 )
@@ -88,10 +106,9 @@ st.markdown(
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
 mini_imagenet_class_names = get_class_names(MINI_TEST_SPECS_FILE)
-tiered_dataset = get_easyset(
-    TIERED_TEST_SPECS_FILE
-)  # TODO: this seems to be runned each time, why?
-mini_dataset = get_easyset(MINI_TEST_SPECS_FILE)
+tiered_dataset = EasySetExpo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
+mini_dataset = EasySetExpo(MINI_TEST_SPECS_FILE, S3_ROOT_MINI)
+
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",
     class_names=tiered_imagenet_class_names,
@@ -101,7 +118,8 @@ mini_testbed = get_testbed(
     class_names=tiered_imagenet_class_names,
 )
 semantic_testbed = get_testbed(
-    TESTBEDS_ROOT_DIR / "testbed_1_shot_expo.csv", class_names=tiered_imagenet_class_names
+    TESTBEDS_ROOT_DIR / "testbed_1_shot_expo.csv",
+    class_names=tiered_imagenet_class_names,
 )
 tiered_graph = get_graph(tiered_dataset)
 
@@ -161,15 +179,15 @@ task_coarsities = pd.DataFrame(
     {
         "with semantic task sampling": (
             semantic_testbed[["task", "variance", "labels"]]
-                .drop_duplicates()
-                .groupby("task")
-                .variance.mean()
+            .drop_duplicates()
+            .groupby("task")
+            .variance.mean()
         ),
         "with uniform task sampling": (
             uniform_testbed[["task", "variance", "labels"]]
-                .drop_duplicates()
-                .groupby("task")
-                .variance.mean()
+            .drop_duplicates()
+            .groupby("task")
+            .variance.mean()
         ),
     }
 )
@@ -192,8 +210,8 @@ with cols[1]:
         bins=30,
         alpha=0.8,
         color=[
-            "#f56cd5",
-            "#11aaff",
+            PRIMARY_APP_COLOR,
+            SECONDARY_APP_COLOR,
         ],
     )
     ax.set_xlabel("coarsity")
@@ -218,14 +236,14 @@ task = random.sample(
     set(
         sorted_task_coarsity.loc[
             (
-                    sorted_task_coarsity
-                    >= sorted_task_coarsity.iloc[index_in_sorted_series] - step
+                sorted_task_coarsity
+                >= sorted_task_coarsity.iloc[index_in_sorted_series] - step
             )
             & (
-                    sorted_task_coarsity
-                    <= sorted_task_coarsity.iloc[index_in_sorted_series] + step
+                sorted_task_coarsity
+                <= sorted_task_coarsity.iloc[index_in_sorted_series] + step
             )
-            ].index
+        ].index
     ),
     k=1,
 )[0]
@@ -261,24 +279,24 @@ for node in tiered_graph:
         tiered_graph.nodes[node]["size"] = 5
     elif tiered_graph.out_degree(node) == 0:
         if node in task_classes:
-            colors.append("#f56cd5")
-            tiered_graph.nodes[node]["color"] = "#f56cd5"
+            colors.append(PRIMARY_APP_COLOR)
+            tiered_graph.nodes[node]["color"] = PRIMARY_APP_COLOR
             tiered_graph.nodes[node]["shape"] = "diamond"
             # tiered_graph.nodes[node]["label"] = node
         else:
-            colors.append("#11aaff")
-            tiered_graph.nodes[node]["color"] = "#11aaff"
+            colors.append(SECONDARY_APP_COLOR)
+            tiered_graph.nodes[node]["color"] = SECONDARY_APP_COLOR
         sizes.append(14)
     else:
         colors.append("black")
         sizes.append(10)
         tiered_graph.nodes[node]["color"] = "black"
         tiered_graph.nodes[node]["size"] = 5
-    tiered_graph.nodes[node]["x"] = pos[node][0]
-    tiered_graph.nodes[node]["y"] = pos[node][1]
+    tiered_graph.nodes[node]["x"] = pos[node][1]
+    tiered_graph.nodes[node]["y"] = pos[node][0]
     tiered_graph.nodes[node]["title"] = node
 
-nt = Network(height="500px", width="670px", bgcolor="#e9f1f7")
+nt = Network(height="500px", width="100%", bgcolor="#e9f1f7")
 nt.from_nx(tiered_graph)
 nt.toggle_physics(False)
 nt.save_graph("tiered_graph.html")
@@ -295,7 +313,8 @@ st.markdown(
     At Sicara, we have seen a wide variety of industrial applications of Few-Shot Learning, but we never encountered a scenario that can be approached by benchmarks presenting this type of bias.
     In fact, in our experience, most applications involve discriminating between classes that are semantically close to each other: plates from plates, tools from tools, carpets from carpets, parts of cars from parts of cars, etc. \n
     There are other benchmarks for fine-grained classifications. And it's OK that some benchmarks contain tasks that are very coarse-grained. 
-    But today, tieredImageNet and miniImageNet are wildly used in the literature, and it's important to know what's in there. \n
+    But today, tieredImageNet and miniImageNet are wildly used in the literature, and it's important to know what's in there,
+    and how to restore the balance. \n
 
     If you want to know more, check out our paper 
     [Few-Shot Image Classification Benchmarks are Too Far From Reality: Build Back Better with Semantic Task Sampling](https://arxiv.org/abs/2205.05155)
