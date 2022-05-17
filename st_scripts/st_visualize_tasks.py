@@ -1,12 +1,9 @@
 import random
-from bisect import bisect_left
 
 import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
 import pandas as pd
-import plotly.express as px
 import streamlit as st
 from pathlib import Path
 
