@@ -2,6 +2,7 @@ import pickle
 from pathlib import Path
 from typing import Union
 
+import pandas as pd
 import s3fs
 from PIL import Image
 from tqdm import tqdm
@@ -20,10 +21,16 @@ class EasySetExpo(EasySet):
             specs_file: path to the JSON file needed by EasySet
             s3_root: s3://bucket/prefix/
         """
-        super().__init__(specs_file)
+        specs = self.load_specs(Path(specs_file))
+
+        self.class_names = specs["class_names"]
 
         self.fs = s3fs.S3FileSystem(anon=False)
         self.s3_root = s3_root
+
+        self.data = pd.read_csv(self.fs.open(f"{s3_root}test_images_list.csv"))
+        self.images = self.data["image_name"].values.tolist()
+        self.labels = self.data["label"].values.tolist()
 
     def __getitem__(self, item: int):
         """
@@ -34,7 +41,7 @@ class EasySetExpo(EasySet):
         Returns:
             data sample in the form of a tuple (image, label), where label is an integer.
         """
-        with self.fs.open(f"{self.s3_root}{Path(self.images[item]).name}") as f:
+        with self.fs.open(f"{self.s3_root}{self.images[item]}") as f:
             img = Image.open(f).convert("RGB")
 
         label = self.labels[item]
