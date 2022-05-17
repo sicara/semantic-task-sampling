@@ -3,7 +3,7 @@ pygit2==1.5.0
 dvc==2.2.0
 boto3==1.17.49
 s3fs==2021.5.0
-numpy==1.20.3
+numpy>=1.22.3
 scikit-learn==0.24.2
 networkx==2.5.1
 pygraphviz==1.7
