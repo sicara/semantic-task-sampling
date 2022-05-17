@@ -1,6 +1,7 @@
 import random
 from bisect import bisect_left
 
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -15,7 +16,6 @@ import streamlit.components.v1 as components
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet, EasySemantics
-from src.easyfsl.data_tools.danish_fungi import DanishFungi
 from st_scripts.st_utils import (
     TESTBEDS_ROOT_DIR,
     TIERED_TEST_SPECS_FILE,
@@ -25,16 +25,15 @@ from st_scripts.st_utils import (
     MINI_TEST_SPECS_FILE,
 )
 
-# pd.options.plotting.backend = "plotly"
+matplotlib.rcParams["font.family"] = "serif"
 
 
 @st.cache()
-def get_easyset(specs_file, image_size=224):
+def get_easyset(specs_file, image_size=128):
     dataset = EasySet(specs_file, image_size=image_size)
     dataset.transform = transforms.Compose(
         [
             transforms.Resize([image_size, image_size]),
-            # transforms.CenterCrop(image_size),
         ]
     )
     return dataset
@@ -125,17 +124,12 @@ st.markdown(
 
 buttons_cols = st.columns(2)
 with buttons_cols[0]:
-    if st.button("Draw a task from tieredImageNet's test set"):
+    if st.button("Draw a task from the test set of tieredImageNet"):
         st.session_state.selected_dataset = "tiered"
         st.session_state.sampled_task = random.randint(0, uniform_testbed.task.max())
 
 with buttons_cols[1]:
-    if st.button(
-        """
-            Draw a task from \n
-            miniImageNet's test set
-            """
-    ):
+    if st.button("Draw a task from the test set of miniImageNet"):
         st.session_state.selected_dataset = "mini"
         st.session_state.sampled_task = random.randint(0, mini_testbed.task.max())
 
@@ -258,8 +252,6 @@ fig, ax = plt.subplots()
 pos = graphviz_layout(tiered_graph, prog="twopi", root="entity")
 pos["physical entity"] = [639.79, 589.48]
 pos["entity"] = [600.79, 489.48]
-# st.write(pos["entity"])
-# st.write(tiered_graph.succ["entity"])
 
 colors = []
 sizes = []
@@ -275,7 +267,7 @@ for node in tiered_graph:
             colors.append("#f56cd5")
             tiered_graph.nodes[node]["color"] = "#f56cd5"
             tiered_graph.nodes[node]["shape"] = "diamond"
-            tiered_graph.nodes[node]["label"] = node
+            # tiered_graph.nodes[node]["label"] = node
         else:
             colors.append("#11aaff")
             tiered_graph.nodes[node]["color"] = "#11aaff"
@@ -289,21 +281,7 @@ for node in tiered_graph:
     tiered_graph.nodes[node]["y"] = pos[node][1]
     tiered_graph.nodes[node]["title"] = node
 
-# nx.draw(
-#     tiered_graph,
-#     pos,
-#     ax=ax,
-#     with_labels=False,
-#     node_size=sizes,
-#     arrows=True,
-#     arrowstyle="->",
-#     arrowsize=5,
-#     # arrows=False, width=0.05,
-#     node_color=colors,
-# )
-# st.pyplot(fig)
-
-nt = Network(height="500px", width="670px")
+nt = Network(height="500px", width="670px", bgcolor="#e9f1f7")
 nt.from_nx(tiered_graph)
 nt.toggle_physics(False)
 nt.save_graph("tiered_graph.html")

@@ -39,7 +39,9 @@ def get_task_plot(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_n
         axes[i].imshow(image[0])
         if class_names:
             axes[i].set_title(
-                class_names[image[1]],
+                class_names[image[1]]
+                if len(class_names[image[1]]) < 14
+                else class_names[image[1]].replace(" ", " \n"),
                 fontsize=8,
             )
         else:
