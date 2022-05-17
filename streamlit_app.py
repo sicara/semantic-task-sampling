@@ -93,7 +93,7 @@ tiered_dataset = get_easyset(
 )  # TODO: this seems to be runned each time, why?
 mini_dataset = get_easyset(MINI_TEST_SPECS_FILE)
 uniform_testbed = get_testbed(
-    TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot.csv",
+    TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",
     class_names=tiered_imagenet_class_names,
 )
 mini_testbed = get_testbed(
@@ -101,7 +101,7 @@ mini_testbed = get_testbed(
     class_names=tiered_imagenet_class_names,
 )
 semantic_testbed = get_testbed(
-    TESTBEDS_ROOT_DIR / "testbed_1_shot.csv", class_names=tiered_imagenet_class_names
+    TESTBEDS_ROOT_DIR / "testbed_1_shot_expo.csv", class_names=tiered_imagenet_class_names
 )
 tiered_graph = get_graph(tiered_dataset)
 

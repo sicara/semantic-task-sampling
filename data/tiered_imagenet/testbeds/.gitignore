@@ -1,1 +1,3 @@
 /testbed*
+!testbed_1_shot_expo.csv
+!testbed_uniform_1_shot_expo.csv
