@@ -141,3 +141,4 @@ data/mini_imagenet/images
 
 # streamlit
 streamlit_cache
+graph.html

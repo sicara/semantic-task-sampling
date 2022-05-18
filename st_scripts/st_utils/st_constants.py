@@ -9,6 +9,8 @@ import streamlit as st
 # - Paths -
 
 TESTBEDS_ROOT_DIR = Path("data/tiered_imagenet/testbeds")
+FUNGI_1_SHOT_TESTBED = Path("data/fungi/testbeds/testbed_uniform_1_shot.csv")
+
 TIERED_TEST_SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
 MINI_TEST_SPECS_FILE = Path("data/mini_imagenet/test.json")
 IMAGENET_WORDS_PATH = Path("data/tiered_imagenet/specs/words.txt")
@@ -23,9 +25,7 @@ SECONDARY_APP_COLOR = "#11aaff"
 SICARA_LOGO = "https://theodo.github.io/signature/images/logoSicara.png"
 
 
-def set_theme():
-    # Default parameters for plotting libraries
-    matplotlib.rcParams["font.family"] = "serif"
+def set_seaborn_theme():
     sns.set(
         style="ticks",
         palette=sns.color_palette(
@@ -37,6 +37,12 @@ def set_theme():
         font="serif",
     )
     sns.despine()
+
+
+def set_theme():
+    # Default parameters for plotting libraries
+    matplotlib.rcParams["font.family"] = "serif"
+    set_seaborn_theme()
 
     # Custom app CSS
     st.markdown(

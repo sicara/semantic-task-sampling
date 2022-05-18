@@ -1,8 +1,15 @@
 import pandas as pd
+import seaborn as sns
 import streamlit as st
 from matplotlib import pyplot as plt
 
 from src.easyfsl.data_tools import EasySet
+
+
+def build_subplots_grid(n_way: int, max_columns: int = 5):
+    return plt.subplots(
+        n_way // max_columns, max_columns, figsize=(5, 2 * n_way // max_columns)
+    )
 
 
 # TODO: I can't get the caching to work here
@@ -24,11 +31,6 @@ def get_task_plot(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_n
                 else class_names[image[1]].replace(" ", " \n"),
                 fontsize=8,
             )
-        else:
-            axes[i].set_title(
-                dataset.class_names[image[1]].replace(" ", " \n "),
-                fontsize=8,
-            )
         axes[i].axis("off")
 
     fig.suptitle(
@@ -46,3 +48,97 @@ def get_task_plot(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_n
 def plot_task(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names):
     fig = get_task_plot(dataset, testbed_df, task, class_names)
     # st.pyplot(fig)
+
+
+def plot_wide_task(
+    dataset: EasySet,
+    testbed_df: pd.DataFrame,
+    task: int,
+    class_names,
+    n_way: int = 5,
+    max_columns: int = 5,
+):
+    task_df = testbed_df.loc[lambda df: df.task == task]
+
+    support_images = [
+        dataset[support_item]
+        for support_item in task_df.loc[lambda df: df.support].image_id
+    ]
+
+    fig, axes = plt.subplots(
+        n_way // max_columns, max_columns, figsize=(5, 2 * n_way // max_columns)
+    )
+
+    for i, image in enumerate(support_images):
+        row = i // max_columns
+        column = i % max_columns
+        axes[row][column].imshow(image[0])
+        if class_names:
+            axes[row][column].set_title(
+                class_names[image[1]]
+                if len(class_names[image[1]]) < 14
+                else class_names[image[1]].replace(" ", " \n"),
+                fontsize=6,
+            )
+        axes[row][column].axis("off")
+
+    st.write(
+        f"Task coarsity: {task_df.variance.mean():.2f}",
+    )
+
+    st.pyplot(fig)
+
+    return fig
+
+
+def plot_coarsities_hist(task_coarsities, xlim=None):
+    fig, ax = plt.subplots()
+    sns.histplot(
+        task_coarsities,
+        ax=ax,
+        kde=True,
+        linewidth=0,
+    )
+    ax.set_xlabel("coarsity")
+    ax.set_ylabel("number of tasks")
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    st.pyplot(fig)
+
+
+def plot_occurrences_hist(testbed_classes):
+    fig, ax = plt.subplots()
+    sns.histplot(
+        testbed_classes.labels.value_counts(),
+        ax=ax,
+        bins=10,
+        kde=True,
+        linewidth=0,
+    )
+    ax.set_xlabel("number of occurrences in the testbed")
+    ax.set_ylabel("number of labels")
+    st.pyplot(fig)
+
+
+def plot_occurrences_comparison(occurrences_df):
+    fig, ax = plt.subplots()
+    occurrences_df.plot.area(
+        ax=ax,
+        stacked=False,
+        color=[
+            "tomato",
+            "deepskyblue",
+        ],
+    )
+    ax.set_ylim([0, 4])
+    ax.set_xlim([0, 159])
+    ax.set_xlabel("classes")
+    ax.set_ylabel("occurrence (%)")
+    plt.tick_params(
+        axis="x",  # changes apply to the x-axis
+        which="both",  # both major and minor ticks are affected
+        bottom=False,  # ticks along the bottom edge are off
+        top=False,  # ticks along the top edge are off
+        labelbottom=False,
+    )  # labels along the bottom edge are off
+    st.pyplot(fig)

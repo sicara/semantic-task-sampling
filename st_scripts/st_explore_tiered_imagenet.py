@@ -7,10 +7,15 @@ from torchvision import transforms
 from src.easyfsl.data_tools import EasySet
 from st_scripts.st_utils.st_constants import (
     TESTBEDS_ROOT_DIR,
-    TIERED_TEST_SPECS_FILE, SICARA_LOGO,
+    TIERED_TEST_SPECS_FILE,
+    SICARA_LOGO,
 )
-from st_scripts.st_utils.plot_helpers import plot_task
-from st_scripts.st_utils.data_fetchers import get_class_names
+from st_scripts.st_utils.plot_helpers import (
+    plot_task,
+    plot_coarsities_hist,
+    plot_occurrences_comparison,
+)
+from st_scripts.st_utils.data_fetchers import get_class_names, get_testbed
 
 title = "Compare uniform and semantic 1-shot testbeds"
 st.set_page_config(
@@ -32,18 +37,9 @@ def st_explore_testbed(testbed_path):
         ]
     )
 
-    testbed = pd.read_csv(testbed_path, index_col=0).assign(
-        class_name=lambda df: [class_names[label] for label in df.labels]
-    )
+    testbed = get_testbed(testbed_path, class_names)
 
     testbed_classes = testbed[["task", "variance", "labels"]].drop_duplicates()
-
-    fig, ax = plt.subplots()
-    testbed_classes.groupby("task").variance.mean().hist(ax=ax, bins=30)
-    ax.set_xlabel("coarsity")
-    ax.set_ylabel("number of tasks")
-    ax.set_xlim([0, 100])
-    st.pyplot(fig)
 
     task_coarsities = (
         testbed_classes[["task", "variance"]]
@@ -51,6 +47,9 @@ def st_explore_testbed(testbed_path):
         .set_index("task")
         .rename(columns={"variance": "coarsity"})
     )
+
+    plot_coarsities_hist(task_coarsities.coarsity, [0, 100])
+
     st.subheader(f"Coarsity by task (median: {task_coarsities.coarsity.median():.2f})")
     st.write(task_coarsities.style.format("{:.2f}"))
 
@@ -81,7 +80,7 @@ def st_tiered():
         class_right = st_explore_testbed(TESTBEDS_ROOT_DIR / "testbed_1_shot.csv")
 
     st.header("Compare the class balance of the testbeds")
-    df = (
+    plot_occurrences_comparison(
         pd.DataFrame(
             {
                 "semantic sampling": class_right.labels.value_counts(),
@@ -90,27 +89,6 @@ def st_tiered():
         )
         / 50
     )
-    fig, ax = plt.subplots()
-    df.plot.area(
-        ax=ax,
-        stacked=False,
-        color=[
-            "tomato",
-            "deepskyblue",
-        ],
-    )
-    ax.set_ylim([0, 4])
-    ax.set_xlim([0, 159])
-    ax.set_xlabel("classes")
-    ax.set_ylabel("occurrence (%)")
-    plt.tick_params(
-        axis="x",  # changes apply to the x-axis
-        which="both",  # both major and minor ticks are affected
-        bottom=False,  # ticks along the bottom edge are off
-        top=False,  # ticks along the top edge are off
-        labelbottom=False,
-    )  # labels along the bottom edge are off
-    st.pyplot(fig)
 
 
 st_tiered()

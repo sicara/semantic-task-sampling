@@ -1,8 +1,6 @@
 import random
 
-import seaborn as sns
 import streamlit as st
-from matplotlib import pyplot as plt
 from networkx.drawing.nx_pydot import graphviz_layout
 from pyvis.network import Network
 from streamlit.components import v1 as components
@@ -50,19 +48,6 @@ def draw_uniform_tasks(
                 mini_class_names,
             )
         st.markdown(WORDINGS["after_uniform_task"])
-
-
-def plot_coarsities_hist(task_coarsities):
-    fig, ax = plt.subplots()
-    sns.histplot(
-        task_coarsities,
-        ax=ax,
-        kde=True,
-        linewidth=0,
-    )
-    ax.set_xlabel("coarsity")
-    ax.set_ylabel("number of tasks")
-    st.pyplot(fig)
 
 
 def show_semantic_tasks(semantic_task_coarsities, dataset, testbed, class_names):
@@ -128,8 +113,8 @@ def plot_semantic_graph(task, testbed, dataset):
             sizes.append(10)
             graph.nodes[node]["color"] = "black"
             graph.nodes[node]["size"] = 5
-        graph.nodes[node]["x"] = pos[node][1]
-        graph.nodes[node]["y"] = pos[node][0]
+        graph.nodes[node]["x"] = pos[node][0]
+        graph.nodes[node]["y"] = pos[node][1]
         graph.nodes[node]["title"] = node
     nt = Network(height="500px", width="100%", bgcolor="#e9f1f7")
     nt.from_nx(graph)

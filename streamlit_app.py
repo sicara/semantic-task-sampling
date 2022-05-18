@@ -12,10 +12,10 @@ from st_scripts.st_utils.st_constants import (
 )
 from st_scripts.st_utils.st_app_blocks import (
     draw_uniform_tasks,
-    plot_coarsities_hist,
     show_semantic_tasks,
     plot_semantic_graph,
 )
+from st_scripts.st_utils.plot_helpers import plot_coarsities_hist
 from st_scripts.st_utils.data_fetchers import (
     get_class_names,
     get_testbed,
