@@ -9,6 +9,7 @@ from pathlib import Path
 
 from networkx.drawing.nx_pydot import graphviz_layout
 from pyvis.network import Network
+import seaborn as sns
 import streamlit.components.v1 as components
 from torchvision import transforms
 
@@ -27,7 +28,20 @@ from st_scripts.st_utils import (
     S3_ROOT_TIERED,
 )
 
+# Default parameters for plotting libraries
+
 matplotlib.rcParams["font.family"] = "serif"
+sns.set(
+    style="ticks",
+    palette=sns.color_palette(
+        [
+            PRIMARY_APP_COLOR,
+            SECONDARY_APP_COLOR,
+        ]
+    ),
+    font="serif",
+)
+sns.despine()
 
 
 @st.cache()
@@ -64,7 +78,11 @@ def get_graph(easy_set: EasySet):
     )
 
 
-st.set_page_config(page_title="Analyze Few-Shot-Learning benchmarks", layout="centered")
+st.set_page_config(
+    page_title="Analyze Few-Shot-Learning benchmarks",
+    layout="centered",
+    page_icon="https://theodo.github.io/signature/images/logoSicara.png",
+)
 
 st.markdown(
     f"""
@@ -205,18 +223,15 @@ with cols[0]:
     )
 with cols[1]:
     fig, ax = plt.subplots()
-    task_coarsities.plot.hist(
+
+    sns.histplot(
+        task_coarsities,
         ax=ax,
-        bins=30,
-        alpha=0.8,
-        color=[
-            PRIMARY_APP_COLOR,
-            SECONDARY_APP_COLOR,
-        ],
+        kde=True,
+        linewidth=0,
     )
     ax.set_xlabel("coarsity")
     ax.set_ylabel("number of tasks")
-    ax.set_xlim([0, 100])
     st.pyplot(fig)
 
 step = 0.1
