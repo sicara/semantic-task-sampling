@@ -1,34 +1,8 @@
-import json
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 from matplotlib import pyplot as plt
 
 from src.easyfsl.data_tools import EasySet
-
-TESTBEDS_ROOT_DIR = Path("data/tiered_imagenet/testbeds")
-TIERED_TEST_SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
-MINI_TEST_SPECS_FILE = Path("data/mini_imagenet/test.json")
-IMAGENET_WORDS_PATH = Path("data/tiered_imagenet/specs/words.txt")
-
-S3_ROOT_MINI = "s3://thesis-etienne/mini_light/"
-S3_ROOT_TIERED = "s3://thesis-etienne/tiered_light/"
-
-PRIMARY_APP_COLOR = "#f56cd5"
-SECONDARY_APP_COLOR = "#11aaff"
-
-
-@st.cache()
-def get_class_names(specs_file):
-    with open(specs_file, "r") as file:
-        synset_codes = json.load(file)["class_names"]
-    words = {}
-    with open(IMAGENET_WORDS_PATH, "r") as file:
-        for line in file:
-            synset, word = line.rstrip().split("\t")
-            words[synset] = word.split(",")[0]
-    return [words[synset] for synset in synset_codes]
 
 
 # TODO: I can't get the caching to work here

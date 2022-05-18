@@ -5,15 +5,19 @@ import streamlit as st
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet
-from st_scripts.st_utils import (
+from st_scripts.st_utils.st_constants import (
     TESTBEDS_ROOT_DIR,
-    TIERED_TEST_SPECS_FILE,
-    get_class_names,
-    plot_task,
+    TIERED_TEST_SPECS_FILE, SICARA_LOGO,
 )
+from st_scripts.st_utils.plot_helpers import plot_task
+from st_scripts.st_utils.data_fetchers import get_class_names
 
 title = "Compare uniform and semantic 1-shot testbeds"
-st.set_page_config(page_title=title, layout="wide")
+st.set_page_config(
+    page_title=title,
+    layout="wide",
+    page_icon=SICARA_LOGO,
+)
 st.title(title)
 
 
