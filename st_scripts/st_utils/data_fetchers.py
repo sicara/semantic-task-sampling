@@ -4,6 +4,7 @@ from pathlib import Path
 import networkx as nx
 import pandas as pd
 import streamlit as st
+from networkx.drawing.nx_pydot import graphviz_layout
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet, EasySemantics
@@ -41,20 +42,32 @@ def get_testbed(testbed_csv, class_names):
     )
 
 
-# TODO: caching won't work because the graph gets mutated
 def get_graph(easy_set: EasySet):
+    """
+    This is how we got the graph in data/tiered_imagenet/specs/semantic_graph.json
+    """
     words = {}
     with open(IMAGENET_WORDS_PATH, "r") as file:
         for line in file:
             synset, word = line.rstrip().split("\t")
             words[synset] = word.split(",")[0]
 
-    return nx.relabel_nodes(
+    graph = nx.relabel_nodes(
         EasySemantics(
             easy_set, Path("data/tiered_imagenet/specs") / "wordnet.is_a.txt"
         ).dataset_dag,
         words,
     )
+    pos = graphviz_layout(graph, prog="twopi", root="entity")
+    pos["physical entity"] = [639.79, 589.48]
+    pos["entity"] = [600.79, 489.48]
+
+    for node in graph:
+        graph.nodes[node]["x"] = pos[node][0]
+        graph.nodes[node]["y"] = pos[node][1]
+        graph.nodes[node]["title"] = node
+
+    return graph
 
 
 @st.experimental_memo

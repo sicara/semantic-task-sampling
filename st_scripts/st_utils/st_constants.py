@@ -14,6 +14,7 @@ FUNGI_1_SHOT_TESTBED = Path("data/fungi/testbeds/testbed_uniform_1_shot.csv")
 TIERED_TEST_SPECS_FILE = Path("data/tiered_imagenet/specs/test.json")
 MINI_TEST_SPECS_FILE = Path("data/mini_imagenet/test.json")
 IMAGENET_WORDS_PATH = Path("data/tiered_imagenet/specs/words.txt")
+TIERED_GRAPH_PATH = Path("data/tiered_imagenet/specs/semantic_graph.json")
 
 S3_ROOT_MINI = "s3://thesis-etienne/mini_light/"
 S3_ROOT_TIERED = "s3://thesis-etienne/tiered_light/"

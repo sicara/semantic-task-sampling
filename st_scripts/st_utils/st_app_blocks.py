@@ -1,16 +1,17 @@
+import json
 import random
 
 import streamlit as st
-from networkx.drawing.nx_pydot import graphviz_layout
+from networkx.readwrite import json_graph
 from pyvis.network import Network
 from streamlit.components import v1 as components
 
-from st_scripts.st_utils.data_fetchers import get_graph
 from st_scripts.st_utils.plot_helpers import plot_task
 from st_scripts.st_utils.st_constants import (
     PRIMARY_APP_COLOR,
     SECONDARY_APP_COLOR,
     SEMANTIC_SLIDER_STEP,
+    TIERED_GRAPH_PATH,
 )
 from st_scripts.st_utils.st_wordings import WORDINGS
 
@@ -92,14 +93,11 @@ def show_semantic_tasks(semantic_task_coarsities, dataset, testbed, class_names)
     return task
 
 
-def plot_semantic_graph(task, testbed, dataset):
+def plot_semantic_graph(task, testbed):
     task_classes = testbed.loc[lambda df: df.task == task].class_name.unique()
 
-    graph = get_graph(dataset)
-
-    pos = graphviz_layout(graph, prog="twopi", root="entity")
-    pos["physical entity"] = [639.79, 589.48]
-    pos["entity"] = [600.79, 489.48]
+    with open(TIERED_GRAPH_PATH, "r") as f:
+        graph = json_graph.node_link_graph(json.load(f))
     colors = []
     sizes = []
     for node in graph:
@@ -114,7 +112,6 @@ def plot_semantic_graph(task, testbed, dataset):
                 colors.append(PRIMARY_APP_COLOR)
                 graph.nodes[node]["color"] = PRIMARY_APP_COLOR
                 graph.nodes[node]["shape"] = "diamond"
-                # graph.nodes[node]["label"] = node
             else:
                 colors.append(SECONDARY_APP_COLOR)
                 graph.nodes[node]["color"] = SECONDARY_APP_COLOR
@@ -124,9 +121,7 @@ def plot_semantic_graph(task, testbed, dataset):
             sizes.append(10)
             graph.nodes[node]["color"] = "black"
             graph.nodes[node]["size"] = 5
-        graph.nodes[node]["x"] = pos[node][0]
-        graph.nodes[node]["y"] = pos[node][1]
-        graph.nodes[node]["title"] = node
+
     nt = Network(height="500px", width="100%", bgcolor="#e9f1f7")
     nt.from_nx(graph)
     nt.toggle_physics(False)

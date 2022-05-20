@@ -95,7 +95,7 @@ task = show_semantic_tasks(
 
 st.markdown(WORDINGS["semantic_graph"])
 
-plot_semantic_graph(task, semantic_testbed, tiered_dataset)
+plot_semantic_graph(task, semantic_testbed)
 
 st_divider()
 st.header("To go deeper...")
