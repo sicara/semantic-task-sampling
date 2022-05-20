@@ -69,6 +69,9 @@ def set_theme():
         a:hover {{
             color: {PRIMARY_APP_COLOR};
         }}
+        p {{
+        text-align: justify;
+        }}
     </style>
     """,
         unsafe_allow_html=True,

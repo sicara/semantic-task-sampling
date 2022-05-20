@@ -26,7 +26,7 @@ from st_scripts.st_utils.st_wordings import WORDINGS, st_divider
 # === APP SETUP ===
 
 st.set_page_config(
-    page_title="Analyze Few-Shot-Learning benchmarks",
+    page_title="What's in Few-Shot-Learning benchmarks?",
     layout="centered",
     page_icon=SICARA_LOGO,
 )
