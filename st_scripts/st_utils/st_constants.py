@@ -24,6 +24,8 @@ PRIMARY_APP_COLOR = "#f56cd5"
 SECONDARY_APP_COLOR = "#11aaff"
 SICARA_LOGO = "https://theodo.github.io/signature/images/logoSicara.png"
 
+SEMANTIC_SLIDER_STEP = 0.1
+
 
 def set_seaborn_theme():
     sns.set(

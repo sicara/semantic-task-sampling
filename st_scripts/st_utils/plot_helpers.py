@@ -12,14 +12,18 @@ def build_subplots_grid(n_way: int, max_columns: int = 5):
     )
 
 
-# TODO: I can't get the caching to work here
-def get_task_plot(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names):
-    task_df = testbed_df.loc[lambda df: df.task == task]
-
-    support_images = [
+@st.cache
+def get_support_images(dataset, task_df):
+    return [
         dataset[support_item]
         for support_item in task_df.loc[lambda df: df.support].image_id
     ]
+
+
+def plot_task(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names):
+    task_df = testbed_df.loc[lambda df: df.task == task]
+
+    support_images = get_support_images(dataset, task_df)
 
     fig, axes = plt.subplots(1, 5)
     for i, image in enumerate(support_images):
@@ -43,11 +47,6 @@ def get_task_plot(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_n
     st.pyplot(fig)
 
     return fig
-
-
-def plot_task(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names):
-    fig = get_task_plot(dataset, testbed_df, task, class_names)
-    # st.pyplot(fig)
 
 
 def plot_wide_task(

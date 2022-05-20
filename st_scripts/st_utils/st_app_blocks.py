@@ -7,7 +7,11 @@ from streamlit.components import v1 as components
 
 from st_scripts.st_utils.data_fetchers import get_graph
 from st_scripts.st_utils.plot_helpers import plot_task
-from st_scripts.st_utils.st_constants import PRIMARY_APP_COLOR, SECONDARY_APP_COLOR
+from st_scripts.st_utils.st_constants import (
+    PRIMARY_APP_COLOR,
+    SECONDARY_APP_COLOR,
+    SEMANTIC_SLIDER_STEP,
+)
 from st_scripts.st_utils.st_wordings import WORDINGS
 
 
@@ -50,32 +54,39 @@ def draw_uniform_tasks(
         st.markdown(WORDINGS["after_uniform_task"])
 
 
-def show_semantic_tasks(semantic_task_coarsities, dataset, testbed, class_names):
-    step = 0.1
-    selected_coarsity = st.slider(
-        "Coarsity",
-        min_value=float(semantic_task_coarsities.min()),
-        max_value=float(semantic_task_coarsities.max()),
-        value=float(semantic_task_coarsities.median()),
-        step=step,
-    )
-    sorted_task_coarsity = semantic_task_coarsities.sort_values()
-    index_in_sorted_series = sorted_task_coarsity.searchsorted(selected_coarsity)
-    task = random.sample(
+@st.experimental_memo
+def draw_semantic_task(task_coarsities, input_coarsity):
+    sorted_task_coarsity = task_coarsities.sort_values()
+    index_in_sorted_series = sorted_task_coarsity.searchsorted(input_coarsity)
+    return random.sample(
         set(
             sorted_task_coarsity.loc[
                 (
                     sorted_task_coarsity
-                    >= sorted_task_coarsity.iloc[index_in_sorted_series] - step
+                    >= sorted_task_coarsity.iloc[index_in_sorted_series]
+                    - SEMANTIC_SLIDER_STEP
                 )
                 & (
                     sorted_task_coarsity
-                    <= sorted_task_coarsity.iloc[index_in_sorted_series] + step
+                    <= sorted_task_coarsity.iloc[index_in_sorted_series]
+                    + SEMANTIC_SLIDER_STEP
                 )
             ].index
         ),
         k=1,
     )[0]
+
+
+def show_semantic_tasks(semantic_task_coarsities, dataset, testbed, class_names):
+    selected_coarsity = st.slider(
+        "Coarsity",
+        min_value=float(semantic_task_coarsities.min()),
+        max_value=float(semantic_task_coarsities.max()),
+        value=float(semantic_task_coarsities.median()),
+        step=SEMANTIC_SLIDER_STEP,
+    )
+    task = draw_semantic_task(semantic_task_coarsities, selected_coarsity)
+
     plot_task(dataset, testbed, task, class_names)
 
     return task

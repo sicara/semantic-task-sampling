@@ -35,6 +35,7 @@ class EasySet(Dataset):
                 cropping and a random horizontal flip.
         """
         specs = self.load_specs(Path(specs_file))
+        self.specs_file = specs_file
 
         self.images, self.labels = self.list_data_instances(specs["class_roots"])
 
@@ -158,3 +159,6 @@ class EasySet(Dataset):
 
     def number_of_classes(self):
         return len(self.class_names)
+
+    def __hash__(self):
+        return hash(self.specs_file)

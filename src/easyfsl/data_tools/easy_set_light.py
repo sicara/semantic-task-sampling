@@ -22,6 +22,7 @@ class EasySetExpo(EasySet):
             s3_root: s3://bucket/prefix/
         """
         specs = self.load_specs(Path(specs_file))
+        self.specs_file = specs_file
 
         self.class_names = specs["class_names"]
 
@@ -55,7 +56,7 @@ class EasySetExpo(EasySet):
         return len(self.class_names)
 
     def __hash__(self):
-        return hash(self.data)
+        return hash(self.specs_file) + hash(self.s3_root)
 
 
 def generate_light_easyset(dataset: EasySet, output_dir: Path):
