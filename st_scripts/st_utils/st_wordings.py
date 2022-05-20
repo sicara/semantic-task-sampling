@@ -1,5 +1,7 @@
 import streamlit as st
 
+from st_scripts.st_utils.st_constants import SECONDARY_APP_COLOR
+
 WORDINGS = {
     "app_intro": """
     Since 2018, 98 papers have used miniImageNet as a benchmark. 205 papers have used tieredImageNet. \n
@@ -52,4 +54,4 @@ WORDINGS = {
     """,
 }
 
-st_divider = lambda: st.markdown("---------")
+st_divider = lambda: st.markdown(f"""<hr style="width:15%">""", unsafe_allow_html=True)

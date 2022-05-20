@@ -51,21 +51,22 @@ def set_theme():
     st.markdown(
         f"""
     <style>
-        .reportview-container .main .block-container {{
+        .appview-container .main .block-container {{
             width: 1050px;
             max-width: 90%;
         }}
-        
         .stButton {{
             display: flex;
             justify-content: space-around;
         }}
-        
-        .css-2tp4zm a {{
+        .css-1h9o3pk {{
+            color: {SECONDARY_APP_COLOR};
+            border-color: {SECONDARY_APP_COLOR};
+        }}
+        .css-19effar a {{
             color: {SECONDARY_APP_COLOR};
         }}
-        
-        .css-2tp4zm a:hover {{
+        a:hover {{
             color: {PRIMARY_APP_COLOR};
         }}
     </style>
