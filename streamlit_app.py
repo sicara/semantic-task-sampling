@@ -63,7 +63,7 @@ st.title("By the way, what's in Few-Shot Learning benchmarks?")
 st.markdown(WORDINGS["app_intro"])
 
 st_divider()
-st.header("What do uniformly sampled tasks look like?")
+st.header("Uniformly sampled tasks do not reflect real-world use cases")
 
 st.markdown(WORDINGS["uniform_tasks"])
 
@@ -86,6 +86,8 @@ with cols[0]:
 with cols[1]:
     plot_coarsities_hist(task_coarsities)
 
+st.markdown(WORDINGS["introduce_slider"])
+
 task = show_semantic_tasks(
     semantic_task_coarsities=task_coarsities["with semantic task sampling"],
     dataset=tiered_dataset,
@@ -101,3 +103,13 @@ st_divider()
 st.header("To go deeper...")
 
 st.markdown(WORDINGS["app_conclusion"])
+
+st_divider()
+st.subheader("About me")
+about_cols = st.columns([9, 1])
+
+with about_cols[1]:
+    st.image("https://ebennequin.github.io/images/profile.jpeg")
+    st.image(SICARA_LOGO)
+with about_cols[0]:
+    st.markdown(WORDINGS["about"])
