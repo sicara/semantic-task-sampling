@@ -1,6 +1,5 @@
 import streamlit as st
 
-from src.easyfsl.data_tools.easy_set_light import EasySetExpo
 from st_scripts.st_utils.st_constants import (
     TESTBEDS_ROOT_DIR,
     TIERED_TEST_SPECS_FILE,
@@ -20,6 +19,7 @@ from st_scripts.st_utils.data_fetchers import (
     get_class_names,
     get_testbed,
     build_task_coarsities_df,
+    get_easyset_expo,
 )
 from st_scripts.st_utils.st_wordings import WORDINGS, st_divider
 
@@ -37,8 +37,8 @@ set_theme()
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
 mini_imagenet_class_names = get_class_names(MINI_TEST_SPECS_FILE)
-tiered_dataset = EasySetExpo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
-mini_dataset = EasySetExpo(MINI_TEST_SPECS_FILE, S3_ROOT_MINI)
+tiered_dataset = get_easyset_expo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
+mini_dataset = get_easyset_expo(MINI_TEST_SPECS_FILE, S3_ROOT_MINI)
 
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",

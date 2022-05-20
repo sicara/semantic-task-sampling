@@ -54,6 +54,9 @@ class EasySetExpo(EasySet):
     def number_of_classes(self):
         return len(self.class_names)
 
+    def __hash__(self):
+        return hash(self.data)
+
 
 def generate_light_easyset(dataset: EasySet, output_dir: Path):
     """

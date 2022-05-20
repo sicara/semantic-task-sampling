@@ -7,10 +7,11 @@ import streamlit as st
 from torchvision import transforms
 
 from src.easyfsl.data_tools import EasySet, EasySemantics
+from src.easyfsl.data_tools.easy_set_light import EasySetExpo
 from st_scripts.st_utils.st_constants import IMAGENET_WORDS_PATH
 
 
-@st.cache()
+@st.experimental_memo
 def get_class_names(specs_file):
     with open(specs_file, "r") as file:
         synset_codes = json.load(file)["class_names"]
@@ -22,7 +23,7 @@ def get_class_names(specs_file):
     return [words[synset] for synset in synset_codes]
 
 
-@st.cache()
+@st.experimental_memo
 def get_easyset(specs_file, image_size=84):
     dataset = EasySet(specs_file, image_size=image_size)
     dataset.transform = transforms.Compose(
@@ -33,7 +34,7 @@ def get_easyset(specs_file, image_size=84):
     return dataset
 
 
-@st.cache()
+@st.experimental_memo
 def get_testbed(testbed_csv, class_names):
     return pd.read_csv(testbed_csv, index_col=0).assign(
         class_name=lambda df: [class_names[label] for label in df.labels]
@@ -56,7 +57,7 @@ def get_graph(easy_set: EasySet):
     )
 
 
-@st.cache()
+@st.experimental_memo
 def build_coarsity_series(testbed):
     return (
         testbed[["task", "variance", "labels"]]
@@ -66,7 +67,7 @@ def build_coarsity_series(testbed):
     )
 
 
-@st.cache()
+@st.experimental_memo
 def build_task_coarsities_df(semantic_testbed, uniform_testbed):
     return pd.DataFrame(
         {
@@ -74,3 +75,8 @@ def build_task_coarsities_df(semantic_testbed, uniform_testbed):
             "with uniform task sampling": build_coarsity_series(uniform_testbed),
         }
     )
+
+
+@st.experimental_memo
+def get_easyset_expo(specs_file, s3_root):
+    return EasySetExpo(specs_file, s3_root)
