@@ -20,7 +20,13 @@ def get_support_images(dataset, task_df):
     ]
 
 
-def plot_task(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names):
+def plot_task(
+    dataset: EasySet,
+    testbed_df: pd.DataFrame,
+    task: int,
+    class_names,
+    display_coarsity=True,
+):
     task_df = testbed_df.loc[lambda df: df.task == task]
 
     support_images = get_support_images(dataset, task_df)
@@ -37,12 +43,13 @@ def plot_task(dataset: EasySet, testbed_df: pd.DataFrame, task: int, class_names
             )
         axes[i].axis("off")
 
-    fig.suptitle(
-        f"Task coarsity: {task_df.variance.mean():.2f}",
-        verticalalignment="bottom",
-        fontsize=7,
-        y=0.35,
-    )
+    if display_coarsity:
+        fig.suptitle(
+            f"Task coarsity: {task_df.variance.mean():.2f}",
+            verticalalignment="bottom",
+            fontsize=7,
+            y=0.35,
+        )
 
     st.pyplot(fig)
 

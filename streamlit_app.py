@@ -106,10 +106,16 @@ st.markdown(WORDINGS["app_conclusion"])
 
 st_divider()
 st.subheader("About me")
-about_cols = st.columns([9, 1])
+about_cols = st.columns([15, 2])
 
 with about_cols[1]:
-    st.image("https://ebennequin.github.io/images/profile.jpeg")
-    st.image(SICARA_LOGO)
+    st.image(
+        "https://ebennequin.github.io/images/profile.jpeg",
+        use_column_width="always",
+    )
+    st.image(
+        SICARA_LOGO,
+        use_column_width="always",
+    )
 with about_cols[0]:
     st.markdown(WORDINGS["about"])

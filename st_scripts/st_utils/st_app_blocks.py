@@ -44,6 +44,7 @@ def draw_uniform_tasks(
                 tiered_uniform_testbed,
                 st.session_state.sampled_task,
                 tiered_class_names,
+                display_coarsity=False,
             )
         else:
             plot_task(
@@ -51,6 +52,7 @@ def draw_uniform_tasks(
                 mini_uniform_testbed,
                 st.session_state.sampled_task,
                 mini_class_names,
+                display_coarsity=False,
             )
         st.markdown(WORDINGS["after_uniform_task"])
 

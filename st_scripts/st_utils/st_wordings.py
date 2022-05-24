@@ -9,7 +9,7 @@ WORDINGS = {
         The standard evaluation process in Few-Shot Learning is to sample hundreds of small few-shot tasks from the test set, 
         compute the accuracy of the model on each task, and report the mean and standard deviation of these accuracies. 
         But **never do we look at the tasks individually**. Only the aggregated results. \n
-        So **what the hell is in these tasks?** Exactly what kind of problem did these hundreds of research papers try to solve? 
+        So **what is *really* in these tasks?** Exactly what kind of problem did these hundreds of research papers try to solve? 
         Does it reflects **real-world problems**?
     """,
     "uniform_tasks": """
@@ -45,7 +45,7 @@ WORDINGS = {
         It seems that when you choose a **low coarsity**, you get a task composed of classes that are **semantically close** to each other.
         For instance, with the lowest coarsity (8.65), you get the task of discriminating between 5 breeds of dogs.
         On the other hand, when you increase the coarsity, the classes seem to get **more distant** from one another. \n
-        An other way to see this distance is **directly on the WordNet graph**. Below you can see the subgraph of WordNet spanned by the classes of *tiered*ImageNet.
+        An other way to see this distance is **directly on the WordNet graph**. Below you can play with the subgraph of WordNet spanned by the classes of *tiered*ImageNet.
         The blue dots are the classes. Highligted in pink, you have the classes that constitute the task you selected.
         Hover any node to see the associated words. \n
         The smaller the coarsity, the closer the classes in the graph.
@@ -65,9 +65,12 @@ WORDINGS = {
         I'm [Etienne Bennequin](https://ebennequin.github.io/) and I'm doing a PhD to try and bridge the gap between 
         academic research in Few-Shot Learning and the industrial applications that we encounter on a daily basis at Sicara. \n
         What's [Sicara](https://www.sicara.fr/), you ask? It's a French company that builds tailored Data Science and Data Engineering solutions for its clients. 
-        In my opinion it's a great place to work and learn about cool stuff like Streamlit, the library I used to build this website in full Python. \n
+        In my opinion it's a great place to work and learn about great tools like Streamlit, the library I used to build this website in full Python. \n
         If what you've seen here, in [the paper](https://arxiv.org/abs/2205.05155), or in [the code](https://github.com/sicara/semantic-task-sampling) 
         interests you, please reach out to me, I'm always trying to learn from other researchers.
+        You can also check out all of the other cool stuffs I'm sharing, like the [EasyFSL](https://github.com/sicara/easy-few-shot-learning)
+        library with ready-to-use code for your Few-Shot Learning research, or 
+        [these video digests](https://youtube.com/playlist?list=PLkFqOjXtmtV6HS6j_6dTOLIEk5SIJXjWs) of my research (in French).
     """,
 }
 

@@ -9,6 +9,8 @@ open-source library for Few-Shot Learning research [EasyFSL](https://github.com/
 If you're having any issue while retrieving the data or checkpoints, or running the experiments, 
 please raise an issue.
 
+Check out the project's dashboard [here](https://github.com/sicara/semantic-task-sampling).
+
 ## Installation
 
 ### Requires
@@ -67,8 +69,9 @@ For Fungi we use the pretrained weights on ImageNet that are directly downloadab
 
 ## Visualize testbeds
 
-We use Streamlit to visualize testbeds.
+Most visualization posted in the papers can be recreated from our Streamlit scripts
+`st_explore_tiered_imagenet.py` and `st_explore_fungi.py`, runnable like this:
 
 ```
- PYTHONPATH=. streamlit run st_scripts/st_explore_testbed.py 
+ PYTHONPATH=. streamlit run st_scripts/st_explore_tiered_imagenet.py 
 ```
