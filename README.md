@@ -9,7 +9,7 @@ open-source library for Few-Shot Learning research [EasyFSL](https://github.com/
 If you're having any issue while retrieving the data or checkpoints, or running the experiments, 
 please raise an issue.
 
-Check out the project's dashboard [here](https://github.com/sicara/semantic-task-sampling).
+Check out the project's dashboard [here](https://share.streamlit.io/sicara/semantic-task-sampling).
 
 ## Installation
 
