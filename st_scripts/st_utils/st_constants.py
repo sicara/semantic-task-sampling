@@ -51,13 +51,13 @@ def set_theme():
     st.markdown(
         f"""
     <style>
-        .appview-container .main .block-container {{
-            width: 1050px;
-            max-width: 90%;
+        .css-168ft4l {{
+            width: 25rem;
         }}
         .stButton {{
             display: flex;
             justify-content: space-around;
+            font-size: 35pt;
         }}
         .css-1h9o3pk {{
             color: {SECONDARY_APP_COLOR};
@@ -69,10 +69,33 @@ def set_theme():
         a:hover {{
             color: {PRIMARY_APP_COLOR};
         }}
-        p {{
+        .block-container .stVerticalBlock p {{
         text-align: justify;
+        }}
+        .math-display {{
+            font-size: 18pt;
         }}
     </style>
     """,
         unsafe_allow_html=True,
     )
+
+
+def set_slide_page():
+    st.set_page_config(
+        page_title="Few-Shot Learning Benchmarks",
+        layout="wide",
+        page_icon=SICARA_LOGO,
+    )
+
+    set_theme()
+
+    st.sidebar.markdown(
+        """
+    **Few-Shot Image Classification Benchmarks are Too Far From Reality: Build Back Better with Semantic Task Sampling** 
+    
+    Etienne Bennequin, Myriam Tami, Antoine Toubhans, Céline Hudelot
+    """
+    )
+
+    # st.sidebar.image(SICARA_LOGO)

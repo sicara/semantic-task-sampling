@@ -26,13 +26,13 @@ def draw_uniform_tasks(
 ):
     buttons_cols = st.columns(2)
     with buttons_cols[0]:
-        if st.button("Draw a task from the test set of tieredImageNet"):
+        if st.button("tieredImageNet"):
             st.session_state.selected_dataset = "tiered"
             st.session_state.sampled_task = random.randint(
                 0, tiered_uniform_testbed.task.max()
             )
     with buttons_cols[1]:
-        if st.button("Draw a task from the test set of miniImageNet"):
+        if st.button("miniImageNet"):
             st.session_state.selected_dataset = "mini"
             st.session_state.sampled_task = random.randint(
                 0, mini_uniform_testbed.task.max()
@@ -54,7 +54,6 @@ def draw_uniform_tasks(
                 mini_class_names,
                 display_coarsity=False,
             )
-        st.markdown(WORDINGS["after_uniform_task"])
 
 
 @st.experimental_memo

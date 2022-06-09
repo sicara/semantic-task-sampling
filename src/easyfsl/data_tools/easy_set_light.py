@@ -15,11 +15,19 @@ class EasySetExpo(EasySet):
     EasySet but we fetch the data from S3 and we don't do any preprocessing of images.
     """
 
-    def __init__(self, specs_file: Union[Path, str], s3_root: str):
+    def __init__(
+        self,
+        specs_file: Union[Path, str],
+        s3_root: str,
+        local: bool = False,
+        local_root: Path = None,
+    ):
         """
         Args:
             specs_file: path to the JSON file needed by EasySet
             s3_root: s3://bucket/prefix/
+            local: use local file system instead of S3
+            local_root: only used if local=True
         """
         specs = self.load_specs(Path(specs_file))
         self.specs_file = specs_file
@@ -29,7 +37,14 @@ class EasySetExpo(EasySet):
         self.fs = s3fs.S3FileSystem(anon=False)
         self.s3_root = s3_root
 
-        self.data = pd.read_csv(self.fs.open(f"{s3_root}test_images_list.csv"))
+        self.local = local
+        self.local_root = local_root
+
+        if self.local:
+            self.data = pd.read_csv(self.local_root / "test_images_list.csv")
+        else:
+            self.data = pd.read_csv(self.fs.open(f"{s3_root}test_images_list.csv"))
+
         self.images = self.data["image_name"].values.tolist()
         self.labels = self.data["label"].values.tolist()
 
@@ -42,8 +57,11 @@ class EasySetExpo(EasySet):
         Returns:
             data sample in the form of a tuple (image, label), where label is an integer.
         """
-        with self.fs.open(f"{self.s3_root}{self.images[item]}") as f:
-            img = Image.open(f).convert("RGB")
+        if self.local:
+            img = Image.open(self.local_root / self.images[item]).convert("RGB")
+        else:
+            with self.fs.open(f"{self.s3_root}{self.images[item]}") as f:
+                img = Image.open(f).convert("RGB")
 
         label = self.labels[item]
 

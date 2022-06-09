@@ -4,6 +4,7 @@ import streamlit as st
 from matplotlib import pyplot as plt
 
 from src.easyfsl.data_tools import EasySet
+from st_scripts.st_utils.st_constants import PRIMARY_APP_COLOR, SECONDARY_APP_COLOR
 
 
 def build_subplots_grid(n_way: int, max_columns: int = 5):
@@ -12,7 +13,7 @@ def build_subplots_grid(n_way: int, max_columns: int = 5):
     )
 
 
-@st.cache
+# @st.cache
 def get_support_images(dataset, task_df):
     return [
         dataset[support_item]
@@ -104,11 +105,14 @@ def plot_coarsities_hist(task_coarsities, xlim=None):
         ax=ax,
         kde=True,
         linewidth=0,
+        color=SECONDARY_APP_COLOR,
+        binwidth=2,
     )
     ax.set_xlabel("coarsity")
     ax.set_ylabel("number of tasks")
     if xlim is not None:
         ax.set_xlim(xlim)
+    ax.set_ylim((0, 800))
     st.pyplot(fig)
 
 
