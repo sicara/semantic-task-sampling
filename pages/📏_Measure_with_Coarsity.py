@@ -1,5 +1,6 @@
 import streamlit as st
 
+from st_scripts.st_utils.st_app_blocks import plot_semantic_graph
 from st_scripts.st_utils.st_constants import set_slide_page
 
 set_slide_page()
@@ -49,3 +50,4 @@ with col1:
 with col2:
     with st.expander("tieredImageNet"):
         st.markdown("*tiered*ImageNet's classes are part of the WordNet graph!")
+        plot_semantic_graph()

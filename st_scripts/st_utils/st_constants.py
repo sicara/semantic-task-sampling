@@ -54,7 +54,12 @@ def set_theme():
         .css-168ft4l {{
             width: 25rem;
         }}
-        .stButton {{
+        .block-container .stButton {{
+            font-size: 10pt;
+            # position: fixed;
+            # bottom: 10px;
+        }}
+        .main .stButton {{
             display: flex;
             justify-content: space-around;
             font-size: 35pt;

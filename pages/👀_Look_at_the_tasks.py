@@ -16,6 +16,8 @@ from st_scripts.st_utils.st_constants import (
     MINI_TEST_SPECS_FILE,
     TESTBEDS_ROOT_DIR,
     set_slide_page,
+    S3_ROOT_TIERED,
+    S3_ROOT_MINI,
 )
 
 set_slide_page()
@@ -25,10 +27,8 @@ set_slide_page()
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
 mini_imagenet_class_names = get_class_names(MINI_TEST_SPECS_FILE)
-tiered_dataset = get_easyset_expo(
-    TIERED_TEST_SPECS_FILE, Path("data/tiered_imagenet/light")
-)
-mini_dataset = get_easyset_expo(MINI_TEST_SPECS_FILE, Path("data/mini_imagenet/light"))
+tiered_dataset = get_easyset_expo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
+mini_dataset = get_easyset_expo(MINI_TEST_SPECS_FILE, S3_ROOT_MINI)
 
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",

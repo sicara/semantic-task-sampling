@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import streamlit as st
-
+import streamlit.components.v1 as components
 from st_scripts.st_utils.data_fetchers import (
     get_testbed,
     get_easyset_expo,
@@ -24,6 +24,7 @@ from st_scripts.st_utils.st_constants import (
     TESTBEDS_ROOT_DIR,
     set_slide_page,
     SEMANTIC_SLIDER_STEP,
+    S3_ROOT_TIERED,
 )
 from st_scripts.st_utils.st_wordings import st_divider
 
@@ -33,9 +34,7 @@ set_slide_page()
 # === FETCH ALL THE DATA WE NEED ===
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
-tiered_dataset = get_easyset_expo(
-    TIERED_TEST_SPECS_FILE, Path("data/tiered_imagenet/light")
-)
+tiered_dataset = get_easyset_expo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
 
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",
@@ -49,18 +48,50 @@ semantic_testbed = get_testbed(
 task_coarsities = build_task_coarsities_df(semantic_testbed, uniform_testbed)
 
 
-# === ACTION ===
+# === NAVIGATION BUTTONS ===
+with st.sidebar:
+    components.html(
+        """
+    <div style="height: 400px"></div>
+    """
+    )
+
 if st.session_state.get("intra_slide_step") is None:
     st.session_state.intra_slide_step = 0
 if st.sidebar.button("<"):
     st.session_state.intra_slide_step = (
-        st.session_state.intra_slide_step - 1
-        if st.session_state.intra_slide_step > 0
-        else 0
+        # st.session_state.intra_slide_step - 1
+        # if st.session_state.intra_slide_step > 0
+        # else
+        0
     )
 if st.sidebar.button(">"):
-    st.session_state.intra_slide_step += 1
+    st.session_state.intra_slide_step = 1
 
+components.html(
+    """
+<script>
+const doc = window.parent.document  // break out of the IFrame
+const left_button = doc.querySelectorAll('button[kind=primary]')[0]
+const right_button = doc.querySelectorAll('button[kind=primary]')[1]
+doc.addEventListener('keyup', function (event) {
+    if (event.key === 'p') {
+        left_button.click()
+    }
+});
+doc.addEventListener('keyup', function (event) {
+    if (event.key === 'n') {
+        right_button.click()
+    }
+});
+</script>
+""",
+    height=0,
+    width=0,
+)
+
+
+# === ACTION ===
 col1, col2 = st.columns([2, 2])
 with col1:
     if st.session_state.intra_slide_step == 0:

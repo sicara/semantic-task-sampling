@@ -92,4 +92,4 @@ def build_task_coarsities_df(semantic_testbed, uniform_testbed):
 
 @st.experimental_memo
 def get_easyset_expo(specs_file, s3_root):
-    return EasySetExpo(specs_file, s3_root, local=True, local_root=s3_root)
+    return EasySetExpo(specs_file, s3_root)

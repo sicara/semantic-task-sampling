@@ -94,8 +94,7 @@ def show_semantic_tasks(semantic_task_coarsities, dataset, testbed, class_names)
     return task
 
 
-def plot_semantic_graph(task, testbed):
-    task_classes = testbed.loc[lambda df: df.task == task].class_name.unique()
+def plot_semantic_graph():
 
     with open(TIERED_GRAPH_PATH, "r") as f:
         graph = json_graph.node_link_graph(json.load(f))
@@ -106,24 +105,24 @@ def plot_semantic_graph(task, testbed):
         if node == "entity":
             colors.append("black")
             sizes.append(22)
-            graph.nodes[node]["color"] = "black"
+            graph.nodes[node]["color"] = SECONDARY_APP_COLOR
             graph.nodes[node]["size"] = 5
         elif graph.out_degree(node) == 0:
-            if node in task_classes:
-                colors.append(PRIMARY_APP_COLOR)
-                graph.nodes[node]["color"] = PRIMARY_APP_COLOR
-                graph.nodes[node]["shape"] = "diamond"
-            else:
-                colors.append(SECONDARY_APP_COLOR)
-                graph.nodes[node]["color"] = SECONDARY_APP_COLOR
+            # if node in task_classes:
+            colors.append(PRIMARY_APP_COLOR)
+            graph.nodes[node]["color"] = PRIMARY_APP_COLOR
+            # graph.nodes[node]["shape"] = "diamond"
+            # else:
+            #     colors.append(SECONDARY_APP_COLOR)
+            #     graph.nodes[node]["color"] = SECONDARY_APP_COLOR
             sizes.append(14)
         else:
             colors.append("black")
             sizes.append(10)
-            graph.nodes[node]["color"] = "black"
+            graph.nodes[node]["color"] = SECONDARY_APP_COLOR
             graph.nodes[node]["size"] = 5
 
-    nt = Network(height="500px", width="100%", bgcolor="#e9f1f7")
+    nt = Network(height="500px", width="100%", bgcolor="white")
     nt.from_nx(graph)
     nt.toggle_physics(False)
     nt.save_graph("graph.html")
