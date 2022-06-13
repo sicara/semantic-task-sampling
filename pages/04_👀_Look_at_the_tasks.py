@@ -39,6 +39,11 @@ mini_testbed = get_testbed(
     class_names=tiered_imagenet_class_names,
 )
 
+
+# === MAKE SLIDE ===
+
+st.header("Uniform sampling of classes makes bizarre tasks")
+
 draw_uniform_tasks(
     uniform_testbed,
     mini_testbed,

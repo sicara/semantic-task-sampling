@@ -1,7 +1,4 @@
-from pathlib import Path
-
 import streamlit as st
-import streamlit.components.v1 as components
 from st_scripts.st_utils.data_fetchers import (
     get_testbed,
     get_easyset_expo,
@@ -10,26 +7,22 @@ from st_scripts.st_utils.data_fetchers import (
 )
 from st_scripts.st_utils.plot_helpers import plot_coarsities_hist, plot_task
 from st_scripts.st_utils.st_app_blocks import (
-    draw_uniform_tasks,
-    show_semantic_tasks,
-    plot_semantic_graph,
     draw_semantic_task,
 )
 
 from st_scripts.st_utils.st_constants import (
-    SICARA_LOGO,
-    set_theme,
     TIERED_TEST_SPECS_FILE,
-    MINI_TEST_SPECS_FILE,
     TESTBEDS_ROOT_DIR,
     set_slide_page,
     SEMANTIC_SLIDER_STEP,
     S3_ROOT_TIERED,
+    navigation_buttons,
 )
 from st_scripts.st_utils.st_wordings import st_divider
 
 set_slide_page()
 
+key = 6
 
 # === FETCH ALL THE DATA WE NEED ===
 
@@ -47,61 +40,21 @@ semantic_testbed = get_testbed(
 
 task_coarsities = build_task_coarsities_df(semantic_testbed, uniform_testbed)
 
-
 # === NAVIGATION BUTTONS ===
-with st.sidebar:
-    components.html(
-        """
-    <div style="height: 400px"></div>
-    """
-    )
 
-if st.session_state.get("intra_slide_step") is None:
-    st.session_state.intra_slide_step = 0
-if st.sidebar.button("<"):
-    st.session_state.intra_slide_step = (
-        # st.session_state.intra_slide_step - 1
-        # if st.session_state.intra_slide_step > 0
-        # else
-        0
-    )
-if st.sidebar.button(">"):
-    st.session_state.intra_slide_step = 1
-
-components.html(
-    """
-<script>
-const doc = window.parent.document  // break out of the IFrame
-const left_button = doc.querySelectorAll('button[kind=primary]')[0]
-const right_button = doc.querySelectorAll('button[kind=primary]')[1]
-doc.addEventListener('keyup', function (event) {
-    if (event.key === 'p') {
-        left_button.click()
-    }
-});
-doc.addEventListener('keyup', function (event) {
-    if (event.key === 'n') {
-        right_button.click()
-    }
-});
-</script>
-""",
-    height=0,
-    width=0,
-)
-
+navigation_buttons(key, n_steps=1)
 
 # === ACTION ===
 col1, col2 = st.columns([2, 2])
 with col1:
-    if st.session_state.intra_slide_step == 0:
+    if st.session_state.intra_slide_step[key] == 0:
         plot_coarsities_hist(
             task_coarsities["with uniform task sampling"], xlim=(5, 100)
         )
     else:
         plot_coarsities_hist(task_coarsities, xlim=(5, 100))
 
-if st.session_state.intra_slide_step > 0:
+if st.session_state.intra_slide_step[key] > 0:
     with col2:
 
         st.subheader("Semantic Task Sampling")

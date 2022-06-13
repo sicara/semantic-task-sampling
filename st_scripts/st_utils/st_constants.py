@@ -7,6 +7,7 @@ import streamlit as st
 # ==== CONSTANTS ====
 
 # - Paths -
+from streamlit.components import v1 as components
 
 TESTBEDS_ROOT_DIR = Path("data/tiered_imagenet/testbeds")
 FUNGI_1_SHOT_TESTBED = Path("data/fungi/testbeds/testbed_uniform_1_shot.csv")
@@ -51,9 +52,9 @@ def set_theme():
     st.markdown(
         f"""
     <style>
-        .css-168ft4l {{
-            width: 25rem;
-        }}
+        # .css-168ft4l {{
+        #     width: 25rem;
+        # }}
         .block-container .stButton {{
             font-size: 10pt;
             # position: fixed;
@@ -104,3 +105,52 @@ def set_slide_page():
     )
 
     # st.sidebar.image(SICARA_LOGO)
+
+
+def navigation_buttons(key, n_steps):
+
+    with st.sidebar:
+        components.html(
+            """
+        <div style="height: 400px"></div>
+        """
+        )
+
+    if st.session_state.get("intra_slide_step") is None:
+        st.session_state.intra_slide_step = {}
+    if st.session_state.intra_slide_step.get(key) is None:
+        st.session_state.intra_slide_step[key] = 0
+    if st.sidebar.button("<"):
+        st.session_state.intra_slide_step[key] = (
+            st.session_state.intra_slide_step[key] - 1
+            if st.session_state.intra_slide_step[key] > 0
+            else 0
+        )
+    if st.sidebar.button(">"):
+        st.session_state.intra_slide_step[key] = (
+            st.session_state.intra_slide_step[key] + 1
+            if st.session_state.intra_slide_step[key] < n_steps
+            else n_steps
+        )
+
+    components.html(
+        """
+    <script>
+    const doc = window.parent.document  // break out of the IFrame
+    const left_button = doc.querySelectorAll('button[kind=primary]')[0]
+    const right_button = doc.querySelectorAll('button[kind=primary]')[1]
+    doc.addEventListener('keyup', function (event) {
+        if (event.key === 'p') {
+            left_button.click()
+        }
+    });
+    doc.addEventListener('keyup', function (event) {
+        if (event.key === 'n') {
+            right_button.click()
+        }
+    });
+    </script>
+    """,
+        height=0,
+        width=0,
+    )

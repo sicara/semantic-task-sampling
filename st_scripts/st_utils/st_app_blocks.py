@@ -55,6 +55,8 @@ def draw_uniform_tasks(
                 display_coarsity=False,
             )
 
+        st.write("These 5 classes are probably not linked in any way.")
+
 
 @st.experimental_memo
 def draw_semantic_task(task_coarsities, input_coarsity):
