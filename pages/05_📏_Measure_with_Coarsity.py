@@ -7,7 +7,7 @@ set_slide_page()
 
 st.title("Measuring the problem")
 
-col1, col2 = st.columns([3, 2])
+col1, col2 = st.columns([12, 12])
 
 with col1:
     with st.expander("Jiang & Conrath", expanded=True):

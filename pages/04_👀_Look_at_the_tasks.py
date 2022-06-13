@@ -18,6 +18,7 @@ from st_scripts.st_utils.st_constants import (
     set_slide_page,
     S3_ROOT_TIERED,
     S3_ROOT_MINI,
+    vertical_space,
 )
 
 set_slide_page()
@@ -42,8 +43,11 @@ mini_testbed = get_testbed(
 
 # === MAKE SLIDE ===
 
+vertical_space(20)
+
 st.header("Uniform sampling of classes makes bizarre tasks")
 
+vertical_space(20)
 draw_uniform_tasks(
     uniform_testbed,
     mini_testbed,

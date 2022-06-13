@@ -57,7 +57,7 @@ with col1:
 if st.session_state.intra_slide_step[key] > 0:
     with col2:
 
-        st.subheader("Semantic Task Sampling")
+        st.header("Semantic Task Sampling")
         st.markdown(
             r"""
         Classes $$i$$ and $$j$$ are co-sampled in a task with a probability proportional to their potential:

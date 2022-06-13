@@ -55,6 +55,9 @@ def set_theme():
         # .css-168ft4l {{
         #     width: 25rem;
         # }}
+        .main .block-container {{
+            padding-top: 30px;
+        }}
         .block-container .stButton {{
             font-size: 10pt;
             # position: fixed;
@@ -76,7 +79,14 @@ def set_theme():
             color: {PRIMARY_APP_COLOR};
         }}
         .block-container .stVerticalBlock p {{
-        text-align: justify;
+            text-align: justify;
+        }}
+        .main p {{
+            font-size: 20pt;
+        }}
+        .streamlit-expanderHeader {{
+            font-weight: bold;
+            font-size: 20pt;
         }}
         .math-display {{
             font-size: 18pt;
@@ -107,14 +117,19 @@ def set_slide_page():
     # st.sidebar.image(SICARA_LOGO)
 
 
+def vertical_space(height):
+    components.html(
+        f"""
+    <div style="height: {height}px"></div>
+    """,
+        height=height,
+    )
+
+
 def navigation_buttons(key, n_steps):
 
     with st.sidebar:
-        components.html(
-            """
-        <div style="height: 400px"></div>
-        """
-        )
+        vertical_space(100)
 
     if st.session_state.get("intra_slide_step") is None:
         st.session_state.intra_slide_step = {}
@@ -133,24 +148,25 @@ def navigation_buttons(key, n_steps):
             else n_steps
         )
 
-    components.html(
-        """
-    <script>
-    const doc = window.parent.document  // break out of the IFrame
-    const left_button = doc.querySelectorAll('button[kind=primary]')[0]
-    const right_button = doc.querySelectorAll('button[kind=primary]')[1]
-    doc.addEventListener('keyup', function (event) {
-        if (event.key === 'p') {
-            left_button.click()
-        }
-    });
-    doc.addEventListener('keyup', function (event) {
-        if (event.key === 'n') {
-            right_button.click()
-        }
-    });
-    </script>
-    """,
-        height=0,
-        width=0,
-    )
+    with st.sidebar:
+        components.html(
+            """
+        <script>
+        const doc = window.parent.document  // break out of the IFrame
+        const left_button = doc.querySelectorAll('button[kind=primary]')[0]
+        const right_button = doc.querySelectorAll('button[kind=primary]')[1]
+        doc.addEventListener('keyup', function (event) {
+            if (event.key === 'p') {
+                left_button.click()
+            }
+        });
+        doc.addEventListener('keyup', function (event) {
+            if (event.key === 'n') {
+                right_button.click()
+            }
+        });
+        </script>
+        """,
+            height=0,
+            width=0,
+        )

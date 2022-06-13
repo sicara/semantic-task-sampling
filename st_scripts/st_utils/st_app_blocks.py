@@ -55,7 +55,8 @@ def draw_uniform_tasks(
                 display_coarsity=False,
             )
 
-        st.write("These 5 classes are probably not linked in any way.")
+        with st.expander("Is there any link between these 5 classes?"):
+            st.markdown("No (with a high probability).")
 
 
 @st.experimental_memo
