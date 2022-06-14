@@ -9,7 +9,7 @@ from st_scripts.st_utils.data_fetchers import (
     get_class_names,
     build_task_coarsities_df,
 )
-from st_scripts.st_utils.plot_helpers import plot_coarsities_hist, plot_task
+from st_scripts.st_utils.plot_helpers import plot_coarsities_hist, plot_task, render_svg
 from st_scripts.st_utils.st_app_blocks import (
     draw_semantic_task,
 )
@@ -31,13 +31,7 @@ key = 7
 
 navigation_buttons(key, n_steps=1)
 
-st.image(
-    f"slides_images/07_{st.session_state.intra_slide_step[key]}.png",
-    use_column_width="always",
-)
-
-
-# === ACTION ===
+render_svg(f"slides_images/07_{st.session_state.intra_slide_step[key]}.svg")
 
 
 def plot_results_as_heatmap(results_csv="slides_images/results.csv"):

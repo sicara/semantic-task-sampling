@@ -1,3 +1,7 @@
+import base64
+from pathlib import Path
+from typing import Union
+
 import pandas as pd
 import seaborn as sns
 import streamlit as st
@@ -152,3 +156,13 @@ def plot_occurrences_comparison(occurrences_df):
         labelbottom=False,
     )  # labels along the bottom edge are off
     st.pyplot(fig)
+
+
+def render_svg(src: Union[Path, str]):
+
+    with open(src, "r") as f:
+        lines = f.readlines()
+        svg = "".join(lines)
+    b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
+    st.write(html, unsafe_allow_html=True)

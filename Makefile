@@ -1,5 +1,5 @@
 black:
-		black src st_scripts streamlit_app.py
+		black src st_scripts 🎷_Hello.py pages
 
 make install:
 		sudo apt-get install graphviz graphviz-dev libpython3.8-dev
