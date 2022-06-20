@@ -1,15 +1,33 @@
+import pandas as pd
 import streamlit as st
 
+from st_scripts.st_utils.data_fetchers import (
+    get_testbed,
+    get_easyset_expo,
+    get_class_names,
+)
 from st_scripts.st_utils.st_app_blocks import plot_semantic_graph
 from st_scripts.st_utils.st_constants import set_slide_page
+
+from st_scripts.st_utils.st_constants import (
+    SICARA_LOGO,
+    set_theme,
+    TIERED_TEST_SPECS_FILE,
+    MINI_TEST_SPECS_FILE,
+    TESTBEDS_ROOT_DIR,
+    set_slide_page,
+    S3_ROOT_TIERED,
+    S3_ROOT_MINI,
+    vertical_space,
+)
 
 set_slide_page()
 
 st.title("Measuring the problem")
 
-col1, col2 = st.columns([12, 12])
+jiang_coloumn, coarsity_column = st.columns([12, 10])
 
-with col1:
+with jiang_coloumn:
     with st.expander("Jiang & Conrath", expanded=True):
         st.markdown(
             """
@@ -31,6 +49,8 @@ with col1:
         """
         )
 
+
+with coarsity_column:
     with st.expander("Coarsity", expanded=False):
         st.markdown(
             r"""
@@ -47,7 +67,29 @@ with col1:
         """
         )
 
-with col2:
-    with st.expander("tieredImageNet"):
-        st.markdown("*tiered*ImageNet's classes are part of the WordNet graph!")
+with st.expander("tieredImageNet"):
+    st.markdown("*tiered*ImageNet's classes are part of the WordNet graph!")
+    graph_column, distances_column = st.columns([3, 3])
+    with graph_column:
         plot_semantic_graph()
+
+    with distances_column:
+        vertical_space(45)
+
+        st.latex(
+            r"""
+            D^{JC}(\textcolor{red}{hotdog}, \textcolor{blue}{cheeseburger}) = 1.39 \\
+        """
+        )
+        vertical_space(25)
+        st.latex(
+            r"""
+            D^{JC}(\textcolor{red}{hotdog}, \textcolor{green}{guacamole}) = 6.06 \\
+        """
+        )
+        vertical_space(25)
+        st.latex(
+            r"""
+            D^{JC}(\textcolor{red}{hotdog}, \textcolor{gold}{goldfish}) = 10.13 \\
+        """
+        )

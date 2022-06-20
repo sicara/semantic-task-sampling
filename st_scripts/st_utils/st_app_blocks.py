@@ -110,6 +110,22 @@ def plot_semantic_graph():
             sizes.append(22)
             graph.nodes[node]["color"] = SECONDARY_APP_COLOR
             graph.nodes[node]["size"] = 5
+        elif node == "hotdog":
+            colors.append("red")
+            graph.nodes[node]["color"] = "red"
+            sizes.append(14)
+        elif node == "cheeseburger":
+            colors.append("blue")
+            graph.nodes[node]["color"] = "blue"
+            sizes.append(14)
+        elif node == "guacamole":
+            colors.append("green")
+            graph.nodes[node]["color"] = "green"
+            sizes.append(14)
+        elif node == "goldfish":
+            colors.append("gold")
+            graph.nodes[node]["color"] = "gold"
+            sizes.append(14)
         elif graph.out_degree(node) == 0:
             # if node in task_classes:
             colors.append(PRIMARY_APP_COLOR)
