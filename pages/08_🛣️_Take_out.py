@@ -28,7 +28,9 @@ if st.session_state.intra_slide_step[key] > 0:
 
 if st.session_state.intra_slide_step[key] > 1:
     st_divider()
-    st.markdown("⏭️ **Next step:** look at the chosen examples")
+    st.markdown(
+        "⏭️ **Next step:** measure the impact of the labeled examples on the task difficulty"
+    )
     st.image(
         "slides_images/08.png",
         use_column_width="always",
