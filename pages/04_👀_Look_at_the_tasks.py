@@ -19,17 +19,27 @@ from st_scripts.st_utils.st_constants import (
     S3_ROOT_TIERED,
     S3_ROOT_MINI,
     vertical_space,
+    LOCAL_ROOT_TIERED,
+    LOCAL_ROOT_MINI,
 )
 
 set_slide_page()
 
+USE_S3 = True
 
 # === FETCH ALL THE DATA WE NEED ===
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
 mini_imagenet_class_names = get_class_names(MINI_TEST_SPECS_FILE)
-tiered_dataset = get_easyset_expo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
-mini_dataset = get_easyset_expo(MINI_TEST_SPECS_FILE, S3_ROOT_MINI)
+tiered_dataset = get_easyset_expo(
+    TIERED_TEST_SPECS_FILE,
+    S3_ROOT_TIERED,
+    local=not USE_S3,
+    local_root=LOCAL_ROOT_TIERED,
+)
+mini_dataset = get_easyset_expo(
+    MINI_TEST_SPECS_FILE, S3_ROOT_MINI, local=not USE_S3, local_root=LOCAL_ROOT_MINI
+)
 
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",

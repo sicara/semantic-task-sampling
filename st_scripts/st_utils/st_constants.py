@@ -20,6 +20,9 @@ TIERED_GRAPH_PATH = Path("data/tiered_imagenet/specs/semantic_graph.json")
 S3_ROOT_MINI = "s3://thesis-etienne/mini_light/"
 S3_ROOT_TIERED = "s3://thesis-etienne/tiered_light/"
 
+LOCAL_ROOT_MINI = Path("data/mini_imagenet/light")
+LOCAL_ROOT_TIERED = Path("data/tiered_imagenet/light")
+
 # - Theme -
 
 PRIMARY_APP_COLOR = "#f56cd5"

@@ -17,17 +17,24 @@ from st_scripts.st_utils.st_constants import (
     SEMANTIC_SLIDER_STEP,
     S3_ROOT_TIERED,
     navigation_buttons,
+    LOCAL_ROOT_TIERED,
 )
 from st_scripts.st_utils.st_wordings import st_divider
 
 set_slide_page()
 
 key = 6
+USE_S3 = True
 
 # === FETCH ALL THE DATA WE NEED ===
 
 tiered_imagenet_class_names = get_class_names(TIERED_TEST_SPECS_FILE)
-tiered_dataset = get_easyset_expo(TIERED_TEST_SPECS_FILE, S3_ROOT_TIERED)
+tiered_dataset = get_easyset_expo(
+    TIERED_TEST_SPECS_FILE,
+    S3_ROOT_TIERED,
+    local=not USE_S3,
+    local_root=LOCAL_ROOT_TIERED,
+)
 
 uniform_testbed = get_testbed(
     TESTBEDS_ROOT_DIR / "testbed_uniform_1_shot_expo.csv",
