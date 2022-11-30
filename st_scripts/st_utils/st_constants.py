@@ -138,13 +138,13 @@ def navigation_buttons(key, n_steps):
         st.session_state.intra_slide_step = {}
     if st.session_state.intra_slide_step.get(key) is None:
         st.session_state.intra_slide_step[key] = 0
-    if st.sidebar.button("<"):
+    if st.sidebar.button(" < "):
         st.session_state.intra_slide_step[key] = (
             st.session_state.intra_slide_step[key] - 1
             if st.session_state.intra_slide_step[key] > 0
             else 0
         )
-    if st.sidebar.button(">"):
+    if st.sidebar.button(" > "):
         st.session_state.intra_slide_step[key] = (
             st.session_state.intra_slide_step[key] + 1
             if st.session_state.intra_slide_step[key] < n_steps
@@ -156,8 +156,8 @@ def navigation_buttons(key, n_steps):
             """
         <script>
         const doc = window.parent.document  // break out of the IFrame
-        const left_button = doc.querySelectorAll('button[kind=primary]')[0]
-        const right_button = doc.querySelectorAll('button[kind=primary]')[1]
+        const left_button = doc.querySelectorAll('button[kind=secondary]')[0]
+        const right_button = doc.querySelectorAll('button[kind=secondary]')[1]
         doc.addEventListener('keyup', function (event) {
             if (event.key === 'p') {
                 left_button.click()
