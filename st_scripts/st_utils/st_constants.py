@@ -132,19 +132,19 @@ def vertical_space(height):
 def navigation_buttons(key, n_steps):
 
     with st.sidebar:
-        vertical_space(100)
+        vertical_space(80)
 
     if st.session_state.get("intra_slide_step") is None:
         st.session_state.intra_slide_step = {}
     if st.session_state.intra_slide_step.get(key) is None:
         st.session_state.intra_slide_step[key] = 0
-    if st.sidebar.button(" < "):
+    if st.sidebar.button("Previous"):
         st.session_state.intra_slide_step[key] = (
             st.session_state.intra_slide_step[key] - 1
             if st.session_state.intra_slide_step[key] > 0
             else 0
         )
-    if st.sidebar.button(" > "):
+    if st.sidebar.button("Next"):
         st.session_state.intra_slide_step[key] = (
             st.session_state.intra_slide_step[key] + 1
             if st.session_state.intra_slide_step[key] < n_steps
